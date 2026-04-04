@@ -26,13 +26,25 @@ if not st.session_state.auth:
 # =========================
 st.title("🚗 VELIORA Cotation Pro")
 
-# Infos véhicule
-marque = st.selectbox("Marque", ["Peugeot", "Renault", "BMW", "Audi", "Mercedes"])
-modele = st.text_input("Modèle", "308")
-finition = st.text_input("Finition", "Allure")
+# ===== MARQUE =====
+marques = ["Peugeot", "Renault", "BMW", "Audi", "Mercedes", "Volkswagen", "Toyota", "Autre"]
+marque_select = st.selectbox("Marque", marques)
 
+if marque_select == "Autre":
+    marque = st.text_input("Saisir la marque")
+else:
+    marque = marque_select
+
+# ===== MODELE =====
+modele = st.text_input("Modèle (ou saisie libre)", "308")
+
+# ===== FINITION =====
+finition = st.text_input("Finition (ou saisie libre)", "Allure")
+
+# ===== DATE =====
 date_mec = st.date_input("Date mise en circulation")
 
+# ===== KM =====
 km = st.number_input("Kilométrage", 0, 300000, 50000)
 
 # =========================
@@ -43,26 +55,28 @@ if st.button("Calculer la cotation"):
         annee_actuelle = datetime.now().year
         age = annee_actuelle - date_mec.year
 
-        # 💰 Valeur de base selon marque
+        # 💰 Base par marque
         base_prix = {
             "Peugeot": 22000,
             "Renault": 21000,
             "BMW": 35000,
             "Audi": 36000,
-            "Mercedes": 40000
+            "Mercedes": 40000,
+            "Volkswagen": 28000,
+            "Toyota": 27000
         }
 
         valeur_neuve = base_prix.get(marque, 25000)
 
-        # 📉 Décote annuelle
+        # 📉 Décote
         valeur = valeur_neuve * (0.85 ** age)
 
-        # 🚗 Ajustement kilométrique
+        # 🚗 Ajustement km
         km_moyen = age * 15000
         ecart_km = km - km_moyen
         valeur -= ecart_km * 0.05
 
-        # ⭐ Bonus finition
+        # ⭐ Finition
         finition_lower = finition.lower()
 
         if "gt" in finition_lower or "sport" in finition_lower:
@@ -70,7 +84,7 @@ if st.button("Calculer la cotation"):
         elif "base" in finition_lower:
             valeur *= 0.9
 
-        # 🔎 Affichage
+        # 📊 Résultat
         st.subheader("📊 Résultat")
 
         st.write(f"**Véhicule :** {marque} {modele} {finition}")
