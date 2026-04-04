@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+import webbrowser
 
 # =========================
 # CONFIG
@@ -13,15 +14,8 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 st.markdown("""
 <style>
-.main {
-    background-color: #f5f7fb;
-}
-
-h1 {
-    color: #1f2c56;
-    font-weight: 700;
-}
-
+.main {background-color: #f5f7fb;}
+h1 {color: #1f2c56; font-weight: 700;}
 .section {
     background-color: white;
     padding: 20px;
@@ -29,11 +23,6 @@ h1 {
     box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
     margin-bottom: 20px;
 }
-
-.stTextInput input, .stNumberInput input {
-    border-radius: 10px !important;
-}
-
 .stButton button {
     background-color: #1f77ff;
     color: white;
@@ -42,10 +31,6 @@ h1 {
     font-size: 18px;
     font-weight: bold;
     width: 100%;
-}
-
-.stButton button:hover {
-    background-color: #155edc;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -130,7 +115,7 @@ with col2:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# KILOMETRAGE (PLACÉ AVANT VENDEUR)
+# KM
 # =========================
 
 st.markdown('<div class="section">', unsafe_allow_html=True)
@@ -155,49 +140,79 @@ vendeur = st.text_input("Nom vendeur")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# CALCUL
+# COTATION CALCULÉE
 # =========================
 
 st.markdown('<div class="section">', unsafe_allow_html=True)
 
-st.subheader("💰 Résultat")
+st.subheader("💰 Cotation estimée (théorique)")
 
-if st.button("Calculer la cotation"):
+if st.button("Calculer estimation"):
 
-    try:
-        age = datetime.now().year - annee + (datetime.now().month - mois)/12
+    age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
-        base = 20000
+    base = 18000
+    valeur = base * (0.78 ** age)
 
-        decote_age = base * 0.08 * age
+    km_moyen = age * 15000
+    valeur -= (km - km_moyen) * 0.07
 
-        km_moyen = age * 15000
-        decote_km = (km - km_moyen) * 0.05
+    if carburant == "Diesel":
+        valeur *= 0.9
+    elif carburant == "Hybride":
+        valeur *= 1.05
+    elif carburant == "Électrique":
+        valeur *= 1.08
 
-        # carburant
-        bonus_carburant = 0
-        if carburant == "Électrique":
-            bonus_carburant = 2000
-        elif carburant == "Hybride":
-            bonus_carburant = 1000
-        elif carburant == "Diesel":
-            bonus_carburant = -500
+    if boite == "Automatique":
+        valeur *= 1.03
 
-        # boîte
-        bonus_boite = 0
-        if boite == "Automatique":
-            bonus_boite = 800
+    st.info(f"💰 Estimation : {int(valeur)} €")
 
-        # permis
-        bonus_permis = 0
-        if permis == "Sans permis":
-            bonus_permis = -3000
+st.markdown('</div>', unsafe_allow_html=True)
 
-        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite + bonus_permis
+# =========================
+# COTE MARCHE REEL
+# =========================
 
-        st.success(f"💰 Valeur estimée : {int(resultat)} €")
+st.markdown('<div class="section">', unsafe_allow_html=True)
 
-    except Exception as e:
-        st.error(f"Erreur : {e}")
+st.subheader("📊 Cote marché réel (particulier)")
+
+if st.button("🔎 Voir annonces marché"):
+
+    recherche = f"{marque} {modele} {annee}"
+    url = f"https://www.leboncoin.fr/recherche?text={recherche}"
+    webbrowser.open_new_tab(url)
+
+st.write("➡️ Renseigne 3 à 5 prix observés")
+
+prix1 = st.number_input("Prix 1", 0, 100000, 0)
+prix2 = st.number_input("Prix 2", 0, 100000, 0)
+prix3 = st.number_input("Prix 3", 0, 100000, 0)
+prix4 = st.number_input("Prix 4", 0, 100000, 0)
+prix5 = st.number_input("Prix 5", 0, 100000, 0)
+
+if st.button("Calculer cote marché réelle"):
+
+    prix_list = [p for p in [prix1, prix2, prix3, prix4, prix5] if p > 0]
+
+    if len(prix_list) >= 3:
+        prix_list.sort()
+
+        if len(prix_list) > 3:
+            prix_list = prix_list[1:-1]
+
+        moyenne = int(sum(prix_list) / len(prix_list))
+
+        bas = int(moyenne * 0.9)
+        haut = int(moyenne * 1.1)
+
+        st.success(f"💰 Prix marché réel : {moyenne} €")
+        st.info(f"📉 Bas : {bas} €")
+        st.info(f"📈 Haut : {haut} €")
+
+    else:
+        st.error("Ajoute au moins 3 prix")
 
 st.markdown('</div>', unsafe_allow_html=True)
