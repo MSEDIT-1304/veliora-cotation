@@ -1,131 +1,82 @@
 import streamlit as st
 from datetime import datetime
 
+# CONFIG
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 PASSWORD = "veliora2026"
 
-# =========================
-# 🔐 LOGIN
-# =========================
+# SESSION
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+# =========================
+# 🔐 PAGE DE CONNEXION
+# =========================
 if not st.session_state.auth:
+
     st.title("🔒 VELIORA COTATION PRO")
+
     pwd = st.text_input("Mot de passe", type="password")
 
-    if pwd == PASSWORD:
-        st.session_state.auth = True
+    if st.button("Se connecter"):
+        if pwd == PASSWORD:
+            st.session_state.auth = True
+            st.rerun()
+        else:
+            st.error("Mot de passe incorrect")
 
     st.stop()
 
 # =========================
-# 🚗 BASE MARQUES / MODELES
+# 🚗 APPLICATION PRINCIPALE
 # =========================
-data = {
-    "Peugeot": ["208", "308", "3008", "5008"],
-    "Renault": ["Clio", "Megane", "Captur", "Kadjar"],
-    "BMW": ["Serie 1", "Serie 3", "X1", "X3"],
-    "Audi": ["A1", "A3", "A4", "Q3", "Q5"],
-    "Mercedes": ["Classe A", "Classe C", "GLA", "GLC"],
-    "Volkswagen": ["Golf", "Polo", "Tiguan", "Passat"],
-    "Toyota": ["Yaris", "Corolla", "RAV4"]
-}
 
-# =========================
-# 🧾 INTERFACE VENDEUR
-# =========================
-st.title("🚗 VELIORA Cotation Vendeur")
+st.title("🚗 VELIORA Cotation Pro")
 
-col1, col2 = st.columns(2)
+# --- Infos véhicule
+marque = st.text_input("Marque")
+modele = st.text_input("Modèle")
+finition = st.text_input("Finition")
 
-with col1:
-    marque_select = st.selectbox("Marque", list(data.keys()) + ["Autre"])
+date_mec = st.date_input("Date de mise en circulation")
+km = st.number_input("Kilométrage", 0, 300000, 50000)
 
-    if marque_select == "Autre":
-        marque = st.text_input("Marque libre")
-        modele = st.text_input("Modèle")
-    else:
-        marque = marque_select
-        modele_select = st.selectbox("Modèle", data[marque] + ["Autre"])
+st.markdown("---")
 
-        if modele_select == "Autre":
-            modele = st.text_input("Modèle libre")
-        else:
-            modele = modele_select
+# --- Calcul
+if st.button("Calculer la cotation"):
 
-    finition = st.text_input("Finition", "Allure")
+    try:
+        annee = date_mec.year
+        age = datetime.now().year - annee
 
-with col2:
-    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Electrique"])
-    date_mec = st.date_input("Mise en circulation")
-    km = st.number_input("Kilométrage", 0, 300000, 50000)
+        # base simple (tu pourras améliorer après)
+        base = 20000
+
+        # décote âge
+        decote_age = base * 0.08 * age
+
+        # décote km
+        km_moyen = age * 15000
+        decote_km = (km - km_moyen) * 0.05
+
+        resultat = base - decote_age - decote_km
+
+        st.success(f"💰 Valeur estimée : {int(resultat)} €")
+
+    except:
+        st.error("Erreur dans les données")
 
 # =========================
-# 💰 CALCUL VENDEUR
+# 👤 MODE PRO VENDEUR
 # =========================
-if st.button("🔍 Calculer la valeur"):
 
-    annee_actuelle = datetime.now().year
-    age = annee_actuelle - date_mec.year
+st.markdown("---")
+st.subheader("👤 Mode vendeur")
 
-    # Base prix par gamme marque
-    base_prix = {
-        "Peugeot": 22000,
-        "Renault": 21000,
-        "Volkswagen": 28000,
-        "Toyota": 27000,
-        "BMW": 35000,
-        "Audi": 36000,
-        "Mercedes": 40000
-    }
+nom = st.text_input("Nom client")
+email = st.text_input("Email")
 
-    valeur_neuve = base_prix.get(marque, 25000)
-
-    # Décote pro (plus réaliste)
-    valeur = valeur_neuve * (0.82 ** age)
-
-    # Ajustement kilométrique
-    km_moyen = age * 15000
-    valeur -= (km - km_moyen) * 0.06
-
-    # Ajustement carburant
-    if carburant == "Diesel":
-        valeur *= 0.95
-    elif carburant == "Hybride":
-        valeur *= 1.05
-    elif carburant == "Electrique":
-        valeur *= 1.1
-
-    # Ajustement finition
-    f = finition.lower()
-    if "sport" in f or "gt" in f:
-        valeur *= 1.1
-    elif "base" in f:
-        valeur *= 0.9
-
-    # Encadrement vendeur (prix mini / max)
-    prix_bas = int(valeur * 0.9)
-    prix_haut = int(valeur * 1.1)
-
-    # =========================
-    # 📊 AFFICHAGE PRO
-    # =========================
-    st.markdown("---")
-    st.subheader("📊 Résultat de cotation")
-
-    st.write(f"**Véhicule :** {marque} {modele} {finition}")
-    st.write(f"**Carburant :** {carburant}")
-    st.write(f"**Âge :** {age} ans")
-    st.write(f"**Kilométrage :** {km} km")
-
-    st.success(f"💰 Prix conseillé : {int(valeur)} €")
-
-    st.info(f"💸 Fourchette de vente : {prix_bas} € → {prix_haut} €")
-
-    # Conseil vendeur
-    if km > km_moyen:
-        st.warning("⚠️ Kilométrage supérieur à la moyenne")
-    else:
-        st.success("✔️ Kilométrage cohérent")
+if st.button("Générer fiche client"):
+    st.info(f"Fiche créée pour {nom}")
