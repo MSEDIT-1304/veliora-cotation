@@ -1,29 +1,140 @@
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, timedelta
+import json
+import os
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# ---------------- PASSWORD ----------------
-PASSWORD = "veliora2026"
+# 🔥 CONFIG
+PAYMENT_LINK = "https://ton-lien-stripe.com"
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "change_ce_mdp"
 
+FILE_PATH = "users.json"
+
+# ---------------- LOAD USERS ----------------
+def load_users():
+    if not os.path.exists(FILE_PATH):
+        with open(FILE_PATH, "w") as f:
+            json.dump({}, f)
+    with open(FILE_PATH, "r") as f:
+        return json.load(f)
+
+def save_users(data):
+    with open(FILE_PATH, "w") as f:
+        json.dump(data, f)
+
+users = load_users()
+
+# 🔥 ADMIN PROTECTION
+users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
+save_users(users)
+
+# ---------------- CREATE TRIAL ----------------
+def create_trial_user(username, password):
+    users = load_users()
+    users[username] = {
+        "password": password,
+        "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+        "trial": True
+    }
+    save_users(users)
+
+# ---------------- CHECK ----------------
+def check_access(user):
+    if user["expire"] is None:
+        return True, None
+
+    expire_date = datetime.strptime(user["expire"], "%Y-%m-%d")
+    today = datetime.now()
+
+    if today > expire_date:
+        return False, "expired"
+
+    if expire_date - today <= timedelta(days=2):
+        return True, "warning"
+
+    return True, None
+
+# ---------------- AUTH ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.title("🔐 VELIORA COTATION PRO")
-    pwd = st.text_input("Mot de passe", type="password")
 
-    if pwd == PASSWORD:
-        st.session_state.auth = True
-        st.rerun()
+    st.title("🔐 Accès Veliora Pro")
+
+    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
+
+    # -------- LOGIN --------
+    with tab1:
+        username = st.text_input("Utilisateur")
+        password = st.text_input("Mot de passe", type="password")
+
+        if st.button("Se connecter"):
+
+            users = load_users()
+
+            # ADMIN
+            if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+                st.session_state.auth = True
+                st.session_state.user = username
+                st.rerun()
+
+            # USER
+            if username in users and users[username]["password"] == password:
+
+                valid, status = check_access(users[username])
+
+                if not valid:
+                    st.error("⛔ Accès expiré")
+
+                    if users[username].get("trial", False):
+                        st.warning("🎯 Votre essai gratuit est terminé")
+                    else:
+                        st.warning("💳 Abonnement expiré")
+
+                    st.markdown(f"[👉 S'abonner maintenant]({PAYMENT_LINK})")
+                    st.stop()
+
+                if status == "warning":
+                    st.warning("⚠️ Votre accès expire bientôt")
+
+                st.session_state.auth = True
+                st.session_state.user = username
+                st.rerun()
+
+            else:
+                st.error("❌ Identifiants incorrects")
+
+    # -------- FREE TRIAL --------
+    with tab2:
+        st.markdown("### 🎁 Essai gratuit 7 jours")
+
+        new_user = st.text_input("Choisir un identifiant")
+        new_pass = st.text_input("Choisir un mot de passe", type="password")
+
+        if st.button("Créer mon accès gratuit"):
+
+            users = load_users()
+
+            if new_user in users:
+                st.error("Utilisateur déjà existant")
+            else:
+                create_trial_user(new_user, new_pass)
+                st.success("✅ Compte créé ! Connectez-vous")
 
     st.stop()
 
-# ---------------- HEADER ----------------
+# ---------------- APP ----------------
+
+st.write(f"👤 Connecté : {st.session_state.user}")
+
 st.title("🚗 VELIORA COTATION PRO")
+
 st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-# ---------------- MARQUES ----------------
+# ---------------- FORM ----------------
 marques_list = [
     "Audi", "BMW", "Citroën", "Dacia", "Fiat", "Ford", "Honda", "Hyundai",
     "Kia", "Mazda", "Mercedes", "Mini", "Nissan", "Opel", "Peugeot",
@@ -31,176 +142,58 @@ marques_list = [
     "Alfa Romeo", "Jeep", "Land Rover", "Porsche", "Tesla"
 ]
 
-# ---------------- FORM ----------------
-st.markdown("### 🔎 Informations véhicule")
-
-marque = st.selectbox("Marque (tu peux taper pour rechercher)", marques_list)
+marque = st.selectbox("Marque", marques_list)
 modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
+finition = st.text_input("Finition")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    finition = st.text_input("Finition")
-    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
-
-with col2:
-    motorisation = st.text_input("Motorisation")
-    boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
-
+carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-# ---------------- DATE ----------------
-st.markdown("### 📅 Date de première mise en circulation")
-
-annee = st.number_input("Année (ex: 2019)", 1990, datetime.now().year, 2019)
-mois = st.number_input("Mois (1-12)", 1, 12, 1)
-
-# ---------------- KM ----------------
-km = st.number_input("Kilométrage (tu peux taper directement)", 0, 400000, 90000)
-
-# ---------------- OPTIONS COMPLETES ----------------
-options = st.multiselect(
-    "Options du véhicule",
-    [
-        "Jantes alliage",
-        "GPS / Navigation",
-        "Caméra de recul",
-        "Radar de recul",
-        "Radar avant",
-        "Sièges chauffants avant",
-        "Sièges chauffants avant + arrière",
-        "Sièges électriques",
-        "Sellerie cuir",
-        "Toit ouvrant",
-        "Toit panoramique",
-        "Feux LED / Xénon",
-        "Régulateur de vitesse",
-        "Régulateur adaptatif",
-        "Limiteur de vitesse",
-        "Bluetooth",
-        "Android Auto / Apple CarPlay",
-        "Climatisation automatique",
-        "Climatisation bizone",
-        "Accès / démarrage sans clé",
-        "Hayon électrique",
-        "Attelage",
-        "Aide au stationnement",
-        "Caméra 360",
-        "Système audio premium"
-    ]
-)
-
-# ---------------- ESTIMATION ----------------
-st.markdown("## 💰 Estimation")
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - int(annee)
-    modele_lower = modele.lower()
-    marque_lower = marque.lower()
+    base = 15000
 
-    # ---------------- BASE PAR MODELE ----------------
-    base = 12000
-
-    if "tiguan" in modele_lower:
-        base = 26000
-    elif "308" in modele_lower:
-        base = 16000
-    elif "clio" in modele_lower:
-        base = 14000
-    elif "208" in modele_lower:
-        base = 15000
-    elif "cla" in modele_lower:
-        base = 28000
-
-    # ---------------- PREMIUM ----------------
-    if marque_lower in ["mercedes", "bmw", "audi"]:
-        base += 3000
-
-    if marque_lower in ["porsche", "tesla"]:
+    if marque.lower() in ["mercedes", "bmw", "audi"]:
         base += 8000
 
-    # ---------------- TYPE VEHICULE ----------------
-    if "suv" in modele_lower or "tiguan" in modele_lower:
-        base += 3000
+    if "tiguan" in modele.lower():
+        base = 26000
 
-    if "coup" in modele_lower or "cla" in modele_lower:
-        base += 2500
+    if "cla" in modele.lower():
+        base = 28000
 
-    # ---------------- FINITION ----------------
     if "amg" in finition.lower():
         base += 4000
 
-    if "gt" in finition.lower() or "rs" in finition.lower():
-        base += 5000
-
-    # ---------------- BOITE ----------------
     if boite == "Automatique":
         base += 1500
 
-    # ---------------- CARBURANT ----------------
     if carburant == "Diesel":
         base += 800
 
-    if carburant == "Hybride":
-        base += 2000
-
-    if carburant == "Électrique":
-        base += 4000
-
-    # ---------------- PORTES ----------------
     if portes <= 3:
         base += 500
-
     if portes >= 5:
         base += 300
 
-    # ---------------- AGE ----------------
     base -= age * 1200
 
-    # ---------------- KM ----------------
     if km > 80000:
         base -= 1000
-
-    if km > 120000:
-        base -= 2000
-
-    # ---------------- OPTIONS INTELLIGENTES ----------------
-    bonus = 0
-
-    for opt in options:
-        if opt in ["Sellerie cuir", "Toit panoramique", "Caméra 360", "Système audio premium"]:
-            bonus += 500
-        elif opt in ["GPS / Navigation", "Caméra de recul", "Sièges chauffants avant"]:
-            bonus += 300
-        else:
-            bonus += 150
-
-    base += bonus
-
-    # ---------------- SECURITE ----------------
-    if base < 8000:
-        base = 8000
 
     prix_bas = int(base - 1500)
     prix_moyen = int(base)
     prix_haut = int(base + 2500)
 
-    # ---------------- RESULTAT ----------------
-    st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
-
     st.markdown(f"""
-👉 Avec TON véhicule ({km} km) + finition + caractéristiques :
+### 📊 Résultat
 
-### 🔻 Prix bas
-➡️ **{prix_bas} €**
-
-### ⚖️ Prix marché
-➡️ **{prix_moyen} €**
-
-### 🔺 Prix haut
-➡️ **{prix_haut} €**
+🔻 Bas : {prix_bas} €  
+⚖️ Marché : {prix_moyen} €  
+🔺 Haut : {prix_haut} €
 """)
-
-    st.success("✅ Estimation basée sur logique marché réel (niveau pro)")
