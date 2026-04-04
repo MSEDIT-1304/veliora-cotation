@@ -55,8 +55,8 @@ carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électri
 boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
 
-# 🔥 NOMBRE DE PORTES AJOUTÉ
-portes = st.selectbox("Nombre de portes", ["3 portes", "5 portes"])
+# 🔥 NOMBRE DE PORTES (1 à 5)
+portes = st.selectbox("Nombre de portes", [1, 2, 3, 4, 5])
 
 traction = st.text_input("Traction (ex : 4WD)")
 motorisation = st.text_input("Motorisation (ex : 2.0 CRDI 136)")
@@ -153,6 +153,7 @@ if st.button("Calculer l'estimation"):
 
         valeur = base - (age * 1400)
 
+        # kilométrage
         km_moyen = age * 15000
         valeur -= (km - km_moyen) * 0.06
 
@@ -169,14 +170,17 @@ if st.button("Calculer l'estimation"):
             valeur *= 1.03
 
         # 🔥 IMPACT PORTES
-        if portes == "3 portes":
-            valeur *= 0.95   # moins recherché
-        elif portes == "5 portes":
-            valeur *= 1.02   # plus recherché
+        if portes in [1, 2]:
+            valeur *= 0.90
+        elif portes == 3:
+            valeur *= 0.95
+        elif portes == 4:
+            valeur *= 1.00
+        elif portes == 5:
+            valeur *= 1.03
 
         # OPTIONS
         bonus = 0
-
         for opt in options_selected:
             if opt == "Jantes alliage":
                 bonus += 150
