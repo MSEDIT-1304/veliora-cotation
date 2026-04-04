@@ -78,6 +78,16 @@ st.subheader("📊 Kilométrage")
 km = st.number_input("Kilométrage", 0, 300000, 50000)
 
 # =========================
+# OPTIONS
+# =========================
+
+st.subheader("✨ Options supplémentaires")
+
+options = st.text_area(
+    "Exemples : sièges chauffants, caméra de recul, attelage, GPS, toit ouvrant..."
+)
+
+# =========================
 # VENDEUR
 # =========================
 
@@ -97,13 +107,9 @@ if st.button("Calculer l'estimation"):
     try:
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
-        # 🔥 BASE REALISTE
         base = 22000
-
-        # décote
         valeur = base - (age * 1200)
 
-        # kilométrage
         km_moyen = age * 15000
         valeur -= (km - km_moyen) * 0.05
 
@@ -119,11 +125,36 @@ if st.button("Calculer l'estimation"):
         if boite == "Automatique":
             valeur *= 1.05
 
+        # =========================
+        # BONUS OPTIONS 🔥
+        # =========================
+
+        bonus = 0
+
+        options_lower = options.lower()
+
+        if "cuir" in options_lower:
+            bonus += 500
+        if "gps" in options_lower or "navigation" in options_lower:
+            bonus += 300
+        if "camera" in options_lower:
+            bonus += 300
+        if "attelage" in options_lower:
+            bonus += 200
+        if "chauffant" in options_lower:
+            bonus += 200
+        if "toit ouvrant" in options_lower:
+            bonus += 400
+        if "led" in options_lower:
+            bonus += 200
+
+        valeur += bonus
+
         # sécurité
         valeur = max(valeur, 3000)
 
         # =========================
-        # 💥 3 PRIX MARCHÉ
+        # PRIX MARCHÉ
         # =========================
 
         prix_bas = int(valeur * 0.85)
@@ -148,6 +179,9 @@ if st.button("Calculer l'estimation"):
 ### 🔺 Prix haut (véhicule propre / optimisé)
 ➡️ **{prix_haut} €**
 """)
+
+        if bonus > 0:
+            st.info(f"✨ Impact des options : +{bonus} €")
 
     except Exception as e:
         st.error(f"Erreur : {e}")
