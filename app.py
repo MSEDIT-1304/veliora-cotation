@@ -25,6 +25,8 @@ with col_date2:
 # 📊 INFOS
 # =========================
 
+st.markdown("---")
+
 col3, col4 = st.columns(2)
 
 with col3:
@@ -43,7 +45,7 @@ st.markdown("---")
 if st.button("Calculer la cotation"):
 
     try:
-        # âge précis (mois inclus)
+        # âge précis
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
         base = 20000
@@ -55,7 +57,7 @@ if st.button("Calculer la cotation"):
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
-        # bonus carburant (sécurisé même si champ vide)
+        # bonus carburant (sécurisé)
         bonus_carburant = 0
         if carburant:
             if "electrique" in carburant.lower():
