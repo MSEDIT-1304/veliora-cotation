@@ -50,26 +50,44 @@ with col2:
 
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-# ---------------- DATE (SAISIE LIBRE) ----------------
+# ---------------- DATE ----------------
 st.markdown("### 📅 Date de première mise en circulation")
 
 annee = st.number_input("Année (ex: 2019)", 1990, datetime.now().year, 2019)
 mois = st.number_input("Mois (1-12)", 1, 12, 1)
 
-# ---------------- KM (SAISIE LIBRE) ----------------
+# ---------------- KM ----------------
 km = st.number_input("Kilométrage (tu peux taper directement)", 0, 400000, 90000)
 
-# ---------------- OPTIONS ----------------
+# ---------------- OPTIONS COMPLETES ----------------
 options = st.multiselect(
-    "Options",
+    "Options du véhicule",
     [
-        "GPS",
-        "Caméra de recul",
-        "Attelage",
-        "Sièges chauffants",
         "Jantes alliage",
+        "GPS / Navigation",
+        "Caméra de recul",
+        "Radar de recul",
+        "Radar avant",
+        "Sièges chauffants avant",
+        "Sièges chauffants avant + arrière",
+        "Sièges électriques",
+        "Sellerie cuir",
+        "Toit ouvrant",
+        "Toit panoramique",
+        "Feux LED / Xénon",
+        "Régulateur de vitesse",
+        "Régulateur adaptatif",
+        "Limiteur de vitesse",
         "Bluetooth",
-        "Régulateur"
+        "Android Auto / Apple CarPlay",
+        "Climatisation automatique",
+        "Climatisation bizone",
+        "Accès / démarrage sans clé",
+        "Hayon électrique",
+        "Attelage",
+        "Aide au stationnement",
+        "Caméra 360",
+        "Système audio premium"
     ]
 )
 
@@ -79,25 +97,20 @@ st.markdown("## 💰 Estimation")
 if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - int(annee)
-
     modele_lower = modele.lower()
     marque_lower = marque.lower()
 
-    # ---------------- BASE PAR MODÈLE RÉEL ----------------
+    # ---------------- BASE PAR MODELE ----------------
     base = 12000
 
     if "tiguan" in modele_lower:
         base = 26000
-
     elif "308" in modele_lower:
         base = 16000
-
     elif "clio" in modele_lower:
         base = 14000
-
     elif "208" in modele_lower:
         base = 15000
-
     elif "cla" in modele_lower:
         base = 28000
 
@@ -153,8 +166,18 @@ if st.button("Calculer l'estimation"):
     if km > 120000:
         base -= 2000
 
-    # ---------------- OPTIONS ----------------
-    base += len(options) * 300
+    # ---------------- OPTIONS INTELLIGENTES ----------------
+    bonus = 0
+
+    for opt in options:
+        if opt in ["Sellerie cuir", "Toit panoramique", "Caméra 360", "Système audio premium"]:
+            bonus += 500
+        elif opt in ["GPS / Navigation", "Caméra de recul", "Sièges chauffants avant"]:
+            bonus += 300
+        else:
+            bonus += 150
+
+    base += bonus
 
     # ---------------- SECURITE ----------------
     if base < 8000:
