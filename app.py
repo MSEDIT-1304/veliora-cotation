@@ -11,7 +11,7 @@ if "auth" not in st.session_state:
     st.session_state.auth = False
 
 # =========================
-# 🔐 PAGE DE CONNEXION
+# 🔐 CONNEXION
 # =========================
 if not st.session_state.auth:
 
@@ -29,34 +29,51 @@ if not st.session_state.auth:
     st.stop()
 
 # =========================
-# 🚗 APPLICATION PRINCIPALE
+# 🚗 FORMULAIRE PRO VENDEUR
 # =========================
 
-st.title("🚗 VELIORA Cotation Pro")
+st.title("🚗 Création d'une cotation")
 
-# --- Infos véhicule
-marque = st.text_input("Marque")
-modele = st.text_input("Modèle")
-finition = st.text_input("Finition")
+# --- Identification véhicule
+immatriculation = st.text_input("Plaque d'immatriculation")
 
-# 🔥 NOUVEAU : carburant
-carburant = st.selectbox(
-    "Type de carburant",
-    ["Essence", "Diesel", "Hybride", "Électrique", "Autre"]
-)
+col1, col2 = st.columns(2)
 
-# 🔥 NOUVEAU : boîte
-boite = st.selectbox(
-    "Boîte de vitesse",
-    ["Manuelle", "Automatique"]
-)
+with col1:
+    marque = st.text_input("Marque")
+    sous_version = st.text_input("Sous-version")
+    generation = st.text_input("Génération")
+    finition = st.text_input("Finition")
+    carburant = st.text_input("Carburant")
+    boite = st.text_input("Boîte")
 
-date_mec = st.date_input("Date de mise en circulation")
-km = st.number_input("Kilométrage", 0, 300000, 50000)
+with col2:
+    modele = st.text_input("Modèle / Version")
+    portes = st.text_input("Nombre de portes")
+    phase = st.text_input("Phase")
+    traction = st.text_input("Traction")
+    moteur = st.text_input("Motorisation")
+    techno_boite = st.text_input("Technologie de boîte")
+
+# --- Infos techniques
+st.markdown("---")
+
+col3, col4 = st.columns(2)
+
+with col3:
+    date_mec = st.date_input("Date de mise en circulation")
+    km = st.number_input("Kilométrage", 0, 300000, 50000)
+
+with col4:
+    departement = st.text_input("Département")
+    vendeur = st.text_input("Nom vendeur")
+
+# =========================
+# 💰 CALCUL
+# =========================
 
 st.markdown("---")
 
-# --- Calcul
 if st.button("Calculer la cotation"):
 
     try:
@@ -65,28 +82,11 @@ if st.button("Calculer la cotation"):
 
         base = 20000
 
-        # décote âge
         decote_age = base * 0.08 * age
-
-        # décote km
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
-        # 🔥 BONUS carburant
-        bonus_carburant = 0
-        if carburant == "Électrique":
-            bonus_carburant = 2000
-        elif carburant == "Hybride":
-            bonus_carburant = 1000
-        elif carburant == "Diesel":
-            bonus_carburant = -500
-
-        # 🔥 BONUS boîte
-        bonus_boite = 0
-        if boite == "Automatique":
-            bonus_boite = 800
-
-        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite
+        resultat = base - decote_age - decote_km
 
         st.success(f"💰 Valeur estimée : {int(resultat)} €")
 
@@ -94,14 +94,14 @@ if st.button("Calculer la cotation"):
         st.error("Erreur dans les données")
 
 # =========================
-# 👤 MODE PRO VENDEUR
+# 👤 CLIENT
 # =========================
 
 st.markdown("---")
-st.subheader("👤 Mode vendeur")
+st.subheader("Client")
 
-nom = st.text_input("Nom client")
-email = st.text_input("Email")
+nom_client = st.text_input("Nom client")
+email_client = st.text_input("Email")
 
-if st.button("Générer fiche client"):
-    st.info(f"Fiche créée pour {nom}")
+if st.button("Créer fiche client"):
+    st.info(f"Fiche créée pour {nom_client}")
