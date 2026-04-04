@@ -39,6 +39,18 @@ marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 finition = st.text_input("Finition")
 
+# 🔥 NOUVEAU : carburant
+carburant = st.selectbox(
+    "Type de carburant",
+    ["Essence", "Diesel", "Hybride", "Électrique", "Autre"]
+)
+
+# 🔥 NOUVEAU : boîte
+boite = st.selectbox(
+    "Boîte de vitesse",
+    ["Manuelle", "Automatique"]
+)
+
 date_mec = st.date_input("Date de mise en circulation")
 km = st.number_input("Kilométrage", 0, 300000, 50000)
 
@@ -51,7 +63,6 @@ if st.button("Calculer la cotation"):
         annee = date_mec.year
         age = datetime.now().year - annee
 
-        # base simple (tu pourras améliorer après)
         base = 20000
 
         # décote âge
@@ -61,7 +72,21 @@ if st.button("Calculer la cotation"):
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
-        resultat = base - decote_age - decote_km
+        # 🔥 BONUS carburant
+        bonus_carburant = 0
+        if carburant == "Électrique":
+            bonus_carburant = 2000
+        elif carburant == "Hybride":
+            bonus_carburant = 1000
+        elif carburant == "Diesel":
+            bonus_carburant = -500
+
+        # 🔥 BONUS boîte
+        bonus_boite = 0
+        if boite == "Automatique":
+            bonus_boite = 800
+
+        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite
 
         st.success(f"💰 Valeur estimée : {int(resultat)} €")
 
