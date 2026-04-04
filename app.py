@@ -4,17 +4,18 @@ st.set_page_config(page_title="Veliora", layout="centered")
 
 PASSWORD = "veliora2026"
 
+# Initialisation session
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 # 🔐 Écran de connexion
 if not st.session_state.auth:
-    st.title("🔐 VELIORA COTATION")
+    st.title("🔒 VELIORA COTATION")
+
     pwd = st.text_input("Mot de passe", type="password")
 
     if pwd == PASSWORD:
         st.session_state.auth = True
-        st.experimental_rerun()
 
     st.stop()
 
@@ -38,4 +39,4 @@ if st.button("Calculer"):
         st.success(f"💰 Valeur estimée : {int(resultat)} €")
 
     except:
-        st.error("❌ Format de date invalide")
+        st.error("❌ Format de date invalide (MM/YYYY)")
