@@ -1,7 +1,6 @@
 import streamlit as st
 from datetime import datetime
 
-# ---------------- CONFIG ----------------
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- PASSWORD ----------------
@@ -12,7 +11,6 @@ if "auth" not in st.session_state:
 
 if not st.session_state.auth:
     st.title("🔐 VELIORA COTATION PRO")
-
     pwd = st.text_input("Mot de passe", type="password")
 
     if pwd == PASSWORD:
@@ -21,61 +19,36 @@ if not st.session_state.auth:
 
     st.stop()
 
-# ---------------- STYLE ----------------
-st.markdown("""
-<style>
-.big-title {font-size:32px; font-weight:700;}
-</style>
-""", unsafe_allow_html=True)
-
 # ---------------- HEADER ----------------
-st.markdown("<div class='big-title'>🚗 VELIORA COTATION PRO</div>", unsafe_allow_html=True)
-st.info("💡 Pour une estimation précise, remplis un maximum d’informations.")
-
-# ---------------- LISTE MARQUES ----------------
-marques_list = [
-    "Audi", "BMW", "Citroën", "Dacia", "Fiat", "Ford", "Honda", "Hyundai",
-    "Kia", "Mazda", "Mercedes", "Mini", "Nissan", "Opel", "Peugeot",
-    "Renault", "Seat", "Skoda", "Toyota", "Volkswagen", "Volvo",
-    "Alfa Romeo", "Jeep", "Land Rover", "Porsche", "Tesla"
-]
+st.title("🚗 VELIORA COTATION PRO")
+st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
 # ---------------- FORM ----------------
-st.markdown("### 🔎 Informations véhicule")
-
-# 🔥 MARQUE AVEC RECHERCHE
-marque = st.selectbox(
-    "Marque (tu peux taper pour rechercher)",
-    marques_list
-)
+marque = st.text_input("Marque")
+modele = st.text_input("Modèle")
+sous_version = st.text_input("Sous-version")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    modele = st.text_input("Modèle")
-    sous_version = st.text_input("Sous-version")
+    finition = st.text_input("Finition")
+    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
 
 with col2:
-    finition = st.text_input("Finition")
     motorisation = st.text_input("Motorisation")
+    boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 
-carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
-permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
-portes = st.selectbox("Nombre de portes", [1, 2, 3, 4, 5])
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-# ---------------- DATE ----------------
 st.markdown("### 📅 Date de première mise en circulation")
 
 col3, col4 = st.columns(2)
 
 with col3:
-    mois = st.selectbox("Mois", list(range(1, 13)))
-
+    mois = st.selectbox("Mois", list(range(1,13)))
 with col4:
-    annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
+    annee = st.selectbox("Année", list(range(2000, datetime.now().year + 1)))
 
-# ---------------- INFOS ----------------
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 options = st.multiselect(
@@ -91,12 +64,6 @@ options = st.multiselect(
     ]
 )
 
-# ---------------- VENDEUR ----------------
-st.markdown("### 👤 Informations vendeur")
-
-nom_vendeur = st.text_input("Nom vendeur")
-departement = st.text_input("Département")
-
 # ---------------- ESTIMATION ----------------
 st.markdown("## 💰 Estimation")
 
@@ -104,55 +71,68 @@ if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - annee
 
-    # BASE REALISTE
-    base = 20000
+    # ---------------- BASE PAR TYPE MARCHÉ ----------------
+    base = 12000
 
-    # carburant
-    if carburant == "Diesel":
-        base += 2000
-    elif carburant == "Hybride":
+    # PREMIUM MARQUES
+    premium = ["mercedes", "bmw", "audi", "porsche"]
+    if marque.lower() in premium:
+        base = 20000
+
+    # TYPE VEHICULE
+    if "suv" in modele.lower() or "tiguan" in modele.lower():
+        base += 4000
+    if "coupé" in modele.lower() or "cla" in modele.lower():
         base += 3000
-    elif carburant == "Électrique":
+
+    # FINITION
+    if "amg" in finition.lower():
+        base += 4000
+    if "gt" in finition.lower() or "rs" in finition.lower():
         base += 5000
 
-    # boîte
+    # CARBURANT
+    if carburant == "Diesel":
+        base += 1000
+    if carburant == "Hybride":
+        base += 2000
+    if carburant == "Électrique":
+        base += 4000
+
+    # BOITE
     if boite == "Automatique":
-        base += 1500
+        base += 2000
 
-    # âge
-    base -= age * 1200
+    # AGE
+    base -= age * 1500
 
-    # km
-    if km > 100000:
-        base -= 2000
-    if km > 150000:
-        base -= 3000
+    # KM
+    if km > 80000:
+        base -= 1500
+    if km > 120000:
+        base -= 2500
 
-    # options
-    base += len(options) * 300
+    # OPTIONS
+    base += len(options) * 400
 
-    # sécurité
-    if base < 5000:
-        base = 5000
+    # SECURITE
+    if base < 7000:
+        base = 7000
 
-    prix_bas = int(base - 1500)
+    # ---------------- FOURCHETTE MARCHÉ ----------------
+    prix_bas = int(base - 2000)
     prix_moyen = int(base)
-    prix_haut = int(base + 2000)
+    prix_haut = int(base + 3000)
 
     # ---------------- RESULTAT ----------------
-    st.markdown("## 📊 COTATION RÉELLE (ESTIMATION MARCHÉ)")
+    st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
 
     st.markdown(f"""
-👉 Avec TON véhicule :
+👉 Avec TON véhicule ({km} km) + finition + caractéristiques :
 
-### 🔻 Prix bas
-➡️ **{prix_bas} €**
+## 💥 PRIX MARCHÉ PARTICULIER
 
-### ⚖️ Prix marché
-➡️ **{prix_moyen} €**
-
-### 🔺 Prix haut
-➡️ **{prix_haut} €**
+➡️ **{prix_bas} € → {prix_haut} €**
 """)
 
-    st.success("✅ Estimation basée sur logique marché France")
+    st.success("✅ Estimation type marché particulier (logique vendeur)")
