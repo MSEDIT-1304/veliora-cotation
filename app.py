@@ -140,79 +140,50 @@ vendeur = st.text_input("Nom vendeur")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# COTATION CALCULÉE
+# CALCUL COTATION
 # =========================
 
 st.markdown('<div class="section">', unsafe_allow_html=True)
 
-st.subheader("💰 Cotation estimée (théorique)")
+st.subheader("💰 Estimation")
 
-if st.button("Calculer estimation"):
+if st.button("Calculer l'estimation"):
 
-    age = datetime.now().year - annee + (datetime.now().month - mois)/12
+    try:
+        age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
-    base = 18000
-    valeur = base * (0.78 ** age)
+        base = 18000
+        valeur = base * (0.78 ** age)
 
-    km_moyen = age * 15000
-    valeur -= (km - km_moyen) * 0.07
+        km_moyen = age * 15000
+        valeur -= (km - km_moyen) * 0.07
 
-    if carburant == "Diesel":
-        valeur *= 0.9
-    elif carburant == "Hybride":
-        valeur *= 1.05
-    elif carburant == "Électrique":
-        valeur *= 1.08
+        if carburant == "Diesel":
+            valeur *= 0.9
+        elif carburant == "Hybride":
+            valeur *= 1.05
+        elif carburant == "Électrique":
+            valeur *= 1.08
 
-    if boite == "Automatique":
-        valeur *= 1.03
+        if boite == "Automatique":
+            valeur *= 1.03
 
-    st.info(f"💰 Estimation : {int(valeur)} €")
+        # 🔥 PRIX MARCHÉ PARTICULIER
+        prix_bas = int(valeur * 0.9)
+        prix_haut = int(valeur * 1.15)
 
-st.markdown('</div>', unsafe_allow_html=True)
+        # 🔥 AFFICHAGE PRO
+        st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
 
-# =========================
-# COTE MARCHE REEL
-# =========================
+        st.markdown(f"""
+👉 Avec TON kilométrage ({km} km) + finition + caractéristiques :
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
+### 💰 💥 PRIX MARCHÉ PARTICULIER
 
-st.subheader("📊 Cote marché réel (particulier)")
+➡️ **{prix_bas} € → {prix_haut} €**
+""")
 
-if st.button("🔎 Voir annonces marché"):
-
-    recherche = f"{marque} {modele} {annee}"
-    url = f"https://www.leboncoin.fr/recherche?text={recherche}"
-    webbrowser.open_new_tab(url)
-
-st.write("➡️ Renseigne 3 à 5 prix observés")
-
-prix1 = st.number_input("Prix 1", 0, 100000, 0)
-prix2 = st.number_input("Prix 2", 0, 100000, 0)
-prix3 = st.number_input("Prix 3", 0, 100000, 0)
-prix4 = st.number_input("Prix 4", 0, 100000, 0)
-prix5 = st.number_input("Prix 5", 0, 100000, 0)
-
-if st.button("Calculer cote marché réelle"):
-
-    prix_list = [p for p in [prix1, prix2, prix3, prix4, prix5] if p > 0]
-
-    if len(prix_list) >= 3:
-        prix_list.sort()
-
-        if len(prix_list) > 3:
-            prix_list = prix_list[1:-1]
-
-        moyenne = int(sum(prix_list) / len(prix_list))
-
-        bas = int(moyenne * 0.9)
-        haut = int(moyenne * 1.1)
-
-        st.success(f"💰 Prix marché réel : {moyenne} €")
-        st.info(f"📉 Bas : {bas} €")
-        st.info(f"📈 Haut : {haut} €")
-
-    else:
-        st.error("Ajoute au moins 3 prix")
+    except Exception as e:
+        st.error(f"Erreur : {e}")
 
 st.markdown('</div>', unsafe_allow_html=True)
