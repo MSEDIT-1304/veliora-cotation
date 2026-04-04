@@ -29,12 +29,12 @@ if not st.session_state.auth:
     st.stop()
 
 # =========================
-# 🚗 FORMULAIRE PRO VENDEUR
+# 🚗 FORMULAIRE VENDEUR
 # =========================
 
 st.title("🚗 Création d'une cotation")
 
-# --- Identification véhicule
+# --- Identification
 immatriculation = st.text_input("Plaque d'immatriculation")
 
 col1, col2 = st.columns(2)
@@ -55,13 +55,27 @@ with col2:
     moteur = st.text_input("Motorisation")
     techno_boite = st.text_input("Technologie de boîte")
 
-# --- Infos techniques
+# =========================
+# 📅 DATE MEC (MOIS + ANNÉE)
+# =========================
+
 st.markdown("---")
+
+col_date1, col_date2 = st.columns(2)
+
+with col_date1:
+    mois = st.selectbox("Mois", list(range(1, 13)))
+
+with col_date2:
+    annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
+
+# =========================
+# 📊 INFOS
+# =========================
 
 col3, col4 = st.columns(2)
 
 with col3:
-    date_mec = st.date_input("Date de mise en circulation")
     km = st.number_input("Kilométrage", 0, 300000, 50000)
 
 with col4:
@@ -77,16 +91,33 @@ st.markdown("---")
 if st.button("Calculer la cotation"):
 
     try:
-        annee = date_mec.year
-        age = datetime.now().year - annee
+        # âge précis au mois près
+        age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
         base = 20000
 
+        # décote âge
         decote_age = base * 0.08 * age
+
+        # décote km
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
-        resultat = base - decote_age - decote_km
+        # bonus carburant
+        bonus_carburant = 0
+        if "electrique" in carburant.lower():
+            bonus_carburant = 2000
+        elif "hybride" in carburant.lower():
+            bonus_carburant = 1000
+        elif "diesel" in carburant.lower():
+            bonus_carburant = -500
+
+        # bonus boîte
+        bonus_boite = 0
+        if "auto" in boite.lower():
+            bonus_boite = 800
+
+        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite
 
         st.success(f"💰 Valeur estimée : {int(resultat)} €")
 
