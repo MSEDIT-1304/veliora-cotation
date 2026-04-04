@@ -1,23 +1,18 @@
 import streamlit as st
 from datetime import datetime
 
-# =========================
-# CONFIG
-# =========================
-
+# ---------------- CONFIG ----------------
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# ---------------- PASSWORD ----------------
 PASSWORD = "veliora2026"
-
-# =========================
-# LOGIN
-# =========================
 
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.title("🔒 VELIORA COTATION PRO")
+    st.title("🔐 VELIORA COTATION PRO")
+
     pwd = st.text_input("Mot de passe", type="password")
 
     if pwd == PASSWORD:
@@ -26,226 +21,122 @@ if not st.session_state.auth:
 
     st.stop()
 
-# =========================
-# TITRE
-# =========================
+# ---------------- STYLE ----------------
+st.markdown("""
+<style>
+.big-title {font-size:32px; font-weight:700;}
+.section {margin-top:30px;}
+.result-box {
+    background:#f5f7fa;
+    padding:20px;
+    border-radius:10px;
+    margin-top:20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-st.title("🚗 Veliora Cotation Pro")
+# ---------------- HEADER ----------------
+st.markdown("<div class='big-title'>🚗 VELIORA COTATION PRO</div>", unsafe_allow_html=True)
+st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-st.info("ℹ️ Pour une estimation la plus précise possible, renseignez un maximum d’informations sur le véhicule (options, état, motorisation...).")
-
-# =========================
-# INFOS VEHICULE
-# =========================
-
-st.subheader("🚗 Informations véhicule")
-
-marque = st.text_input("Marque")
-modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
-finition = st.text_input("Finition")
-
-# =========================
-# CARACTERISTIQUES
-# =========================
-
-st.subheader("⚙️ Caractéristiques")
-
-carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
-permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
-
-# 🔥 NOMBRE DE PORTES (1 à 5)
-portes = st.selectbox("Nombre de portes", [1, 2, 3, 4, 5])
-
-traction = st.text_input("Traction (ex : 4WD)")
-motorisation = st.text_input("Motorisation (ex : 2.0 CRDI 136)")
-
-# =========================
-# DATE
-# =========================
-
-st.subheader("📅 Date de première mise en circulation")
+# ---------------- FORM ----------------
+st.markdown("### 🔎 Informations véhicule")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    mois = st.selectbox("Mois", list(range(1, 13)))
+    marque = st.text_input("Marque")
+    modele = st.text_input("Modèle")
+    sous_version = st.text_input("Sous-version")
 
 with col2:
+    finition = st.text_input("Finition")
+    motorisation = st.text_input("Motorisation")
+
+carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
+permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
+
+st.markdown("### 📅 Date de première mise en circulation")
+
+col3, col4 = st.columns(2)
+
+with col3:
+    mois = st.selectbox("Mois", list(range(1,13)))
+with col4:
     annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
 
-# =========================
-# KM
-# =========================
+km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-st.subheader("📊 Kilométrage")
-
-km = st.number_input("Kilométrage", 0, 300000, 50000)
-
-# =========================
-# OPTIONS
-# =========================
-
-st.subheader("✨ Options du véhicule")
-
-options_list = [
-    "Jantes alliage",
-    "Attelage",
-    "Caméra de recul",
-    "GPS / Navigation",
-    "Sièges chauffants avant",
-    "Sièges chauffants avant + arrière",
-    "Connexion téléphone / Bluetooth",
-    "Android Auto / Apple CarPlay",
-    "Toit ouvrant",
-    "Feux LED / Xénon",
-    "Sellerie cuir",
-    "Radar de recul",
-    "Régulateur de vitesse",
-]
-
-options_selected = st.multiselect("Sélectionne les options", options_list)
-
-# =========================
-# ETAT VEHICULE
-# =========================
-
-st.subheader("🚘 État du véhicule")
-
-etat = st.selectbox(
-    "État général",
-    ["Mauvais", "Correct", "Bon", "Excellent"]
+options = st.multiselect(
+    "Options",
+    [
+        "GPS",
+        "Caméra de recul",
+        "Attelage",
+        "Sièges chauffants",
+        "Jantes alliage",
+        "Bluetooth",
+        "Régulateur"
+    ]
 )
 
-# =========================
-# VENDEUR
-# =========================
-
-st.subheader("👤 Informations vendeur")
-
-departement = st.text_input("Département")
-vendeur = st.text_input("Nom vendeur")
-
-# =========================
-# CALCUL
-# =========================
-
-st.subheader("💰 Estimation")
+# ---------------- ESTIMATION ----------------
+st.markdown("## 💰 Estimation")
 
 if st.button("Calculer l'estimation"):
 
-    try:
-        age = datetime.now().year - annee + (datetime.now().month - mois)/12
-        modele_lower = modele.lower()
+    age = datetime.now().year - annee
 
-        # TYPE VEHICULE
-        if any(x in modele_lower for x in ["clio", "208", "c3", "polo"]):
-            base = 16000
-        elif any(x in modele_lower for x in ["308", "megane", "golf"]):
-            base = 19000
-        elif any(x in modele_lower for x in ["3008", "qashqai", "tiguan", "ix35"]):
-            base = 24000
-        elif any(x in modele_lower for x in ["bmw", "audi", "mercedes"]):
-            base = 35000
-        else:
-            base = 18000
+    # ---------------- BASE PRIX PAR TYPE ----------------
+    base = 20000
 
-        valeur = base - (age * 1400)
+    if carburant == "Diesel":
+        base += 2000
+    if carburant == "Hybride":
+        base += 3000
+    if carburant == "Électrique":
+        base += 5000
 
-        # kilométrage
-        km_moyen = age * 15000
-        valeur -= (km - km_moyen) * 0.06
+    if boite == "Automatique":
+        base += 1500
 
-        # carburant
-        if carburant == "Diesel":
-            valeur *= 0.92
-        elif carburant == "Hybride":
-            valeur *= 1.03
-        elif carburant == "Électrique":
-            valeur *= 1.05
+    # ---------------- AJUSTEMENTS AGE ----------------
+    base -= age * 1200
 
-        # boîte
-        if boite == "Automatique":
-            valeur *= 1.03
+    # ---------------- AJUSTEMENTS KM ----------------
+    if km > 100000:
+        base -= 2000
+    if km > 150000:
+        base -= 3000
 
-        # 🔥 IMPACT PORTES
-        if portes in [1, 2]:
-            valeur *= 0.90
-        elif portes == 3:
-            valeur *= 0.95
-        elif portes == 4:
-            valeur *= 1.00
-        elif portes == 5:
-            valeur *= 1.03
+    # ---------------- OPTIONS ----------------
+    base += len(options) * 300
 
-        # OPTIONS
-        bonus = 0
-        for opt in options_selected:
-            if opt == "Jantes alliage":
-                bonus += 150
-            elif opt == "Sellerie cuir":
-                bonus += 300
-            elif opt == "Toit ouvrant":
-                bonus += 300
-            elif opt == "GPS / Navigation":
-                bonus += 200
-            elif opt == "Caméra de recul":
-                bonus += 200
-            elif opt == "Attelage":
-                bonus += 150
-            elif opt == "Sièges chauffants avant":
-                bonus += 150
-            elif opt == "Sièges chauffants avant + arrière":
-                bonus += 200
-            elif opt == "Android Auto / Apple CarPlay":
-                bonus += 200
-            elif opt == "Connexion téléphone / Bluetooth":
-                bonus += 100
-            elif opt == "Feux LED / Xénon":
-                bonus += 150
-            elif opt == "Radar de recul":
-                bonus += 100
-            elif opt == "Régulateur de vitesse":
-                bonus += 100
+    # ---------------- CORRECTION MARCHÉ ----------------
+    # évite prix absurdes
+    if base < 5000:
+        base = 5000
 
-        valeur += bonus
+    prix_bas = int(base - 1500)
+    prix_moyen = int(base)
+    prix_haut = int(base + 2000)
 
-        # ETAT
-        if etat == "Mauvais":
-            valeur *= 0.75
-        elif etat == "Correct":
-            valeur *= 0.90
-        elif etat == "Bon":
-            valeur *= 1.00
-        elif etat == "Excellent":
-            valeur *= 1.10
+    # ---------------- AFFICHAGE ----------------
+    st.markdown("## 📊 COTATION RÉELLE (ESTIMATION MARCHÉ)")
 
-        valeur = max(valeur, 3000)
+    st.markdown(f"""
+    👉 Avec ton véhicule :
 
-        # PRIX FINAL
-        prix_bas = int(valeur * 0.85)
-        prix_moyen = int(valeur)
-        prix_haut = int(valeur * 1.15)
+    ### 🔻 Prix bas
+    ➡️ {prix_bas} €
 
-        # AFFICHAGE
-        st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
+    ### ⚖️ Prix marché
+    ➡️ {prix_moyen} €
 
-        st.markdown(f"""
-👉 Avec TON kilométrage ({km} km) + état du véhicule :
+    ### 🔺 Prix haut
+    ➡️ {prix_haut} €
+    """)
 
-### 🔻 Prix bas
-➡️ **{prix_bas} €**
-
-### ⚖️ Prix marché
-➡️ **{prix_moyen} €**
-
-### 🔺 Prix haut
-➡️ **{prix_haut} €**
-""")
-
-        if bonus > 0:
-            st.info(f"✨ Impact des options : +{bonus} €")
-
-    except Exception as e:
-        st.error(f"Erreur : {e}")
+    st.success("✅ Estimation basée sur logique marché France (approximative)")
