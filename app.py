@@ -32,6 +32,8 @@ if not st.session_state.auth:
 
 st.title("🚗 Veliora Cotation Pro")
 
+st.info("ℹ️ Pour une estimation la plus précise possible, renseignez un maximum d’informations sur le véhicule (options, état, motorisation...).")
+
 # =========================
 # INFOS VEHICULE
 # =========================
@@ -40,6 +42,7 @@ st.subheader("🚗 Informations véhicule")
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
+sous_version = st.text_input("Sous-version")
 finition = st.text_input("Finition")
 
 # =========================
@@ -51,6 +54,9 @@ st.subheader("⚙️ Caractéristiques")
 carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
+
+# 🔥 NOMBRE DE PORTES AJOUTÉ
+portes = st.selectbox("Nombre de portes", ["3 portes", "5 portes"])
 
 traction = st.text_input("Traction (ex : 4WD)")
 motorisation = st.text_input("Motorisation (ex : 2.0 CRDI 136)")
@@ -84,6 +90,7 @@ km = st.number_input("Kilométrage", 0, 300000, 50000)
 st.subheader("✨ Options du véhicule")
 
 options_list = [
+    "Jantes alliage",
     "Attelage",
     "Caméra de recul",
     "GPS / Navigation",
@@ -132,10 +139,7 @@ if st.button("Calculer l'estimation"):
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
         modele_lower = modele.lower()
 
-        # =========================
         # TYPE VEHICULE
-        # =========================
-
         if any(x in modele_lower for x in ["clio", "208", "c3", "polo"]):
             base = 16000
         elif any(x in modele_lower for x in ["308", "megane", "golf"]):
@@ -147,10 +151,8 @@ if st.button("Calculer l'estimation"):
         else:
             base = 18000
 
-        # décote
         valeur = base - (age * 1400)
 
-        # kilométrage
         km_moyen = age * 15000
         valeur -= (km - km_moyen) * 0.06
 
@@ -166,14 +168,19 @@ if st.button("Calculer l'estimation"):
         if boite == "Automatique":
             valeur *= 1.03
 
-        # =========================
-        # OPTIONS
-        # =========================
+        # 🔥 IMPACT PORTES
+        if portes == "3 portes":
+            valeur *= 0.95   # moins recherché
+        elif portes == "5 portes":
+            valeur *= 1.02   # plus recherché
 
+        # OPTIONS
         bonus = 0
 
         for opt in options_selected:
-            if opt == "Sellerie cuir":
+            if opt == "Jantes alliage":
+                bonus += 150
+            elif opt == "Sellerie cuir":
                 bonus += 300
             elif opt == "Toit ouvrant":
                 bonus += 300
@@ -200,10 +207,7 @@ if st.button("Calculer l'estimation"):
 
         valeur += bonus
 
-        # =========================
         # ETAT
-        # =========================
-
         if etat == "Mauvais":
             valeur *= 0.75
         elif etat == "Correct":
@@ -215,18 +219,12 @@ if st.button("Calculer l'estimation"):
 
         valeur = max(valeur, 3000)
 
-        # =========================
         # PRIX FINAL
-        # =========================
-
         prix_bas = int(valeur * 0.85)
         prix_moyen = int(valeur)
         prix_haut = int(valeur * 1.15)
 
-        # =========================
         # AFFICHAGE
-        # =========================
-
         st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
 
         st.markdown(f"""
@@ -241,6 +239,9 @@ if st.button("Calculer l'estimation"):
 ### 🔺 Prix haut
 ➡️ **{prix_haut} €**
 """)
+
+        if bonus > 0:
+            st.info(f"✨ Impact des options : +{bonus} €")
 
     except Exception as e:
         st.error(f"Erreur : {e}")
