@@ -5,7 +5,9 @@ st.set_page_config(page_title="Veliora", layout="centered")
 
 PASSWORD = "veliora2026"
 
-# Auth
+# =========================
+# 🔐 AUTHENTIFICATION
+# =========================
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
@@ -20,46 +22,62 @@ if not st.session_state.auth:
     st.stop()
 
 # =========================
-# 🚗 APP PRO
+# 🚗 APP PRINCIPALE
 # =========================
-
 st.title("🚗 VELIORA Cotation Pro")
 
 # Infos véhicule
-marque = st.text_input("Marque", "Peugeot")
+marque = st.selectbox("Marque", ["Peugeot", "Renault", "BMW", "Audi", "Mercedes"])
 modele = st.text_input("Modèle", "308")
 finition = st.text_input("Finition", "Allure")
 
 date_mec = st.date_input("Date mise en circulation")
 
 km = st.number_input("Kilométrage", 0, 300000, 50000)
-prix_marche = st.number_input("Prix marché (€)", 0, 100000, 15000)
 
-# Calcul
+# =========================
+# 🧠 CALCUL
+# =========================
 if st.button("Calculer la cotation"):
     try:
         annee_actuelle = datetime.now().year
         age = annee_actuelle - date_mec.year
 
+        # 💰 Valeur de base selon marque
+        base_prix = {
+            "Peugeot": 22000,
+            "Renault": 21000,
+            "BMW": 35000,
+            "Audi": 36000,
+            "Mercedes": 40000
+        }
+
+        valeur_neuve = base_prix.get(marque, 25000)
+
+        # 📉 Décote annuelle
+        valeur = valeur_neuve * (0.85 ** age)
+
+        # 🚗 Ajustement kilométrique
         km_moyen = age * 15000
         ecart_km = km - km_moyen
+        valeur -= ecart_km * 0.05
 
-        # Ajustements
-        coeff_age = 0.08
-        coeff_km = 0.05
+        # ⭐ Bonus finition
+        finition_lower = finition.lower()
 
-        decote_age = prix_marche * coeff_age * age
-        ajustement_km = ecart_km * coeff_km
+        if "gt" in finition_lower or "sport" in finition_lower:
+            valeur *= 1.1
+        elif "base" in finition_lower:
+            valeur *= 0.9
 
-        valeur = prix_marche - decote_age - ajustement_km
-
+        # 🔎 Affichage
         st.subheader("📊 Résultat")
 
         st.write(f"**Véhicule :** {marque} {modele} {finition}")
         st.write(f"**Âge :** {age} ans")
-        st.write(f"**Kilométrage moyen attendu :** {km_moyen} km")
+        st.write(f"**Kilométrage moyen :** {km_moyen} km")
 
         st.success(f"💰 Valeur estimée : {int(valeur)} €")
 
     except:
-        st.error("Erreur dans les données")
+        st.error("❌ Erreur dans les données")
