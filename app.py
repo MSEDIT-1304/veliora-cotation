@@ -5,14 +5,14 @@ import os
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# 🔥 CONFIG
+# ---------------- CONFIG ----------------
 PAYMENT_LINK = "https://ton-lien-stripe.com"
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "change_ce_mdp"
+ADMIN_PASSWORD = "TonMotDePasseFort123!"
 
 FILE_PATH = "users.json"
 
-# ---------------- LOAD USERS ----------------
+# ---------------- USERS ----------------
 def load_users():
     if not os.path.exists(FILE_PATH):
         with open(FILE_PATH, "w") as f:
@@ -26,12 +26,12 @@ def save_users(data):
 
 users = load_users()
 
-# 🔥 ADMIN PROTECTION
+# ADMIN sécurisé
 users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
 save_users(users)
 
-# ---------------- CREATE TRIAL ----------------
-def create_trial_user(username, password):
+# ---------------- TRIAL ----------------
+def create_trial(username, password):
     users = load_users()
     users[username] = {
         "password": password,
@@ -45,18 +45,18 @@ def check_access(user):
     if user["expire"] is None:
         return True, None
 
-    expire_date = datetime.strptime(user["expire"], "%Y-%m-%d")
-    today = datetime.now()
+    expire = datetime.strptime(user["expire"], "%Y-%m-%d")
+    now = datetime.now()
 
-    if today > expire_date:
+    if now > expire:
         return False, "expired"
 
-    if expire_date - today <= timedelta(days=2):
+    if expire - now <= timedelta(days=7):
         return True, "warning"
 
     return True, None
 
-# ---------------- AUTH ----------------
+# ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
@@ -66,63 +66,50 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    # -------- LOGIN --------
     with tab1:
-        username = st.text_input("Utilisateur")
-        password = st.text_input("Mot de passe", type="password")
+        user = st.text_input("Utilisateur")
+        pwd = st.text_input("Mot de passe", type="password")
 
         if st.button("Se connecter"):
 
             users = load_users()
 
             # ADMIN
-            if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
                 st.session_state.auth = True
-                st.session_state.user = username
+                st.session_state.user = user
                 st.rerun()
 
-            # USER
-            if username in users and users[username]["password"] == password:
+            # CLIENT
+            if user in users and users[user]["password"] == pwd:
 
-                valid, status = check_access(users[username])
+                valid, status = check_access(users[user])
 
                 if not valid:
                     st.error("⛔ Accès expiré")
-
-                    if users[username].get("trial", False):
-                        st.warning("🎯 Votre essai gratuit est terminé")
-                    else:
-                        st.warning("💳 Abonnement expiré")
-
-                    st.markdown(f"[👉 S'abonner maintenant]({PAYMENT_LINK})")
+                    st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
                     st.stop()
 
                 if status == "warning":
-                    st.warning("⚠️ Votre accès expire bientôt")
+                    st.warning("⚠️ Expiration proche")
 
                 st.session_state.auth = True
-                st.session_state.user = username
+                st.session_state.user = user
                 st.rerun()
 
             else:
-                st.error("❌ Identifiants incorrects")
+                st.error("Identifiants incorrects")
 
-    # -------- FREE TRIAL --------
     with tab2:
-        st.markdown("### 🎁 Essai gratuit 7 jours")
+        new_user = st.text_input("Créer un utilisateur")
+        new_pwd = st.text_input("Mot de passe", type="password")
 
-        new_user = st.text_input("Choisir un identifiant")
-        new_pass = st.text_input("Choisir un mot de passe", type="password")
-
-        if st.button("Créer mon accès gratuit"):
-
-            users = load_users()
-
+        if st.button("Créer essai"):
             if new_user in users:
-                st.error("Utilisateur déjà existant")
+                st.error("Existe déjà")
             else:
-                create_trial_user(new_user, new_pass)
-                st.success("✅ Compte créé ! Connectez-vous")
+                create_trial(new_user, new_pwd)
+                st.success("Compte créé")
 
     st.stop()
 
@@ -134,38 +121,52 @@ st.title("🚗 VELIORA COTATION PRO")
 
 st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-# ---------------- FORM ----------------
-marques_list = [
-    "Audi", "BMW", "Citroën", "Dacia", "Fiat", "Ford", "Honda", "Hyundai",
-    "Kia", "Mazda", "Mercedes", "Mini", "Nissan", "Opel", "Peugeot",
-    "Renault", "Seat", "Skoda", "Toyota", "Volkswagen", "Volvo",
-    "Alfa Romeo", "Jeep", "Land Rover", "Porsche", "Tesla"
+# ---------------- FORMULAIRE COMPLET ----------------
+
+marques = [
+    "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault",
+    "Toyota","Hyundai","Kia","Ford","Nissan","Volvo"
 ]
 
-marque = st.selectbox("Marque", marques_list)
+marque = st.selectbox("Marque", marques)
 modele = st.text_input("Modèle")
-finition = st.text_input("Finition")
+sous_version = st.text_input("Sous-version")
 
-carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
+col1, col2 = st.columns(2)
+
+with col1:
+    finition = st.text_input("Finition")
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+
+with col2:
+    motorisation = st.text_input("Motorisation")
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
+
+options = st.multiselect("Options", [
+    "GPS","Caméra recul","Radar","Jantes alliage","Cuir",
+    "Toit pano","Bluetooth","CarPlay","Régulateur"
+])
+
+# ---------------- ESTIMATION ----------------
 
 if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - int(annee)
     base = 15000
 
-    if marque.lower() in ["mercedes", "bmw", "audi"]:
-        base += 8000
+    if marque.lower() in ["mercedes","bmw","audi"]:
+        base += 7000
 
     if "tiguan" in modele.lower():
         base = 26000
 
-    if "cla" in modele.lower():
-        base = 28000
+    if "ix35" in modele.lower():
+        base = 12000
 
     if "amg" in finition.lower():
         base += 4000
@@ -176,8 +177,6 @@ if st.button("Calculer l'estimation"):
     if carburant == "Diesel":
         base += 800
 
-    if portes <= 3:
-        base += 500
     if portes >= 5:
         base += 300
 
@@ -186,12 +185,14 @@ if st.button("Calculer l'estimation"):
     if km > 80000:
         base -= 1000
 
+    base += len(options) * 300
+
     prix_bas = int(base - 1500)
     prix_moyen = int(base)
     prix_haut = int(base + 2500)
 
     st.markdown(f"""
-### 📊 Résultat
+## 📊 COTATION
 
 🔻 Bas : {prix_bas} €  
 ⚖️ Marché : {prix_moyen} €  
