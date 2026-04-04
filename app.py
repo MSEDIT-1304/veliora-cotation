@@ -1,19 +1,18 @@
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="Veliora", layout="centered")
+st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 PASSWORD = "veliora2026"
 
 # =========================
-# 🔐 AUTHENTIFICATION
+# 🔐 LOGIN
 # =========================
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.title("🔒 VELIORA COTATION")
-
+    st.title("🔒 VELIORA COTATION PRO")
     pwd = st.text_input("Mot de passe", type="password")
 
     if pwd == PASSWORD:
@@ -22,76 +21,111 @@ if not st.session_state.auth:
     st.stop()
 
 # =========================
-# 🚗 APP PRINCIPALE
+# 🚗 BASE MARQUES / MODELES
 # =========================
-st.title("🚗 VELIORA Cotation Pro")
-
-# ===== MARQUE =====
-marques = ["Peugeot", "Renault", "BMW", "Audi", "Mercedes", "Volkswagen", "Toyota", "Autre"]
-marque_select = st.selectbox("Marque", marques)
-
-if marque_select == "Autre":
-    marque = st.text_input("Saisir la marque")
-else:
-    marque = marque_select
-
-# ===== MODELE =====
-modele = st.text_input("Modèle (ou saisie libre)", "308")
-
-# ===== FINITION =====
-finition = st.text_input("Finition (ou saisie libre)", "Allure")
-
-# ===== DATE =====
-date_mec = st.date_input("Date mise en circulation")
-
-# ===== KM =====
-km = st.number_input("Kilométrage", 0, 300000, 50000)
+data = {
+    "Peugeot": ["208", "308", "3008", "5008"],
+    "Renault": ["Clio", "Megane", "Captur", "Kadjar"],
+    "BMW": ["Serie 1", "Serie 3", "X1", "X3"],
+    "Audi": ["A1", "A3", "A4", "Q3", "Q5"],
+    "Mercedes": ["Classe A", "Classe C", "GLA", "GLC"],
+    "Volkswagen": ["Golf", "Polo", "Tiguan", "Passat"],
+    "Toyota": ["Yaris", "Corolla", "RAV4"]
+}
 
 # =========================
-# 🧠 CALCUL
+# 🧾 INTERFACE VENDEUR
 # =========================
-if st.button("Calculer la cotation"):
-    try:
-        annee_actuelle = datetime.now().year
-        age = annee_actuelle - date_mec.year
+st.title("🚗 VELIORA Cotation Vendeur")
 
-        # 💰 Base par marque
-        base_prix = {
-            "Peugeot": 22000,
-            "Renault": 21000,
-            "BMW": 35000,
-            "Audi": 36000,
-            "Mercedes": 40000,
-            "Volkswagen": 28000,
-            "Toyota": 27000
-        }
+col1, col2 = st.columns(2)
 
-        valeur_neuve = base_prix.get(marque, 25000)
+with col1:
+    marque_select = st.selectbox("Marque", list(data.keys()) + ["Autre"])
 
-        # 📉 Décote
-        valeur = valeur_neuve * (0.85 ** age)
+    if marque_select == "Autre":
+        marque = st.text_input("Marque libre")
+        modele = st.text_input("Modèle")
+    else:
+        marque = marque_select
+        modele_select = st.selectbox("Modèle", data[marque] + ["Autre"])
 
-        # 🚗 Ajustement km
-        km_moyen = age * 15000
-        ecart_km = km - km_moyen
-        valeur -= ecart_km * 0.05
+        if modele_select == "Autre":
+            modele = st.text_input("Modèle libre")
+        else:
+            modele = modele_select
 
-        # ⭐ Finition
-        finition_lower = finition.lower()
+    finition = st.text_input("Finition", "Allure")
 
-        if "gt" in finition_lower or "sport" in finition_lower:
-            valeur *= 1.1
-        elif "base" in finition_lower:
-            valeur *= 0.9
+with col2:
+    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Electrique"])
+    date_mec = st.date_input("Mise en circulation")
+    km = st.number_input("Kilométrage", 0, 300000, 50000)
 
-        # 📊 Résultat
-        st.subheader("📊 Résultat")
+# =========================
+# 💰 CALCUL VENDEUR
+# =========================
+if st.button("🔍 Calculer la valeur"):
 
-        st.write(f"**Véhicule :** {marque} {modele} {finition}")
-        st.write(f"**Âge :** {age} ans")
-        st.write(f"**Kilométrage moyen :** {km_moyen} km")
+    annee_actuelle = datetime.now().year
+    age = annee_actuelle - date_mec.year
 
-        st.success(f"💰 Valeur estimée : {int(valeur)} €")
+    # Base prix par gamme marque
+    base_prix = {
+        "Peugeot": 22000,
+        "Renault": 21000,
+        "Volkswagen": 28000,
+        "Toyota": 27000,
+        "BMW": 35000,
+        "Audi": 36000,
+        "Mercedes": 40000
+    }
 
-    except:
-        st.error("❌ Erreur dans les données")
+    valeur_neuve = base_prix.get(marque, 25000)
+
+    # Décote pro (plus réaliste)
+    valeur = valeur_neuve * (0.82 ** age)
+
+    # Ajustement kilométrique
+    km_moyen = age * 15000
+    valeur -= (km - km_moyen) * 0.06
+
+    # Ajustement carburant
+    if carburant == "Diesel":
+        valeur *= 0.95
+    elif carburant == "Hybride":
+        valeur *= 1.05
+    elif carburant == "Electrique":
+        valeur *= 1.1
+
+    # Ajustement finition
+    f = finition.lower()
+    if "sport" in f or "gt" in f:
+        valeur *= 1.1
+    elif "base" in f:
+        valeur *= 0.9
+
+    # Encadrement vendeur (prix mini / max)
+    prix_bas = int(valeur * 0.9)
+    prix_haut = int(valeur * 1.1)
+
+    # =========================
+    # 📊 AFFICHAGE PRO
+    # =========================
+    st.markdown("---")
+    st.subheader("📊 Résultat de cotation")
+
+    st.write(f"**Véhicule :** {marque} {modele} {finition}")
+    st.write(f"**Carburant :** {carburant}")
+    st.write(f"**Âge :** {age} ans")
+    st.write(f"**Kilométrage :** {km} km")
+
+    st.success(f"💰 Prix conseillé : {int(valeur)} €")
+
+    st.info(f"💸 Fourchette de vente : {prix_bas} € → {prix_haut} €")
+
+    # Conseil vendeur
+    if km > km_moyen:
+        st.warning("⚠️ Kilométrage supérieur à la moyenne")
+    else:
+        st.success("✔️ Kilométrage cohérent")
