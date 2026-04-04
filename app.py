@@ -97,13 +97,13 @@ if st.button("Calculer l'estimation"):
     try:
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
-        # 🔥 BASE REALISTE SUV / compact
+        # 🔥 BASE REALISTE
         base = 22000
 
-        # décote réaliste
+        # décote
         valeur = base - (age * 1200)
 
-        # ajustement kilométrage
+        # kilométrage
         km_moyen = age * 15000
         valeur -= (km - km_moyen) * 0.05
 
@@ -115,19 +115,23 @@ if st.button("Calculer l'estimation"):
         elif carburant == "Électrique":
             valeur *= 1.1
 
-        # boîte auto
+        # boîte
         if boite == "Automatique":
             valeur *= 1.05
 
-        # minimum sécurité
+        # sécurité
         valeur = max(valeur, 3000)
 
-        # 💥 PRIX MARCHÉ PARTICULIER
-        prix_bas = int(valeur * 0.9)
-        prix_haut = int(valeur * 1.15)
+        # =========================
+        # 💥 3 PRIX MARCHÉ
+        # =========================
+
+        prix_bas = int(valeur * 0.85)
+        prix_moyen = int(valeur)
+        prix_haut = int(valeur * 1.20)
 
         # =========================
-        # AFFICHAGE PRO
+        # AFFICHAGE
         # =========================
 
         st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
@@ -135,9 +139,14 @@ if st.button("Calculer l'estimation"):
         st.markdown(f"""
 👉 Avec TON kilométrage ({km} km) + finition + caractéristiques :
 
-### 💰 💥 PRIX MARCHÉ PARTICULIER
+### 🔻 Prix bas (vente rapide / état moyen)
+➡️ **{prix_bas} €**
 
-➡️ **{prix_bas} € → {prix_haut} €**
+### ⚖️ Prix marché (normal)
+➡️ **{prix_moyen} €**
+
+### 🔺 Prix haut (véhicule propre / optimisé)
+➡️ **{prix_haut} €**
 """)
 
     except Exception as e:
