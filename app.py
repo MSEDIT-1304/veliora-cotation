@@ -23,7 +23,7 @@ if not st.session_state.auth:
 st.title("🚗 VELIORA COTATION PRO")
 st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-# ---------------- LISTE MARQUES ----------------
+# ---------------- MARQUES ----------------
 marques_list = [
     "Audi", "BMW", "Citroën", "Dacia", "Fiat", "Ford", "Honda", "Hyundai",
     "Kia", "Mazda", "Mercedes", "Mini", "Nissan", "Opel", "Peugeot",
@@ -50,20 +50,16 @@ with col2:
 
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-# ---------------- DATE ----------------
+# ---------------- DATE (SAISIE LIBRE) ----------------
 st.markdown("### 📅 Date de première mise en circulation")
 
-col3, col4 = st.columns(2)
+annee = st.number_input("Année (ex: 2019)", 1990, datetime.now().year, 2019)
+mois = st.number_input("Mois (1-12)", 1, 12, 1)
 
-with col3:
-    mois = st.selectbox("Mois", list(range(1,13)))
+# ---------------- KM (SAISIE LIBRE) ----------------
+km = st.number_input("Kilométrage (tu peux taper directement)", 0, 400000, 90000)
 
-with col4:
-    annee = st.selectbox("Année", list(range(2000, datetime.now().year + 1)))
-
-# ---------------- INFOS ----------------
-km = st.number_input("Kilométrage", 0, 400000, 90000)
-
+# ---------------- OPTIONS ----------------
 options = st.multiselect(
     "Options",
     [
@@ -82,46 +78,70 @@ st.markdown("## 💰 Estimation")
 
 if st.button("Calculer l'estimation"):
 
-    age = datetime.now().year - annee
+    age = datetime.now().year - int(annee)
 
-    base = 12000
-
-    # ---------------- FIX PREMIUM ----------------
+    modele_lower = modele.lower()
     marque_lower = marque.lower()
 
+    # ---------------- BASE PAR MODÈLE RÉEL ----------------
+    base = 12000
+
+    if "tiguan" in modele_lower:
+        base = 26000
+
+    elif "308" in modele_lower:
+        base = 16000
+
+    elif "clio" in modele_lower:
+        base = 14000
+
+    elif "208" in modele_lower:
+        base = 15000
+
+    elif "cla" in modele_lower:
+        base = 28000
+
+    # ---------------- PREMIUM ----------------
     if marque_lower in ["mercedes", "bmw", "audi"]:
-        base = 22000
+        base += 3000
 
     if marque_lower in ["porsche", "tesla"]:
-        base = 35000
+        base += 8000
 
     # ---------------- TYPE VEHICULE ----------------
-    if "suv" in modele.lower() or "tiguan" in modele.lower():
-        base += 4000
-
-    if "cla" in modele.lower() or "coup" in modele.lower():
+    if "suv" in modele_lower or "tiguan" in modele_lower:
         base += 3000
+
+    if "coup" in modele_lower or "cla" in modele_lower:
+        base += 2500
 
     # ---------------- FINITION ----------------
     if "amg" in finition.lower():
-        base += 5000
+        base += 4000
 
-    if "rs" in finition.lower() or "gt" in finition.lower():
-        base += 6000
+    if "gt" in finition.lower() or "rs" in finition.lower():
+        base += 5000
 
     # ---------------- BOITE ----------------
     if boite == "Automatique":
-        base += 2000
+        base += 1500
 
     # ---------------- CARBURANT ----------------
     if carburant == "Diesel":
-        base += 1000
+        base += 800
 
     if carburant == "Hybride":
         base += 2000
 
     if carburant == "Électrique":
         base += 4000
+
+    # ---------------- PORTES ----------------
+    if portes <= 3:
+        base += 500
+
+    if portes >= 5:
+        base += 300
 
     # ---------------- AGE ----------------
     base -= age * 1200
@@ -160,4 +180,4 @@ if st.button("Calculer l'estimation"):
 ➡️ **{prix_haut} €**
 """)
 
-    st.success("✅ Estimation basée sur logique marché vendeur")
+    st.success("✅ Estimation basée sur logique marché réel (niveau pro)")
