@@ -25,19 +25,12 @@ if not st.session_state.auth:
 st.markdown("""
 <style>
 .big-title {font-size:32px; font-weight:700;}
-.section {margin-top:30px;}
-.result-box {
-    background:#f5f7fa;
-    padding:20px;
-    border-radius:10px;
-    margin-top:20px;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------- HEADER ----------------
 st.markdown("<div class='big-title'>🚗 VELIORA COTATION PRO</div>", unsafe_allow_html=True)
-st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
+st.info("💡 Pour une estimation précise, remplis un maximum d’informations.")
 
 # ---------------- LISTE MARQUES ----------------
 marques_list = [
@@ -50,17 +43,11 @@ marques_list = [
 # ---------------- FORM ----------------
 st.markdown("### 🔎 Informations véhicule")
 
-# -------- MARQUE INTELLIGENTE --------
-input_marque = st.text_input("Marque (tape au moins 3 lettres)")
-
-suggestions = []
-if len(input_marque) >= 3:
-    suggestions = [m for m in marques_list if m.lower().startswith(input_marque.lower())]
-
-if suggestions:
-    marque = st.selectbox("Suggestions marques", suggestions)
-else:
-    marque = input_marque
+# 🔥 MARQUE AVEC RECHERCHE
+marque = st.selectbox(
+    "Marque (tu peux taper pour rechercher)",
+    marques_list
+)
 
 col1, col2 = st.columns(2)
 
@@ -75,7 +62,7 @@ with col2:
 carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
+portes = st.selectbox("Nombre de portes", [1, 2, 3, 4, 5])
 
 # ---------------- DATE ----------------
 st.markdown("### 📅 Date de première mise en circulation")
@@ -83,7 +70,8 @@ st.markdown("### 📅 Date de première mise en circulation")
 col3, col4 = st.columns(2)
 
 with col3:
-    mois = st.selectbox("Mois", list(range(1,13)))
+    mois = st.selectbox("Mois", list(range(1, 13)))
+
 with col4:
     annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
 
@@ -116,15 +104,15 @@ if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - annee
 
-    # ---------------- BASE ----------------
+    # BASE REALISTE
     base = 20000
 
     # carburant
     if carburant == "Diesel":
         base += 2000
-    if carburant == "Hybride":
+    elif carburant == "Hybride":
         base += 3000
-    if carburant == "Électrique":
+    elif carburant == "Électrique":
         base += 5000
 
     # boîte
@@ -143,7 +131,7 @@ if st.button("Calculer l'estimation"):
     # options
     base += len(options) * 300
 
-    # sécurité prix mini
+    # sécurité
     if base < 5000:
         base = 5000
 
@@ -158,13 +146,13 @@ if st.button("Calculer l'estimation"):
 👉 Avec TON véhicule :
 
 ### 🔻 Prix bas
-➡️ {prix_bas} €
+➡️ **{prix_bas} €**
 
 ### ⚖️ Prix marché
-➡️ {prix_moyen} €
+➡️ **{prix_moyen} €**
 
 ### 🔺 Prix haut
-➡️ {prix_haut} €
+➡️ **{prix_haut} €**
 """)
 
     st.success("✅ Estimation basée sur logique marché France")
