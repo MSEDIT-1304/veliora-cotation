@@ -43,12 +43,28 @@ finition = st.text_input("Finition")
 col1, col2 = st.columns(2)
 
 with col1:
-    carburant = st.text_input("Carburant (essence, diesel, hybride, électrique)")
-    boite = st.text_input("Boîte (manuelle ou automatique)")
+    carburant = st.selectbox(
+        "Carburant",
+        ["Essence", "Diesel", "Hybride", "Électrique"]
+    )
+
+    boite = st.selectbox(
+        "Boîte",
+        ["Manuelle", "Automatique"]
+    )
 
 with col2:
     traction = st.text_input("Traction")
     motorisation = st.text_input("Motorisation")
+
+# =========================
+# PERMIS
+# =========================
+
+permis = st.selectbox(
+    "Permis",
+    ["Avec permis", "Sans permis"]
+)
 
 # =========================
 # DATE PREMIERE MISE EN CIRCULATION
@@ -97,21 +113,26 @@ if st.button("Calculer la cotation"):
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
+        # Bonus carburant
         bonus_carburant = 0
-        if carburant:
-            if "electrique" in carburant.lower():
-                bonus_carburant = 2000
-            elif "hybride" in carburant.lower():
-                bonus_carburant = 1000
-            elif "diesel" in carburant.lower():
-                bonus_carburant = -500
+        if carburant == "Électrique":
+            bonus_carburant = 2000
+        elif carburant == "Hybride":
+            bonus_carburant = 1000
+        elif carburant == "Diesel":
+            bonus_carburant = -500
 
+        # Bonus boîte
         bonus_boite = 0
-        if boite:
-            if "auto" in boite.lower():
-                bonus_boite = 800
+        if boite == "Automatique":
+            bonus_boite = 800
 
-        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite
+        # Bonus permis (voiture sans permis)
+        bonus_permis = 0
+        if permis == "Sans permis":
+            bonus_permis = -3000  # valeur spécifique VSP
+
+        resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite + bonus_permis
 
         st.success(f"💰 Valeur estimée : {int(resultat)} €")
 
