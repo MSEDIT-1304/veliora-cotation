@@ -81,10 +81,34 @@ km = st.number_input("Kilométrage", 0, 300000, 50000)
 # OPTIONS
 # =========================
 
-st.subheader("✨ Options supplémentaires")
+st.subheader("✨ Options du véhicule")
 
-options = st.text_area(
-    "Exemples : sièges chauffants, caméra de recul, attelage, GPS, toit ouvrant..."
+options_list = [
+    "Attelage",
+    "Caméra de recul",
+    "GPS / Navigation",
+    "Sièges chauffants avant",
+    "Sièges chauffants avant + arrière",
+    "Connexion téléphone / Bluetooth",
+    "Android Auto / Apple CarPlay",
+    "Toit ouvrant",
+    "Feux LED / Xénon",
+    "Sellerie cuir",
+    "Radar de recul",
+    "Régulateur de vitesse",
+]
+
+options_selected = st.multiselect("Sélectionne les options", options_list)
+
+# =========================
+# ETAT DU VEHICULE 🔥
+# =========================
+
+st.subheader("🚘 État du véhicule")
+
+etat = st.selectbox(
+    "État général",
+    ["Mauvais", "Correct", "Bon", "Excellent"]
 )
 
 # =========================
@@ -126,35 +150,56 @@ if st.button("Calculer l'estimation"):
             valeur *= 1.05
 
         # =========================
-        # BONUS OPTIONS 🔥
+        # OPTIONS
         # =========================
 
         bonus = 0
 
-        options_lower = options.lower()
-
-        if "cuir" in options_lower:
-            bonus += 500
-        if "gps" in options_lower or "navigation" in options_lower:
-            bonus += 300
-        if "camera" in options_lower:
-            bonus += 300
-        if "attelage" in options_lower:
-            bonus += 200
-        if "chauffant" in options_lower:
-            bonus += 200
-        if "toit ouvrant" in options_lower:
-            bonus += 400
-        if "led" in options_lower:
-            bonus += 200
+        for opt in options_selected:
+            if opt == "Sellerie cuir":
+                bonus += 500
+            elif opt == "Toit ouvrant":
+                bonus += 400
+            elif opt == "GPS / Navigation":
+                bonus += 300
+            elif opt == "Caméra de recul":
+                bonus += 300
+            elif opt == "Attelage":
+                bonus += 200
+            elif opt == "Sièges chauffants avant":
+                bonus += 200
+            elif opt == "Sièges chauffants avant + arrière":
+                bonus += 300
+            elif opt == "Android Auto / Apple CarPlay":
+                bonus += 300
+            elif opt == "Connexion téléphone / Bluetooth":
+                bonus += 150
+            elif opt == "Feux LED / Xénon":
+                bonus += 200
+            elif opt == "Radar de recul":
+                bonus += 150
+            elif opt == "Régulateur de vitesse":
+                bonus += 150
 
         valeur += bonus
 
-        # sécurité
+        # =========================
+        # ETAT DU VEHICULE 🔥
+        # =========================
+
+        if etat == "Mauvais":
+            valeur *= 0.8
+        elif etat == "Correct":
+            valeur *= 0.95
+        elif etat == "Bon":
+            valeur *= 1.05
+        elif etat == "Excellent":
+            valeur *= 1.15
+
         valeur = max(valeur, 3000)
 
         # =========================
-        # PRIX MARCHÉ
+        # PRIX
         # =========================
 
         prix_bas = int(valeur * 0.85)
@@ -168,7 +213,7 @@ if st.button("Calculer l'estimation"):
         st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
 
         st.markdown(f"""
-👉 Avec TON kilométrage ({km} km) + finition + caractéristiques :
+👉 Avec TON kilométrage ({km} km) + état du véhicule :
 
 ### 🔻 Prix bas (vente rapide / état moyen)
 ➡️ **{prix_bas} €**
