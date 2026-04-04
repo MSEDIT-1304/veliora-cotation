@@ -1,39 +1,11 @@
 import streamlit as st
 from datetime import datetime
-import webbrowser
 
 # =========================
 # CONFIG
 # =========================
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
-
-# =========================
-# DESIGN PRO
-# =========================
-
-st.markdown("""
-<style>
-.main {background-color: #f5f7fb;}
-h1 {color: #1f2c56; font-weight: 700;}
-.section {
-    background-color: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
-.stButton button {
-    background-color: #1f77ff;
-    color: white;
-    border-radius: 10px;
-    height: 50px;
-    font-size: 18px;
-    font-weight: bold;
-    width: 100%;
-}
-</style>
-""", unsafe_allow_html=True)
 
 PASSWORD = "veliora2026"
 
@@ -64,43 +36,28 @@ st.title("🚗 Veliora Cotation Pro")
 # INFOS VEHICULE
 # =========================
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
-
 st.subheader("🚗 Informations véhicule")
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 finition = st.text_input("Finition")
 
-st.markdown('</div>', unsafe_allow_html=True)
-
 # =========================
 # CARACTERISTIQUES
 # =========================
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
-
 st.subheader("⚙️ Caractéristiques")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
-    boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
-
-with col2:
-    traction = st.text_input("Traction")
-    motorisation = st.text_input("Motorisation")
-
+carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
 
-st.markdown('</div>', unsafe_allow_html=True)
+traction = st.text_input("Traction (ex : 4WD)")
+motorisation = st.text_input("Motorisation (ex : 2.0 CRDI 136)")
 
 # =========================
 # DATE
 # =========================
-
-st.markdown('<div class="section">', unsafe_allow_html=True)
 
 st.subheader("📅 Date de première mise en circulation")
 
@@ -112,38 +69,26 @@ with col1:
 with col2:
     annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
 
-st.markdown('</div>', unsafe_allow_html=True)
-
 # =========================
 # KM
 # =========================
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
-
 st.subheader("📊 Kilométrage")
 
-km = st.number_input("Kilométrage du véhicule", 0, 300000, 50000)
-
-st.markdown('</div>', unsafe_allow_html=True)
+km = st.number_input("Kilométrage", 0, 300000, 50000)
 
 # =========================
-# INFOS VENDEUR
+# VENDEUR
 # =========================
-
-st.markdown('<div class="section">', unsafe_allow_html=True)
 
 st.subheader("👤 Informations vendeur")
 
 departement = st.text_input("Département")
 vendeur = st.text_input("Nom vendeur")
 
-st.markdown('</div>', unsafe_allow_html=True)
-
 # =========================
-# CALCUL COTATION
+# CALCUL
 # =========================
-
-st.markdown('<div class="section">', unsafe_allow_html=True)
 
 st.subheader("💰 Estimation")
 
@@ -152,27 +97,39 @@ if st.button("Calculer l'estimation"):
     try:
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
 
-        base = 18000
-        valeur = base * (0.78 ** age)
+        # 🔥 BASE REALISTE SUV / compact
+        base = 22000
 
+        # décote réaliste
+        valeur = base - (age * 1200)
+
+        # ajustement kilométrage
         km_moyen = age * 15000
-        valeur -= (km - km_moyen) * 0.07
+        valeur -= (km - km_moyen) * 0.05
 
+        # carburant
         if carburant == "Diesel":
-            valeur *= 0.9
+            valeur *= 0.95
         elif carburant == "Hybride":
             valeur *= 1.05
         elif carburant == "Électrique":
-            valeur *= 1.08
+            valeur *= 1.1
 
+        # boîte auto
         if boite == "Automatique":
-            valeur *= 1.03
+            valeur *= 1.05
 
-        # 🔥 PRIX MARCHÉ PARTICULIER
+        # minimum sécurité
+        valeur = max(valeur, 3000)
+
+        # 💥 PRIX MARCHÉ PARTICULIER
         prix_bas = int(valeur * 0.9)
         prix_haut = int(valeur * 1.15)
 
-        # 🔥 AFFICHAGE PRO
+        # =========================
+        # AFFICHAGE PRO
+        # =========================
+
         st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
 
         st.markdown(f"""
@@ -185,5 +142,3 @@ if st.button("Calculer l'estimation"):
 
     except Exception as e:
         st.error(f"Erreur : {e}")
-
-st.markdown('</div>', unsafe_allow_html=True)
