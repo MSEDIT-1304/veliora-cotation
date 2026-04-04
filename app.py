@@ -13,19 +13,15 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 st.markdown("""
 <style>
-
-/* Fond */
 .main {
     background-color: #f5f7fb;
 }
 
-/* Titre */
 h1 {
     color: #1f2c56;
     font-weight: 700;
 }
 
-/* Sections */
 .section {
     background-color: white;
     padding: 20px;
@@ -34,12 +30,10 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Inputs */
 .stTextInput input, .stNumberInput input {
     border-radius: 10px !important;
 }
 
-/* Bouton */
 .stButton button {
     background-color: #1f77ff;
     color: white;
@@ -53,7 +47,6 @@ h1 {
 .stButton button:hover {
     background-color: #155edc;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -137,6 +130,18 @@ with col2:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
+# KILOMETRAGE (PLACÉ AVANT VENDEUR)
+# =========================
+
+st.markdown('<div class="section">', unsafe_allow_html=True)
+
+st.subheader("📊 Kilométrage")
+
+km = st.number_input("Kilométrage du véhicule", 0, 300000, 50000)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# =========================
 # INFOS VENDEUR
 # =========================
 
@@ -144,14 +149,8 @@ st.markdown('<div class="section">', unsafe_allow_html=True)
 
 st.subheader("👤 Informations vendeur")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    km = st.number_input("Kilométrage", 0, 300000, 50000)
-
-with col2:
-    departement = st.text_input("Département")
-    vendeur = st.text_input("Nom vendeur")
+departement = st.text_input("Département")
+vendeur = st.text_input("Nom vendeur")
 
 st.markdown('</div>', unsafe_allow_html=True)
 
