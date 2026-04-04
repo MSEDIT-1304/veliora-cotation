@@ -101,7 +101,7 @@ options_list = [
 options_selected = st.multiselect("Sélectionne les options", options_list)
 
 # =========================
-# ETAT DU VEHICULE 🔥
+# ETAT VEHICULE
 # =========================
 
 st.subheader("🚘 État du véhicule")
@@ -130,24 +130,41 @@ if st.button("Calculer l'estimation"):
 
     try:
         age = datetime.now().year - annee + (datetime.now().month - mois)/12
+        modele_lower = modele.lower()
 
-        base = 22000
-        valeur = base - (age * 1200)
+        # =========================
+        # TYPE VEHICULE
+        # =========================
 
+        if any(x in modele_lower for x in ["clio", "208", "c3", "polo"]):
+            base = 16000
+        elif any(x in modele_lower for x in ["308", "megane", "golf"]):
+            base = 19000
+        elif any(x in modele_lower for x in ["3008", "qashqai", "tiguan", "ix35"]):
+            base = 24000
+        elif any(x in modele_lower for x in ["bmw", "audi", "mercedes"]):
+            base = 35000
+        else:
+            base = 18000
+
+        # décote
+        valeur = base - (age * 1400)
+
+        # kilométrage
         km_moyen = age * 15000
-        valeur -= (km - km_moyen) * 0.05
+        valeur -= (km - km_moyen) * 0.06
 
         # carburant
         if carburant == "Diesel":
-            valeur *= 0.95
+            valeur *= 0.92
         elif carburant == "Hybride":
-            valeur *= 1.05
+            valeur *= 1.03
         elif carburant == "Électrique":
-            valeur *= 1.1
+            valeur *= 1.05
 
         # boîte
         if boite == "Automatique":
-            valeur *= 1.05
+            valeur *= 1.03
 
         # =========================
         # OPTIONS
@@ -157,54 +174,54 @@ if st.button("Calculer l'estimation"):
 
         for opt in options_selected:
             if opt == "Sellerie cuir":
-                bonus += 500
+                bonus += 300
             elif opt == "Toit ouvrant":
-                bonus += 400
+                bonus += 300
             elif opt == "GPS / Navigation":
-                bonus += 300
+                bonus += 200
             elif opt == "Caméra de recul":
-                bonus += 300
+                bonus += 200
             elif opt == "Attelage":
-                bonus += 200
+                bonus += 150
             elif opt == "Sièges chauffants avant":
-                bonus += 200
+                bonus += 150
             elif opt == "Sièges chauffants avant + arrière":
-                bonus += 300
-            elif opt == "Android Auto / Apple CarPlay":
-                bonus += 300
-            elif opt == "Connexion téléphone / Bluetooth":
-                bonus += 150
-            elif opt == "Feux LED / Xénon":
                 bonus += 200
+            elif opt == "Android Auto / Apple CarPlay":
+                bonus += 200
+            elif opt == "Connexion téléphone / Bluetooth":
+                bonus += 100
+            elif opt == "Feux LED / Xénon":
+                bonus += 150
             elif opt == "Radar de recul":
-                bonus += 150
+                bonus += 100
             elif opt == "Régulateur de vitesse":
-                bonus += 150
+                bonus += 100
 
         valeur += bonus
 
         # =========================
-        # ETAT DU VEHICULE 🔥
+        # ETAT
         # =========================
 
         if etat == "Mauvais":
-            valeur *= 0.8
+            valeur *= 0.75
         elif etat == "Correct":
-            valeur *= 0.95
+            valeur *= 0.90
         elif etat == "Bon":
-            valeur *= 1.05
+            valeur *= 1.00
         elif etat == "Excellent":
-            valeur *= 1.15
+            valeur *= 1.10
 
         valeur = max(valeur, 3000)
 
         # =========================
-        # PRIX
+        # PRIX FINAL
         # =========================
 
         prix_bas = int(valeur * 0.85)
         prix_moyen = int(valeur)
-        prix_haut = int(valeur * 1.20)
+        prix_haut = int(valeur * 1.15)
 
         # =========================
         # AFFICHAGE
@@ -215,18 +232,15 @@ if st.button("Calculer l'estimation"):
         st.markdown(f"""
 👉 Avec TON kilométrage ({km} km) + état du véhicule :
 
-### 🔻 Prix bas (vente rapide / état moyen)
+### 🔻 Prix bas
 ➡️ **{prix_bas} €**
 
-### ⚖️ Prix marché (normal)
+### ⚖️ Prix marché
 ➡️ **{prix_moyen} €**
 
-### 🔺 Prix haut (véhicule propre / optimisé)
+### 🔺 Prix haut
 ➡️ **{prix_haut} €**
 """)
-
-        if bonus > 0:
-            st.info(f"✨ Impact des options : +{bonus} €")
 
     except Exception as e:
         st.error(f"Erreur : {e}")
