@@ -34,12 +34,7 @@ marques_list = [
 # ---------------- FORM ----------------
 st.markdown("### 🔎 Informations véhicule")
 
-# 🔥 MARQUE AVEC RECHERCHE (fonctionne vraiment)
-marque = st.selectbox(
-    "Marque (tu peux taper pour rechercher)",
-    marques_list
-)
-
+marque = st.selectbox("Marque (tu peux taper pour rechercher)", marques_list)
 modele = st.text_input("Modèle")
 sous_version = st.text_input("Sous-version")
 
@@ -89,56 +84,65 @@ if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - annee
 
-    # ---------------- BASE MARCHÉ ----------------
     base = 12000
 
-    # PREMIUM
-    premium = ["mercedes", "bmw", "audi", "porsche"]
-    if marque.lower() in premium:
-        base = 20000
+    # ---------------- FIX PREMIUM ----------------
+    marque_lower = marque.lower()
 
-    # TYPE VEHICULE
+    if marque_lower in ["mercedes", "bmw", "audi"]:
+        base = 22000
+
+    if marque_lower in ["porsche", "tesla"]:
+        base = 35000
+
+    # ---------------- TYPE VEHICULE ----------------
     if "suv" in modele.lower() or "tiguan" in modele.lower():
         base += 4000
-    if "coup" in modele.lower() or "cla" in modele.lower():
+
+    if "cla" in modele.lower() or "coup" in modele.lower():
         base += 3000
 
-    # FINITION
+    # ---------------- FINITION ----------------
     if "amg" in finition.lower():
-        base += 4000
-    if "rs" in finition.lower() or "gt" in finition.lower():
         base += 5000
 
-    # CARBURANT
-    if carburant == "Diesel":
-        base += 1000
-    if carburant == "Hybride":
-        base += 2000
-    if carburant == "Électrique":
-        base += 4000
+    if "rs" in finition.lower() or "gt" in finition.lower():
+        base += 6000
 
-    # BOITE
+    # ---------------- BOITE ----------------
     if boite == "Automatique":
         base += 2000
 
-    # AGE
-    base -= age * 1500
+    # ---------------- CARBURANT ----------------
+    if carburant == "Diesel":
+        base += 1000
 
-    # KM
+    if carburant == "Hybride":
+        base += 2000
+
+    if carburant == "Électrique":
+        base += 4000
+
+    # ---------------- AGE ----------------
+    base -= age * 1200
+
+    # ---------------- KM ----------------
     if km > 80000:
-        base -= 1500
+        base -= 1000
+
     if km > 120000:
-        base -= 2500
+        base -= 2000
 
-    # OPTIONS
-    base += len(options) * 400
+    # ---------------- OPTIONS ----------------
+    base += len(options) * 300
 
-    # SECURITE
-    if base < 7000:
-        base = 7000
+    # ---------------- SECURITE ----------------
+    if base < 8000:
+        base = 8000
 
-    prix_bas = int(base - 2000)
-    prix_haut = int(base + 3000)
+    prix_bas = int(base - 1500)
+    prix_moyen = int(base)
+    prix_haut = int(base + 2500)
 
     # ---------------- RESULTAT ----------------
     st.markdown("## 📊 COTATION RÉELLE (TON CAS PRÉCIS)")
@@ -146,9 +150,14 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"""
 👉 Avec TON véhicule ({km} km) + finition + caractéristiques :
 
-## 💥 PRIX MARCHÉ PARTICULIER
+### 🔻 Prix bas
+➡️ **{prix_bas} €**
 
-➡️ **{prix_bas} € → {prix_haut} €**
+### ⚖️ Prix marché
+➡️ **{prix_moyen} €**
+
+### 🔺 Prix haut
+➡️ **{prix_haut} €**
 """)
 
     st.success("✅ Estimation basée sur logique marché vendeur")
