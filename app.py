@@ -7,6 +7,56 @@ from datetime import datetime
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# =========================
+# DESIGN PRO
+# =========================
+
+st.markdown("""
+<style>
+
+/* Fond */
+.main {
+    background-color: #f5f7fb;
+}
+
+/* Titre */
+h1 {
+    color: #1f2c56;
+    font-weight: 700;
+}
+
+/* Sections */
+.section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+.stTextInput input, .stNumberInput input {
+    border-radius: 10px !important;
+}
+
+/* Bouton */
+.stButton button {
+    background-color: #1f77ff;
+    color: white;
+    border-radius: 10px;
+    height: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
+}
+
+.stButton button:hover {
+    background-color: #155edc;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 PASSWORD = "veliora2026"
 
 # =========================
@@ -36,70 +86,82 @@ st.title("🚗 Veliora Cotation Pro")
 # INFOS VEHICULE
 # =========================
 
+st.markdown('<div class="section">', unsafe_allow_html=True)
+
+st.subheader("🚗 Informations véhicule")
+
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 finition = st.text_input("Finition")
 
+st.markdown('</div>', unsafe_allow_html=True)
+
+# =========================
+# CARACTERISTIQUES
+# =========================
+
+st.markdown('<div class="section">', unsafe_allow_html=True)
+
+st.subheader("⚙️ Caractéristiques")
+
 col1, col2 = st.columns(2)
 
 with col1:
-    carburant = st.selectbox(
-        "Carburant",
-        ["Essence", "Diesel", "Hybride", "Électrique"]
-    )
-
-    boite = st.selectbox(
-        "Boîte",
-        ["Manuelle", "Automatique"]
-    )
+    carburant = st.selectbox("Carburant", ["Essence", "Diesel", "Hybride", "Électrique"])
+    boite = st.selectbox("Boîte", ["Manuelle", "Automatique"])
 
 with col2:
     traction = st.text_input("Traction")
     motorisation = st.text_input("Motorisation")
 
-# =========================
-# PERMIS
-# =========================
+permis = st.selectbox("Permis", ["Avec permis", "Sans permis"])
 
-permis = st.selectbox(
-    "Permis",
-    ["Avec permis", "Sans permis"]
-)
+st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# DATE PREMIERE MISE EN CIRCULATION
+# DATE
 # =========================
 
-st.markdown("### 📅 Date de première mise en circulation")
+st.markdown('<div class="section">', unsafe_allow_html=True)
 
-col_date1, col_date2 = st.columns(2)
+st.subheader("📅 Date de première mise en circulation")
 
-with col_date1:
+col1, col2 = st.columns(2)
+
+with col1:
     mois = st.selectbox("Mois", list(range(1, 13)))
 
-with col_date2:
+with col2:
     annee = st.selectbox("Année", list(range(1990, datetime.now().year + 1)))
 
+st.markdown('</div>', unsafe_allow_html=True)
+
 # =========================
-# INFOS COMPLEMENTAIRES
+# INFOS VENDEUR
 # =========================
 
-st.markdown("---")
+st.markdown('<div class="section">', unsafe_allow_html=True)
 
-col3, col4 = st.columns(2)
+st.subheader("👤 Informations vendeur")
 
-with col3:
+col1, col2 = st.columns(2)
+
+with col1:
     km = st.number_input("Kilométrage", 0, 300000, 50000)
 
-with col4:
+with col2:
     departement = st.text_input("Département")
     vendeur = st.text_input("Nom vendeur")
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
 # CALCUL
 # =========================
 
-st.markdown("---")
+st.markdown('<div class="section">', unsafe_allow_html=True)
+
+st.subheader("💰 Résultat")
 
 if st.button("Calculer la cotation"):
 
@@ -113,7 +175,7 @@ if st.button("Calculer la cotation"):
         km_moyen = age * 15000
         decote_km = (km - km_moyen) * 0.05
 
-        # Bonus carburant
+        # carburant
         bonus_carburant = 0
         if carburant == "Électrique":
             bonus_carburant = 2000
@@ -122,15 +184,15 @@ if st.button("Calculer la cotation"):
         elif carburant == "Diesel":
             bonus_carburant = -500
 
-        # Bonus boîte
+        # boîte
         bonus_boite = 0
         if boite == "Automatique":
             bonus_boite = 800
 
-        # Bonus permis (voiture sans permis)
+        # permis
         bonus_permis = 0
         if permis == "Sans permis":
-            bonus_permis = -3000  # valeur spécifique VSP
+            bonus_permis = -3000
 
         resultat = base - decote_age - decote_km + bonus_carburant + bonus_boite + bonus_permis
 
@@ -138,3 +200,5 @@ if st.button("Calculer la cotation"):
 
     except Exception as e:
         st.error(f"Erreur : {e}")
+
+st.markdown('</div>', unsafe_allow_html=True)
