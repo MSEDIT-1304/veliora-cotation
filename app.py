@@ -6,7 +6,7 @@ import os
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
-PAYMENT_LINK = "https://buy.stripe.com/test_7sYcN67QC1lbcmneek9fW00"
+PAYMENT_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "TonMotDePasseFort123!"
 FILE_PATH = "users.json"
@@ -25,165 +25,55 @@ def save_users(data):
 
 users = load_users()
 
-# ✅ ADMIN
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
-        "trial": False,
-        "verified": True,
-        "siret": "ADMIN",
-        "company": "ADMIN"
+        "trial": False
     }
     save_users(users)
-
-# ---------------- TRIAL ----------------
-def create_trial(username, password, siret, company):
-    users = load_users()
-    users[username] = {
-        "password": password,
-        "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        "trial": True,
-        "verified": False,
-        "siret": siret,
-        "company": company
-    }
-    save_users(users)
-
-# ---------------- CHECK ----------------
-def check_access(user):
-    if user["expire"] is None:
-        return True, None
-
-    expire = datetime.strptime(user["expire"], "%Y-%m-%d")
-    now = datetime.now()
-
-    if now > expire:
-        return False, "expired"
-
-    if expire - now <= timedelta(days=7):
-        return True, "warning"
-
-    return True, None
 
 # ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-
     st.title("🔐 Accès Veliora Pro")
 
-    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
+    user = st.text_input("Utilisateur", key="login_user")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
-    with tab1:
-        user = st.text_input("Utilisateur", key="login_user")
-        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
-
-        if st.button("Se connecter"):
-
-            users = load_users()
-
-            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-
-            if user in users and users[user]["password"] == pwd:
-
-                valid, status = check_access(users[user])
-
-                if not valid:
-                    st.error("⛔ Accès expiré")
-                    st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
-                    st.stop()
-
-                if status == "warning":
-                    st.warning("⚠️ Votre accès expire bientôt")
-
-                if not users[user].get("verified", False):
-                    st.error("⛔ Compte non validé")
-                    st.stop()
-
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-
-            else:
-                st.error("Identifiants incorrects")
-
-    with tab2:
-        new_user = st.text_input("Créer un utilisateur", key="trial_user")
-        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
-        company = st.text_input("Nom de l'entreprise")
-        siret = st.text_input("Numéro SIRET")
-
-        if st.button("Créer essai"):
-            if new_user in users:
-                st.error("Utilisateur déjà existant")
-            elif not siret or len(siret) != 14 or not siret.isdigit():
-                st.error("SIRET invalide (14 chiffres)")
-            elif not company:
-                st.error("Nom d'entreprise obligatoire")
-            else:
-                create_trial(new_user, new_pwd, siret.strip(), company)
-                st.success("Compte créé, connectez-vous")
+    if st.button("Se connecter"):
+        if user in users and users[user]["password"] == pwd:
+            st.session_state.auth = True
+            st.session_state.user = user
+            st.rerun()
+        else:
+            st.error("Identifiants incorrects")
 
     st.stop()
 
 # ---------------- APP ----------------
-
-users = load_users()
-user_data = users[st.session_state.user]
-
 st.write(f"👤 Connecté : {st.session_state.user}")
 
 st.markdown("## 🔐 Accès professionnel")
+st.success("✔️ Accès actif")
 
-if user_data.get("verified"):
-    st.success("✔️ Accès professionnel validé")
-else:
-    st.warning("⏳ Vérification du profil en cours")
-
-st.divider()
-
-# 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
-# ✅ ACTIVATION 1 AN
 if st.button("✅ J’ai payé → Activer mon abonnement"):
-    users = load_users()
     users[st.session_state.user]["expire"] = (
         datetime.now() + timedelta(days=365)
     ).strftime("%Y-%m-%d")
     save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
-# ---------------- ADMIN PANEL ----------------
-if st.session_state.user == ADMIN_USERNAME:
-    st.subheader("🛠️ Validation des comptes")
+st.divider()
 
-    for u, data in users.items():
-        if u != ADMIN_USERNAME and not data.get("verified", False):
-            st.write(f"👤 {u} | {data.get('company')} | SIRET: {data.get('siret')}")
-
-            if st.button(f"✅ Valider {u}"):
-                users[u]["verified"] = True
-                save_users(users)
-                st.success(f"{u} validé")
-                st.rerun()
-
-# ---------------- APP METIER ----------------
-
+# ---------------- FORMULAIRE ----------------
 st.title("🚗 VELIORA COTATION PRO")
-st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-marques = [
-    "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault",
-    "Toyota","Hyundai","Kia","Ford","Nissan","Volvo"
-]
-
-marque = st.selectbox("Marque", marques)
+marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 sous_version = st.text_input("Sous-version")
 
@@ -192,86 +82,109 @@ col1, col2 = st.columns(2)
 with col1:
     finition = st.text_input("Finition")
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA"])
 
 with col2:
     motorisation = st.text_input("Motorisation")
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+    etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+    commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
-
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 options = st.multiselect(
-    "Options du véhicule",
+    "Options",
     [
-        "Climatisation automatique","Accès sans clé","Hayon électrique",
-        "Sellerie cuir","Sièges chauffants","Sièges électriques",
-        "Régulateur de vitesse","Régulateur adaptatif","Radar de recul",
-        "Caméra de recul","Caméra 360","GPS / Navigation",
-        "Bluetooth","CarPlay / Android Auto","Système audio premium",
-        "Jantes alliage","Toit ouvrant","Toit panoramique",
-        "Feux LED","Attelage","Détecteur angle mort"
+        "Sellerie cuir","Toit panoramique","Caméra 360",
+        "Système audio premium","GPS","Sièges chauffants",
+        "CarPlay","Android Auto","Attelage"
     ]
 )
 
-# ---------------- ESTIMATION ----------------
-
+# ---------------- ESTIMATION PRO ----------------
 if st.button("Calculer l'estimation"):
 
-    age = datetime.now().year - int(annee)
-    base = 15000
+    base = 20000
+    age = datetime.now().year - annee
 
-    if marque.lower() in ["mercedes","bmw","audi"]:
-        base += 7000
+    # SEGMENT / MODELE
+    if "suv" in modele.lower() or "3008" in modele.lower():
+        base += 3000
+    if "clio" in modele.lower() or "208" in modele.lower():
+        base -= 3000
 
-    if "tiguan" in modele.lower():
-        base = 26000
-
-    if "ix35" in modele.lower():
-        base = 12000
-
-    if "cla" in modele.lower():
-        base = 28000
-
-    if "amg" in finition.lower():
+    # PREMIUM
+    if marque.lower() in ["bmw","audi","mercedes"]:
         base += 4000
 
+    # BOITE
     if boite == "Automatique":
         base += 1500
 
+    # TECHNO BOITE
+    if techno in ["DSG","EDC"]:
+        base += 500
+
+    # CARBURANT
     if carburant == "Diesel":
-        base += 800
+        base += 500
+    elif carburant == "Hybride":
+        base += 3000
+    elif carburant == "Électrique":
+        base += 6000
 
-    if portes <= 3:
-        base += 400
-    elif portes == 5:
-        base += 200
+    # TRACTION
+    if traction in ["4x4","4WD"]:
+        base += 1200
 
-    base -= age * 1200
+    # ETAT
+    if etat == "Excellent état":
+        base += 1500
 
+    # AGE
+    base -= age * 800
+
+    # KM
     if km > 80000:
-        base -= 1000
+        base -= 800
+    if km > 120000:
+        base -= 1500
 
-    bonus = 0
-    for opt in options:
-        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
-            bonus += 500
-        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants"]:
-            bonus += 300
-        else:
-            bonus += 150
-
+    # OPTIONS
+    bonus = len(options) * 300
     base += bonus
 
-    prix_bas = int(base - 1500)
-    prix_moyen = int(base)
-    prix_haut = int(base + 2500)
+    # PRIX (ajustement -650 comme tu voulais)
+    prix_bas = int(base - 1500 - 650)
+    prix_moyen = int(base - 650)
+    prix_haut = int(base + 2500 - 650)
+
+    # NET VENDEUR
+    net_bas = prix_bas - commission
+    net_moyen = prix_moyen - commission
+    net_haut = prix_haut - commission
+
+    # INDICATEUR
+    if prix_moyen < base:
+        label = "🟢 Bonne affaire"
+    elif prix_moyen < base + 1000:
+        label = "🟢 Très bonne affaire"
+    else:
+        label = "🔴 Prix élevé"
+
+    st.markdown("## 📊 ESTIMATION PRO")
 
     st.markdown(f"""
-## 📊 COTATION RÉELLE
+### 💰 Prix de vente
+🔻 Bas : {prix_bas} €  
+⚖️ Marché : {prix_moyen} € {label}  
+🔺 Haut : {prix_haut} €
 
-🔻 Prix bas : {prix_bas} €  
-⚖️ Prix marché : {prix_moyen} €  
-🔺 Prix haut : {prix_haut} €
+### 🧾 Prix net vendeur
+🔻 Bas : {net_bas} €  
+⚖️ Moyen : {net_moyen} €  
+🔺 Haut : {net_haut} €
 """)
