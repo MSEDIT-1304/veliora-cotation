@@ -134,23 +134,14 @@ if st.button("🚀 Estimer"):
     elif transmission == "Propulsion":
         valeur *= 1.03
 
-    # 🔥 SOUS-VERSION (ULTRA IMPORTANT)
+    # SOUS-VERSION
     v = sous_version.lower()
 
-    if any(x in v for x in [
-        "amg","rs","gti","gtd","m ","m sport","gt","cupra","vrs"
-    ]):
+    if any(x in v for x in ["amg","rs","gti","gtd","m ","m sport","gt","cupra","vrs"]):
         valeur *= 1.18
-
-    elif any(x in v for x in [
-        "line","s line","gt line","r line","allure","shine",
-        "intens","initiale","business","exclusive"
-    ]):
+    elif any(x in v for x in ["line","s line","gt line","r line","allure","shine","intens","initiale","business","exclusive"]):
         valeur *= 1.08
-
-    elif any(x in v for x in [
-        "access","trend","life","active","essential"
-    ]):
+    elif any(x in v for x in ["access","trend","life","active","essential"]):
         valeur *= 0.93
 
     # BOITE
@@ -175,26 +166,31 @@ if st.button("🚀 Estimer"):
     if valeur < 3000:
         valeur = 3000
 
-    # PRIX VENDEUR
+    # PRIX
     prix_bas = int(valeur * 0.92)
     prix_moyen = int(valeur + 700)
     prix_haut = int(prix_moyen + 700)
 
-    # VERDICT
+    # VERDICT + BADGE
     if prix_bas < valeur * 0.9:
-        verdict = "🔥 Très bonne affaire"
+        verdict = "Très bonne affaire"
+        badge = "🟢✔️✔️"
     elif prix_bas < valeur:
-        verdict = "✅ Bonne affaire"
+        verdict = "Bonne affaire"
+        badge = "🟢✔️"
     else:
-        verdict = "⚠️ Prix élevé"
+        verdict = "Prix élevé"
+        badge = "🔴⚠️"
 
     # RESULTAT
     st.markdown(f"""
 ## 💰 PRIX NET VENDEUR
 
-- Bas : **{prix_bas} €**
-- Moyen : **{prix_moyen} €**
-- Haut : **{prix_haut} €**
+**Bas** : {prix_bas} €  
+
+**Moyen** : {prix_moyen} € {badge}  
+
+**Haut** : {prix_haut} €  
 
 ### {verdict}
 """)
