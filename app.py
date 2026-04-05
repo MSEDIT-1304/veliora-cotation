@@ -53,28 +53,19 @@ if not st.session_state.auth:
 
 st.title("🚗 VELIORA COTATION VENDEUR")
 
-# 🔥 Suggestions marques
-st.caption("Exemples : Audi, BMW, Peugeot, Tesla, Lexus…")
+st.caption("Exemples : Audi, BMW, Peugeot, Tesla…")
 
+# 🔥 MARQUE / MODELE
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 
-# 🔥 Base modèles (suggestion uniquement)
-models_db = {
-    "audi": ["A1","A3","A4","A5","A6","Q2","Q3","Q5"],
-    "bmw": ["Série 1","Série 3","X1","X3","X5"],
-    "peugeot": ["208","308","3008","5008"],
-    "renault": ["Clio","Megane","Captur"],
-    "volkswagen": ["Polo","Golf","Tiguan"],
-}
+# 🔥 SOUS VERSION (BIEN VISIBLE)
+sous_version = st.text_input(
+    "Finition / Sous-version",
+    placeholder="Ex : AMG, S Line, GT Line, Business…"
+)
 
-if marque.lower() in models_db:
-    st.caption(f"Suggestions modèles : {', '.join(models_db[marque.lower()])}")
-
-# ---------------- AUTRES INFOS ----------------
-
-sous_version = st.text_input("Finition / Sous-version (ex: AMG, GT Line...)")
-
+# 🔥 INFOS VEHICULE
 annee = st.number_input("Année", 1990, datetime.now().year, 2018)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
@@ -152,7 +143,7 @@ if st.button("🚀 Estimer"):
     elif transmission == "Propulsion":
         valeur *= 1.03
 
-    # SOUS-VERSION
+    # 🔥 SOUS-VERSION (TRÈS IMPORTANT)
     v = sous_version.lower()
 
     if any(x in v for x in ["amg","rs","gti","gtd","m ","m sport","gt","cupra","vrs"]):
@@ -175,7 +166,7 @@ if st.button("🚀 Estimer"):
     # OPTIONS
     valeur += len(options) * 120
 
-    # AJUSTEMENT MARCHÉ
+    # AJUSTEMENT
     valeur *= 1.05
 
     # CORRECTION PRIX
@@ -189,7 +180,7 @@ if st.button("🚀 Estimer"):
     prix_moyen = int(valeur + 700)
     prix_haut = int(prix_moyen + 700)
 
-    # VERDICT + BADGE
+    # VERDICT
     if prix_bas < valeur * 0.9:
         verdict = "Très bonne affaire"
         badge = "🟢✔️✔️"
@@ -214,4 +205,4 @@ if st.button("🚀 Estimer"):
 """)
 
     if sous_version:
-        st.success(f"✔️ Finition détectée : {sous_version}")
+        st.success(f"✔️ Finition prise en compte : {sous_version}")
