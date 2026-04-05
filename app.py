@@ -98,12 +98,48 @@ portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
+# ---------------- OPTIONS ----------------
 options = st.multiselect(
-    "Options",
+    "Options du véhicule",
     [
-        "Sellerie cuir","Toit panoramique","Caméra 360",
-        "Système audio premium","GPS","Sièges chauffants",
-        "CarPlay","Android Auto","Attelage"
+        "Climatisation automatique",
+        "Accès sans clé",
+        "Hayon électrique",
+
+        "Sellerie cuir",
+        "Sièges chauffants avant",
+        "Sièges chauffants avant + arrière",
+        "Sièges électriques",
+
+        "Régulateur de vitesse",
+        "Régulateur adaptatif",
+
+        "Radar de recul",
+        "Bips avant",
+        "Bips arrière",
+        "Caméra de recul",
+        "Caméra 360",
+
+        "GPS / Navigation",
+
+        "Bluetooth",
+        "Connexion Apple CarPlay",
+        "Connexion Android Auto",
+
+        "Système audio premium",
+
+        "Rétroviseurs chauffants",
+        "Rétroviseurs électriques rabattables",
+
+        "Jantes alliage",
+        "Toit ouvrant",
+        "Toit panoramique",
+
+        "Feux LED",
+
+        "Attelage",
+
+        "Détecteur angle mort"
     ]
 )
 
@@ -158,11 +194,19 @@ if st.button("Calculer l'estimation"):
     if km > 120000:
         base -= 1500
 
-    # OPTIONS
-    bonus = len(options) * 300
+    # OPTIONS pondérées
+    bonus = 0
+    for opt in options:
+        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
+            bonus += 500
+        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants avant"]:
+            bonus += 300
+        else:
+            bonus += 150
+
     base += bonus
 
-    # PRIX
+    # PRIX (-650 comme demandé)
     prix_bas = int(base - 1500 - 650)
     prix_moyen = int(base - 650)
     prix_haut = int(base + 2500 - 650)
