@@ -65,7 +65,6 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    # -------- LOGIN --------
     with tab1:
         user = st.text_input("Utilisateur", key="login_user")
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
@@ -98,7 +97,6 @@ if not st.session_state.auth:
             else:
                 st.error("❌ Identifiants incorrects")
 
-    # -------- TRIAL --------
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
@@ -134,6 +132,9 @@ km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key="carburant")
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
+
+motorisation = st.text_input("Motorisation (ex: 1.5 dCi 110)", key="motorisation")
+portes = st.selectbox("Nombre de portes", [3, 5], key="portes")
 
 options = st.multiselect(
     "Options",
@@ -186,6 +187,24 @@ if st.button("🚀 Calculer mon estimation", use_container_width=True, key="btn_
         valeur -= (ecart_km / 10000) * 500
     else:
         valeur += abs(ecart_km / 10000) * 300
+
+    # 🔥 MOTORISATION
+    motorisation_lower = motorisation.lower()
+
+    if "90" in motorisation_lower or "100" in motorisation_lower:
+        valeur *= 0.95
+    elif "110" in motorisation_lower or "120" in motorisation_lower:
+        valeur *= 1.00
+    elif "130" in motorisation_lower or "150" in motorisation_lower:
+        valeur *= 1.05
+    elif "200" in motorisation_lower or "gt" in motorisation_lower:
+        valeur *= 1.10
+
+    # 🔥 PORTES
+    if portes == 3:
+        valeur *= 0.95
+    elif portes == 5:
+        valeur *= 1.02
 
     # 🔥 OPTIONS
     bonus = 0
@@ -244,4 +263,6 @@ if st.button("🚀 Calculer mon estimation", use_container_width=True, key="btn_
 - {marque} {modele}
 - {annee} • {km} km
 - {carburant} • {boite}
+- {motorisation}
+- {portes} portes
 """)
