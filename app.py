@@ -25,46 +25,32 @@ def save_users(data):
 
 users = load_users()
 
-# ADMIN sécurisé
+# ADMIN
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
-        "trial": False,
-        "verified": True,
-        "siret": "ADMIN",
-        "company": "ADMIN"
+        "trial": False
     }
     save_users(users)
 
 # ---------------- TRIAL ----------------
-def create_trial(username, password, siret, company):
+def create_trial(username, password):
     users = load_users()
     users[username] = {
         "password": password,
         "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        "trial": True,
-        "verified": False,
-        "siret": siret,
-        "company": company
+        "trial": True
     }
     save_users(users)
 
 # ---------------- CHECK ----------------
 def check_access(user):
     if user["expire"] is None:
-        return True, None
+        return True
 
     expire = datetime.strptime(user["expire"], "%Y-%m-%d")
-    now = datetime.now()
-
-    if now > expire:
-        return False, "expired"
-
-    if expire - now <= timedelta(days=7):
-        return True, "warning"
-
-    return True, None
+    return datetime.now() <= expire
 
 # ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
@@ -78,58 +64,34 @@ if not st.session_state.auth:
 
     # LOGIN
     with tab1:
-        user = st.text_input("Utilisateur", key="login_user")
-        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+        user = st.text_input("Utilisateur")
+        pwd = st.text_input("Mot de passe", type="password")
 
         if st.button("Se connecter"):
-
             users = load_users()
 
-            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-
             if user in users and users[user]["password"] == pwd:
-
-                valid, status = check_access(users[user])
-
-                if not valid:
+                if not check_access(users[user]):
                     st.error("⛔ Accès expiré")
                     st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
                     st.stop()
 
-                if status == "warning":
-                    st.warning("⚠️ Votre accès expire bientôt")
-
-                if not users[user].get("verified", False):
-                    st.error("⛔ Compte non validé")
-                    st.info("📩 Validation après réception et contrôle du KBIS")
-                    st.stop()
-
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
-
             else:
                 st.error("Identifiants incorrects")
 
     # TRIAL
     with tab2:
-        new_user = st.text_input("Créer un utilisateur", key="trial_user")
-        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
-        company = st.text_input("Nom de l'entreprise")
-        siret = st.text_input("Numéro SIRET")
+        new_user = st.text_input("Créer un utilisateur")
+        new_pwd = st.text_input("Mot de passe", type="password")
 
         if st.button("Créer essai"):
             if new_user in users:
                 st.error("Utilisateur déjà existant")
-            elif not siret or len(siret) != 14 or not siret.isdigit():
-                st.error("SIRET invalide (14 chiffres)")
-            elif not company:
-                st.error("Nom d'entreprise obligatoire")
             else:
-                create_trial(new_user, new_pwd, siret.strip(), company)
+                create_trial(new_user, new_pwd)
                 st.success("Compte créé, connectez-vous")
 
     st.stop()
@@ -141,30 +103,15 @@ user_data = users[st.session_state.user]
 
 st.write(f"👤 Connecté : {st.session_state.user}")
 
-# UX PRO
-st.markdown("## 🔐 Accès professionnel")
-
-if user_data.get("verified"):
-    st.success("✔️ Accès professionnel validé")
-    st.markdown("""
-✔️ Profil entreprise enregistré  
-✔️ Vérification validée  
-✔️ Accès sécurisé Veliora Pro
-""")
-else:
-    st.warning("⏳ Vérification du profil en cours")
-    st.markdown("""
-✔️ Profil entreprise enregistré  
-✔️ Vérification en cours  
-✔️ Accès sécurisé Veliora Pro  
-""")
+st.markdown("## 🔐 Accès Veliora Pro")
+st.success("✔️ Accès actif")
 
 st.divider()
 
 # 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
-# 🔥 ACTIVATION ANNUELLE
+# ACTIVATION 1 AN
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users = load_users()
     users[st.session_state.user]["expire"] = (
@@ -227,43 +174,12 @@ if st.button("Calculer l'estimation"):
     if marque.lower() in ["mercedes","bmw","audi"]:
         base += 7000
 
-    if "tiguan" in modele.lower():
-        base = 26000
-
-    if "ix35" in modele.lower():
-        base = 12000
-
-    if "cla" in modele.lower():
-        base = 28000
-
-    if "amg" in finition.lower():
-        base += 4000
-
-    if boite == "Automatique":
-        base += 1500
-
-    if carburant == "Diesel":
-        base += 800
-
-    if portes <= 3:
-        base += 400
-    elif portes == 5:
-        base += 200
-
     base -= age * 1200
 
     if km > 80000:
         base -= 1000
 
-    bonus = 0
-    for opt in options:
-        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
-            bonus += 500
-        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants"]:
-            bonus += 300
-        else:
-            bonus += 150
-
+    bonus = len(options) * 150
     base += bonus
 
     prix_bas = int(base - 1500)
@@ -271,9 +187,9 @@ if st.button("Calculer l'estimation"):
     prix_haut = int(base + 2500)
 
     st.markdown(f"""
-## 📊 COTATION RÉELLE
+## 📊 COTATION
 
 🔻 Prix bas : {prix_bas} €  
-⚖️ Prix marché : {prix_moyen} €  
+⚖️ Prix moyen : {prix_moyen} €  
 🔺 Prix haut : {prix_haut} €
 """)
