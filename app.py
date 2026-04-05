@@ -94,7 +94,6 @@ etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# OPTIONS
 options = st.multiselect(
     "Options du véhicule",
     [
@@ -108,7 +107,6 @@ options = st.multiselect(
     ]
 )
 
-# COMMISSION
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- ESTIMATION ----------------
@@ -152,9 +150,10 @@ if st.button("Calculer l'estimation"):
 
     base += len(options) * 100
 
-    base *= 0.85
+    # 🔥 AJUSTEMENT FINAL
+    base *= 0.90
 
-    # ---------------- COMPARATIF ANNONCES ----------------
+    # ---------------- COMPARATIF ----------------
     annonces = []
 
     for i in range(5):
@@ -176,7 +175,6 @@ if st.button("Calculer l'estimation"):
 
     net = prix_moyen - commission
 
-    # ---------------- AFFICHAGE ----------------
     st.markdown("## 📊 ESTIMATION")
 
     st.markdown(f"""
@@ -189,7 +187,7 @@ if st.button("Calculer l'estimation"):
 ➡️ {net} €
 """)
 
-    st.markdown("## 📈 COMPARATIF ANNONCES MARCHÉ")
+    st.markdown("## 📈 COMPARATIF ANNONCES")
 
     for km_a, prix_a in annonces:
         st.write(f"🚗 {km_a} km → {prix_a} €")
