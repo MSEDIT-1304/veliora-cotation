@@ -27,16 +27,26 @@ def save_users(data):
 users = load_users()
 
 # ADMIN sécurisé
-users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
+users[ADMIN_USERNAME] = {
+    "password": ADMIN_PASSWORD,
+    "expire": None,
+    "trial": False,
+    "verified": True,
+    "siret": "ADMIN",
+    "company": "ADMIN"
+}
 save_users(users)
 
 # ---------------- TRIAL ----------------
-def create_trial(username, password):
+def create_trial(username, password, siret, company):
     users = load_users()
     users[username] = {
         "password": password,
         "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        "trial": True
+        "trial": True,
+        "verified": False,
+        "siret": siret,
+        "company": company
     }
     save_users(users)
 
@@ -89,10 +99,17 @@ if not st.session_state.auth:
                 if not valid:
                     st.error("⛔ Accès expiré")
                     st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
+                    st.info("📩 Après paiement, envoyez votre KBIS pour validation.")
                     st.stop()
 
                 if status == "warning":
                     st.warning("⚠️ Votre accès expire bientôt")
+
+                # 🔒 VERIFICATION PRO
+                if not users[user].get("verified", False):
+                    st.error("⛔ Compte non validé (KBIS requis)")
+                    st.info("📩 Envoyez votre KBIS après paiement pour activer votre compte.")
+                    st.stop()
 
                 st.session_state.auth = True
                 st.session_state.user = user
@@ -105,12 +122,18 @@ if not st.session_state.auth:
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
+        company = st.text_input("Nom de l'entreprise")
+        siret = st.text_input("Numéro SIRET")
 
         if st.button("Créer essai"):
             if new_user in users:
                 st.error("Utilisateur déjà existant")
+            elif not siret or len(siret) != 14 or not siret.isdigit():
+                st.error("SIRET invalide (14 chiffres)")
+            elif not company:
+                st.error("Nom d'entreprise obligatoire")
             else:
-                create_trial(new_user, new_pwd)
+                create_trial(new_user, new_pwd, siret, company)
                 st.success("Compte créé, connectez-vous")
 
     st.stop()
@@ -118,6 +141,21 @@ if not st.session_state.auth:
 # ---------------- APP ----------------
 
 st.write(f"👤 Connecté : {st.session_state.user}")
+
+# ---------------- ADMIN PANEL ----------------
+if st.session_state.user == ADMIN_USERNAME:
+    st.subheader("🛠️ Validation des comptes")
+
+    users = load_users()
+    for u, data in users.items():
+        if u != ADMIN_USERNAME and not data.get("verified", False):
+            st.write(f"👤 {u} | {data.get('company')} | SIRET: {data.get('siret')}")
+
+            if st.button(f"✅ Valider {u}"):
+                users[u]["verified"] = True
+                save_users(users)
+                st.success(f"{u} validé")
+                st.rerun()
 
 st.title("🚗 VELIORA COTATION PRO")
 st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
@@ -143,13 +181,11 @@ with col2:
     motorisation = st.text_input("Motorisation")
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-# 🔥 NOMBRE DE PORTES (AJOUTÉ PROPREMENT)
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# 🔥 OPTIONS COMPLÈTES
 options = st.multiselect(
     "Options du véhicule",
     [
@@ -170,11 +206,9 @@ if st.button("Calculer l'estimation"):
     age = datetime.now().year - int(annee)
     base = 15000
 
-    # Marque premium
     if marque.lower() in ["mercedes","bmw","audi"]:
         base += 7000
 
-    # Modèles connus
     if "tiguan" in modele.lower():
         base = 26000
 
@@ -184,32 +218,25 @@ if st.button("Calculer l'estimation"):
     if "cla" in modele.lower():
         base = 28000
 
-    # Finition
     if "amg" in finition.lower():
         base += 4000
 
-    # Boîte
     if boite == "Automatique":
         base += 1500
 
-    # Carburant
     if carburant == "Diesel":
         base += 800
 
-    # 🔥 PORTES (IMPORTANT)
     if portes <= 3:
         base += 400
     elif portes == 5:
         base += 200
 
-    # Âge
     base -= age * 1200
 
-    # Kilométrage
     if km > 80000:
         base -= 1000
 
-    # 🔥 OPTIONS INTELLIGENTES
     bonus = 0
     for opt in options:
         if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
