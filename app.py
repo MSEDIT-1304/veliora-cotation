@@ -77,12 +77,10 @@ motorisation = st.text_input("Motorisation")
 
 portes = st.selectbox("Portes", [1,2,3,4,5])
 
-# ✅ TRANSMISSION AVEC "-"
 transmission = st.selectbox("Transmission", ["-","Traction","Propulsion","4WD"])
 
 options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
 
-# COMMISSION
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- CALCUL ----------------
@@ -115,7 +113,6 @@ if st.button("🚀 Estimer"):
     if "clio" in modele.lower() or "208" in modele.lower():
         prix_neuf = 18000
 
-    # DÉCOTE
     if age <= 1:
         valeur = prix_neuf * 0.85
     elif age <= 3:
@@ -127,72 +124,73 @@ if st.button("🚀 Estimer"):
     else:
         valeur = prix_neuf * 0.42
 
-    # KM
     km_moyen = age * 15000
     valeur += (km_moyen - km) * 0.025
 
-    # MOTORISATION
     if "150" in motorisation.lower():
         valeur *= 1.08
 
-    # PORTES
     if portes <= 2:
         valeur *= 0.93
     elif portes == 5:
         valeur *= 1.03
 
-    # TRANSMISSION
     if transmission == "4WD":
         valeur *= 1.08
     elif transmission == "Propulsion":
         valeur *= 1.03
 
-    # FINITION
     if "amg" in finition.lower():
         valeur *= 1.18
     elif "line" in finition.lower():
         valeur *= 1.08
 
-    # SOUS VERSION
     if "full" in sous_version.lower():
         valeur *= 1.05
     elif "pack" in sous_version.lower():
         valeur *= 1.03
 
-    # BOITE
     if boite == "Automatique":
         valeur *= 1.05
 
-    # TECHNO BOITE
     if any(x in tech_boite.lower() for x in ["dsg","eat","pdk"]):
         valeur *= 1.03
 
-    # CARBURANT
     if carburant == "Diesel":
         valeur *= 0.95
     elif carburant == "Électrique":
         valeur *= 1.20
 
-    # OPTIONS
     valeur += len(options) * 120
 
-    # AJUSTEMENT
     valeur *= 1.05
 
     if valeur < 3000:
         valeur = 3000
 
-    # 🔥 CORRECTION -650 SUR LES PRIX
     correction = 650
 
     prix_bas = int((valeur * 0.92) - correction)
     prix_moyen = int((valeur + 700) - correction)
     prix_haut = int(prix_moyen + 700)
 
-    # NET VENDEUR
     net_bas = prix_bas - commission
     net_moyen = prix_moyen - commission
     net_haut = prix_haut - commission
+
+    # 🔥 TEMPS DE VENTE INTELLIGENT
+    if prix_moyen < valeur:
+        delai = "⚡ Vente rapide estimée : 7 jours"
+    elif prix_moyen <= valeur * 1.05:
+        delai = "🔥 Vente estimée : 15 jours"
+    else:
+        delai = "⏳ Vente lente estimée : 30 jours"
+
+    # BONUS
+    if km < km_moyen:
+        delai = delai.replace("15", "10")
+    if boite == "Automatique":
+        delai = delai.replace("30", "20")
 
     # VERDICT
     if prix_bas < valeur * 0.9:
@@ -220,6 +218,12 @@ if st.button("🚀 Estimer"):
 **Bas** : {net_bas} €  
 **Moyen** : {net_moyen} €  
 **Haut** : {net_haut} €  
+
+---
+
+## ⏱️ TEMPS DE VENTE
+
+{delai}
 
 ### {verdict}
 """)
