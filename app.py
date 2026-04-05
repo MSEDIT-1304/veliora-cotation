@@ -25,8 +25,15 @@ def save_users(data):
         json.dump(data, f)
 
 users = load_users()
-users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
-save_users(users)
+
+# ✅ FIX ADMIN (IMPORTANT)
+if ADMIN_USERNAME not in users:
+    users[ADMIN_USERNAME] = {
+        "password": ADMIN_PASSWORD,
+        "expire": None,
+        "trial": False
+    }
+    save_users(users)
 
 # ---------------- TRIAL ----------------
 def create_trial(username, password):
@@ -41,14 +48,10 @@ def create_trial(username, password):
 # ---------------- CHECK ----------------
 def check_access(user):
     if user["expire"] is None:
-        return True, None
+        return True
+
     expire = datetime.strptime(user["expire"], "%Y-%m-%d")
-    now = datetime.now()
-    if now > expire:
-        return False, "expired"
-    if expire - now <= timedelta(days=7):
-        return True, "warning"
-    return True, None
+    return datetime.now() <= expire
 
 # ---------------- AUTH ----------------
 if "auth" not in st.session_state:
@@ -57,6 +60,7 @@ if "auth" not in st.session_state:
 if not st.session_state.auth:
 
     st.title("🔐 Accès Veliora Pro")
+    st.info("Compte admin : admin / TonMotDePasseFort123!")
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit"])
 
@@ -67,23 +71,18 @@ if not st.session_state.auth:
         if st.button("Se connecter", key="btn_login"):
             users = load_users()
 
-            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-
             if user in users and users[user]["password"] == pwd:
-                valid, _ = check_access(users[user])
-                if not valid:
-                    st.error("Accès expiré")
-                    st.markdown(f"[S'abonner]({PAYMENT_LINK})")
+
+                if not check_access(users[user]):
+                    st.error("⛔ Accès expiré")
+                    st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
                     st.stop()
 
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
             else:
-                st.error("Identifiants incorrects")
+                st.error("❌ Identifiants incorrects")
 
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
@@ -116,8 +115,13 @@ km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+
 motorisation = st.text_input("Motorisation")
-portes = st.selectbox("Portes", [1,2,3,4,5])
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
+
+transmission = st.selectbox("Transmission", ["Traction","Propulsion","4x4 / AWD"])
+
+sous_version = st.text_input("Finition (ex: AMG, S-Line, GT Line...)")
 
 options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
 
@@ -125,38 +129,67 @@ options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"]
 
 if st.button("🚀 Estimer"):
 
-    with st.spinner("Analyse marché..."):
+    with st.spinner("Analyse du marché..."):
         time.sleep(1)
 
     age = datetime.now().year - annee
 
-    # SEGMENT
-    modele_lower = modele.lower()
-    if "suv" in modele_lower or "3008" in modele_lower:
-        prix_neuf = 32000
-    elif "clio" in modele_lower or "208" in modele_lower:
-        prix_neuf = 18000
-    else:
-        prix_neuf = 25000
+    # PRIX NEUF
+    prix_neuf = 25000
 
-    # PREMIUM
     if marque.lower() in ["bmw","audi","mercedes"]:
-        prix_neuf *= 1.5
+        prix_neuf = 45000
 
-    # DÉCOTE
-    valeur = prix_neuf * 0.8
-    for i in range(age):
-        valeur *= 0.9
+    if marque.lower() == "dacia":
+        prix_neuf = 18000
+
+    if "suv" in modele.lower() or "3008" in modele.lower():
+        prix_neuf += 5000
+
+    if "clio" in modele.lower() or "208" in modele.lower():
+        prix_neuf = 18000
+
+    # DÉCOTE PRO
+    if age <= 1:
+        valeur = prix_neuf * 0.85
+    elif age <= 3:
+        valeur = prix_neuf * 0.70
+    elif age <= 5:
+        valeur = prix_neuf * 0.60
+    elif age <= 8:
+        valeur = prix_neuf * 0.50
+    else:
+        valeur = prix_neuf * 0.40
 
     # KM
     km_moyen = age * 15000
     valeur += (km_moyen - km) * 0.02
+
+    # MOTORISATION
+    m = motorisation.lower()
+    if "150" in m or "gt" in m:
+        valeur *= 1.08
+    elif "90" in m:
+        valeur *= 0.95
 
     # PORTES
     if portes <= 2:
         valeur *= 0.93
     elif portes == 5:
         valeur *= 1.03
+
+    # TRANSMISSION
+    if transmission == "4x4 / AWD":
+        valeur *= 1.08
+    elif transmission == "Propulsion":
+        valeur *= 1.03
+
+    # VERSION
+    v = sous_version.lower()
+    if any(x in v for x in ["amg","rs","gti","m"]):
+        valeur *= 1.15
+    elif "line" in v:
+        valeur *= 1.05
 
     # BOITE
     if boite == "Automatique":
@@ -165,11 +198,14 @@ if st.button("🚀 Estimer"):
     # CARBURANT
     if carburant == "Diesel":
         valeur *= 0.95
-    if carburant == "Électrique":
-        valeur *= 1.2
+    elif carburant == "Électrique":
+        valeur *= 1.20
 
     # OPTIONS
     valeur += len(options) * 150
+
+    # AJUSTEMENT MARCHÉ
+    valeur *= 1.08
 
     if valeur < 3000:
         valeur = 3000
@@ -184,10 +220,9 @@ if st.button("🚀 Estimer"):
         score += 10
     if boite == "Automatique":
         score += 5
-    if carburant == "Électrique":
-        score += 10
+    if transmission == "4x4 / AWD":
+        score += 5
 
-    # VERDICT
     if score > 70:
         verdict = "🔥 Bonne affaire"
     elif score > 55:
@@ -195,9 +230,10 @@ if st.button("🚀 Estimer"):
     else:
         verdict = "⚠️ Surcoté"
 
+    # RESULTAT
     st.markdown(f"""
 ## 💰 {prix_bas} € - {prix_haut} €
-### Reprise pro : {reprise} €
-### Score : {score}/100
+### 💸 Reprise pro : {reprise} €
+### 📊 Score : {score}/100
 ### {verdict}
 """)
