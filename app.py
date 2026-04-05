@@ -53,14 +53,42 @@ if not st.session_state.auth:
 
 st.title("🚗 VELIORA COTATION VENDEUR")
 
-marques = [
-    "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault","Citroën","DS",
-    "Toyota","Hyundai","Kia","Ford","Nissan","Honda","Mazda","Volvo",
-    "Skoda","Seat","Cupra","Fiat","Alfa Romeo","Jeep","Dacia","Opel"
-]
+# ---------------- BASE MODELES ----------------
 
-marque = st.selectbox("Marque", marques)
-modele = st.text_input("Modèle")
+models_db = {
+    "Audi": ["A1","A3","A4","A5","A6","Q2","Q3","Q5","Q7"],
+    "BMW": ["Série 1","Série 3","Série 5","X1","X3","X5"],
+    "Mercedes": ["Classe A","Classe C","Classe E","GLA","GLC"],
+    "Peugeot": ["108","208","308","508","2008","3008","5008"],
+    "Renault": ["Clio","Megane","Captur","Kadjar","Scenic"],
+    "Volkswagen": ["Polo","Golf","Passat","Tiguan","T-Roc"],
+    "Citroën": ["C3","C4","C5 Aircross"],
+    "Toyota": ["Yaris","Corolla","RAV4"],
+    "Ford": ["Fiesta","Focus","Kuga","Puma"],
+    "Dacia": ["Sandero","Duster","Jogger"]
+}
+
+marques = list(models_db.keys()) + ["Autre"]
+
+marque_select = st.selectbox("Marque", marques)
+
+if marque_select == "Autre":
+    marque = st.text_input("Saisir la marque")
+    modele = st.text_input("Modèle")
+else:
+    marque = marque_select
+
+    modeles = models_db.get(marque, [])
+
+    modele_select = st.selectbox("Modèle", modeles + ["Autre"])
+
+    if modele_select == "Autre":
+        modele = st.text_input("Saisir le modèle")
+    else:
+        modele = modele_select
+
+# ---------------- AUTRES INFOS ----------------
+
 sous_version = st.text_input("Finition / Sous-version (ex: AMG, GT Line...)")
 
 annee = st.number_input("Année", 1990, datetime.now().year, 2018)
@@ -79,6 +107,12 @@ options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"]
 
 if st.button("🚀 Estimer"):
 
+    if not marque or not modele:
+        st.warning("Merci de renseigner marque et modèle")
+        st.stop()
+
+    marque = marque.strip().lower()
+
     with st.spinner("Analyse du marché..."):
         time.sleep(1)
 
@@ -87,10 +121,10 @@ if st.button("🚀 Estimer"):
     # PRIX NEUF
     prix_neuf = 25000
 
-    if marque.lower() in ["bmw","audi","mercedes"]:
+    if marque in ["bmw","audi","mercedes"]:
         prix_neuf = 45000
 
-    if marque.lower() == "dacia":
+    if marque == "dacia":
         prix_neuf = 18000
 
     if "suv" in modele.lower() or "3008" in modele.lower():
