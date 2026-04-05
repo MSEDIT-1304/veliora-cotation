@@ -164,14 +164,14 @@ st.divider()
 # 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
-# 🔥 ACTIVATION SIMPLE
+# 🔥 ACTIVATION ANNUELLE
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users = load_users()
     users[st.session_state.user]["expire"] = (
-        datetime.now() + timedelta(days=30)
+        datetime.now() + timedelta(days=365)
     ).strftime("%Y-%m-%d")
     save_users(users)
-    st.success("🎉 Abonnement activé pour 30 jours")
+    st.success("🎉 Abonnement activé pour 1 an")
 
 st.divider()
 
