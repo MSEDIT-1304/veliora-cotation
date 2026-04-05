@@ -79,7 +79,23 @@ portes = st.selectbox("Portes", [1,2,3,4,5])
 
 transmission = st.selectbox("Transmission", ["-","Traction","Propulsion","4WD"])
 
-options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
+# OPTIONS
+options = st.multiselect(
+    "Options",
+    [
+        "Climatisation automatique","Accès sans clé","Hayon électrique",
+        "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
+        "Sièges électriques","Rétroviseurs chauffants","Rétroviseurs électriques chauffants",
+        "Radar avant","Radar arrière","Caméra de recul","Caméra 360",
+        "GPS / Navigation","Bluetooth","Android Auto","Apple CarPlay",
+        "Système audio premium","Jantes alliage","Toit ouvrant","Toit panoramique",
+        "Feux LED","Attelage","Détecteur angle mort",
+        "Régulateur de vitesse","Régulateur adaptatif"
+    ]
+)
+
+# 🔥 NOUVEAU ETAT
+etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
@@ -161,7 +177,21 @@ if st.button("🚀 Estimer"):
     elif carburant == "Électrique":
         valeur *= 1.20
 
-    valeur += len(options) * 120
+    # OPTIONS INTELLIGENTES
+    bonus = 0
+    for opt in options:
+        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
+            bonus += 400
+        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants avant + arrière"]:
+            bonus += 250
+        else:
+            bonus += 120
+
+    valeur += bonus
+
+    # 🔥 ETAT DU VEHICULE
+    if etat == "Excellent état":
+        valeur *= 1.05
 
     valeur *= 1.05
 
@@ -178,19 +208,13 @@ if st.button("🚀 Estimer"):
     net_moyen = prix_moyen - commission
     net_haut = prix_haut - commission
 
-    # 🔥 TEMPS DE VENTE INTELLIGENT
+    # TEMPS DE VENTE
     if prix_moyen < valeur:
         delai = "⚡ Vente rapide estimée : 7 jours"
     elif prix_moyen <= valeur * 1.05:
         delai = "🔥 Vente estimée : 15 jours"
     else:
         delai = "⏳ Vente lente estimée : 30 jours"
-
-    # BONUS
-    if km < km_moyen:
-        delai = delai.replace("15", "10")
-    if boite == "Automatique":
-        delai = delai.replace("30", "20")
 
     # VERDICT
     if prix_bas < valeur * 0.9:
@@ -203,7 +227,6 @@ if st.button("🚀 Estimer"):
         verdict = "Prix élevé"
         badge = "🔴⚠️"
 
-    # RESULTAT
     st.markdown(f"""
 ## 💰 PRIX DE VENTE
 
@@ -227,3 +250,5 @@ if st.button("🚀 Estimer"):
 
 ### {verdict}
 """)
+
+    st.success(f"✔️ État du véhicule : {etat}")
