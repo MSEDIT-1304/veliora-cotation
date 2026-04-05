@@ -89,7 +89,6 @@ with col2:
     techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
     traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
 
-# 🔥 ÉTAT BIEN MIS EN AVANT
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
@@ -109,6 +108,7 @@ options = st.multiselect(
     ]
 )
 
+# COMMISSION
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- ESTIMATION ----------------
@@ -138,7 +138,6 @@ if st.button("Calculer l'estimation"):
     if traction in ["4x4","4WD"]:
         base += 800
 
-    # 🔥 IMPACT ÉTAT CLAIR
     if etat == "Excellent état":
         base += 1200
     else:
@@ -151,30 +150,33 @@ if st.button("Calculer l'estimation"):
     if km > 120000:
         base -= 2000
 
-    bonus = len(options) * 100
-    base += bonus
+    base += len(options) * 100
 
-    base *= 0.75
+    base *= 0.85
 
-    prix_moyen = int(base)
-    prix_bas = prix_moyen - 1500
-    prix_haut = prix_moyen + 1300
+    # ---------------- COMPARATIF ANNONCES ----------------
+    annonces = []
+
+    for i in range(5):
+        km_a = max(10000, km + random.randint(-40000, 40000))
+        prix_a = base + random.randint(-2000, 2000)
+
+        if km_a > km:
+            prix_a -= (km_a - km) * 0.02
+        else:
+            prix_a += (km - km_a) * 0.02
+
+        annonces.append((int(km_a), int(prix_a)))
+
+    annonces = sorted(annonces, key=lambda x: x[0])
+
+    prix_moyen = int(sum([p for _, p in annonces]) / len(annonces))
+    prix_bas = prix_moyen - 1200
+    prix_haut = prix_moyen + 1200
 
     net = prix_moyen - commission
 
-    annonces = random.randint(20, 70)
-    marche_moyen = prix_moyen + random.randint(-1500, 1500)
-
-    if prix_moyen < marche_moyen:
-        position = "🟢 Sous le marché"
-        delai = "Vente rapide"
-    elif prix_moyen < marche_moyen + 1000:
-        position = "🟡 Aligné marché"
-        delai = "Vente normale"
-    else:
-        position = "🔴 Au-dessus du marché"
-        delai = "Vente lente"
-
+    # ---------------- AFFICHAGE ----------------
     st.markdown("## 📊 ESTIMATION")
 
     st.markdown(f"""
@@ -187,10 +189,7 @@ if st.button("Calculer l'estimation"):
 ➡️ {net} €
 """)
 
-    st.markdown("## 📈 COMPARATIF MARCHÉ")
+    st.markdown("## 📈 COMPARATIF ANNONCES MARCHÉ")
 
-    st.markdown(f"""
-📊 Annonces similaires : {annonces}  
-📍 Positionnement : {position}  
-⏱️ Temps de vente estimé : {delai}
-""")
+    for km_a, prix_a in annonces:
+        st.write(f"🚗 {km_a} km → {prix_a} €")
