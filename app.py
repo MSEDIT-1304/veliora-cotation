@@ -83,7 +83,10 @@ with col1:
     finition = st.text_input("Finition")
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA"])
+    techno = st.selectbox(
+        "Technologie de boîte",
+        ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"]
+    )
 
 with col2:
     motorisation = st.text_input("Motorisation")
@@ -104,13 +107,13 @@ options = st.multiselect(
     ]
 )
 
-# ---------------- ESTIMATION PRO ----------------
+# ---------------- ESTIMATION ----------------
 if st.button("Calculer l'estimation"):
 
     base = 20000
     age = datetime.now().year - annee
 
-    # SEGMENT / MODELE
+    # SEGMENT
     if "suv" in modele.lower() or "3008" in modele.lower():
         base += 3000
     if "clio" in modele.lower() or "208" in modele.lower():
@@ -127,6 +130,8 @@ if st.button("Calculer l'estimation"):
     # TECHNO BOITE
     if techno in ["DSG","EDC"]:
         base += 500
+    if techno in ["BVA6","BVA7","BVA8"]:
+        base += 700
 
     # CARBURANT
     if carburant == "Diesel":
@@ -136,7 +141,7 @@ if st.button("Calculer l'estimation"):
     elif carburant == "Électrique":
         base += 6000
 
-    # TRACTION
+    # TRANSMISSION
     if traction in ["4x4","4WD"]:
         base += 1200
 
@@ -157,7 +162,7 @@ if st.button("Calculer l'estimation"):
     bonus = len(options) * 300
     base += bonus
 
-    # PRIX (ajustement -650 comme tu voulais)
+    # PRIX
     prix_bas = int(base - 1500 - 650)
     prix_moyen = int(base - 650)
     prix_haut = int(base + 2500 - 650)
