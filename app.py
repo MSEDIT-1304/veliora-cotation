@@ -64,10 +64,11 @@ if not st.session_state.auth:
 
     # LOGIN
     with tab1:
-        user = st.text_input("Utilisateur")
-        pwd = st.text_input("Mot de passe", type="password")
+        user = st.text_input("Utilisateur", key="login_user")
+        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
         if st.button("Se connecter"):
+
             users = load_users()
 
             if user in users and users[user]["password"] == pwd:
@@ -84,8 +85,8 @@ if not st.session_state.auth:
 
     # TRIAL
     with tab2:
-        new_user = st.text_input("Créer un utilisateur")
-        new_pwd = st.text_input("Mot de passe", type="password")
+        new_user = st.text_input("Créer un utilisateur", key="trial_user")
+        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
         if st.button("Créer essai"):
             if new_user in users:
@@ -111,7 +112,7 @@ st.divider()
 # 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
-# ACTIVATION 1 AN
+# 🔥 ACTIVATION 1 AN
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users = load_users()
     users[st.session_state.user]["expire"] = (
