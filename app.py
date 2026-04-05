@@ -25,32 +25,46 @@ def save_users(data):
 
 users = load_users()
 
-# ADMIN
+# ✅ ADMIN
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
-        "trial": False
+        "trial": False,
+        "verified": True,
+        "siret": "ADMIN",
+        "company": "ADMIN"
     }
     save_users(users)
 
 # ---------------- TRIAL ----------------
-def create_trial(username, password):
+def create_trial(username, password, siret, company):
     users = load_users()
     users[username] = {
         "password": password,
         "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        "trial": True
+        "trial": True,
+        "verified": False,
+        "siret": siret,
+        "company": company
     }
     save_users(users)
 
 # ---------------- CHECK ----------------
 def check_access(user):
     if user["expire"] is None:
-        return True
+        return True, None
 
     expire = datetime.strptime(user["expire"], "%Y-%m-%d")
-    return datetime.now() <= expire
+    now = datetime.now()
+
+    if now > expire:
+        return False, "expired"
+
+    if expire - now <= timedelta(days=7):
+        return True, "warning"
+
+    return True, None
 
 # ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
@@ -62,7 +76,6 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    # LOGIN
     with tab1:
         user = st.text_input("Utilisateur", key="login_user")
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
@@ -71,28 +84,49 @@ if not st.session_state.auth:
 
             users = load_users()
 
+            if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
+                st.session_state.auth = True
+                st.session_state.user = user
+                st.rerun()
+
             if user in users and users[user]["password"] == pwd:
-                if not check_access(users[user]):
+
+                valid, status = check_access(users[user])
+
+                if not valid:
                     st.error("⛔ Accès expiré")
                     st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
+                    st.stop()
+
+                if status == "warning":
+                    st.warning("⚠️ Votre accès expire bientôt")
+
+                if not users[user].get("verified", False):
+                    st.error("⛔ Compte non validé")
                     st.stop()
 
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
+
             else:
                 st.error("Identifiants incorrects")
 
-    # TRIAL
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
+        company = st.text_input("Nom de l'entreprise")
+        siret = st.text_input("Numéro SIRET")
 
         if st.button("Créer essai"):
             if new_user in users:
                 st.error("Utilisateur déjà existant")
+            elif not siret or len(siret) != 14 or not siret.isdigit():
+                st.error("SIRET invalide (14 chiffres)")
+            elif not company:
+                st.error("Nom d'entreprise obligatoire")
             else:
-                create_trial(new_user, new_pwd)
+                create_trial(new_user, new_pwd, siret.strip(), company)
                 st.success("Compte créé, connectez-vous")
 
     st.stop()
@@ -104,15 +138,19 @@ user_data = users[st.session_state.user]
 
 st.write(f"👤 Connecté : {st.session_state.user}")
 
-st.markdown("## 🔐 Accès Veliora Pro")
-st.success("✔️ Accès actif")
+st.markdown("## 🔐 Accès professionnel")
+
+if user_data.get("verified"):
+    st.success("✔️ Accès professionnel validé")
+else:
+    st.warning("⏳ Vérification du profil en cours")
 
 st.divider()
 
 # 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
-# 🔥 ACTIVATION 1 AN
+# ✅ ACTIVATION 1 AN
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users = load_users()
     users[st.session_state.user]["expire"] = (
@@ -121,7 +159,19 @@ if st.button("✅ J’ai payé → Activer mon abonnement"):
     save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
-st.divider()
+# ---------------- ADMIN PANEL ----------------
+if st.session_state.user == ADMIN_USERNAME:
+    st.subheader("🛠️ Validation des comptes")
+
+    for u, data in users.items():
+        if u != ADMIN_USERNAME and not data.get("verified", False):
+            st.write(f"👤 {u} | {data.get('company')} | SIRET: {data.get('siret')}")
+
+            if st.button(f"✅ Valider {u}"):
+                users[u]["verified"] = True
+                save_users(users)
+                st.success(f"{u} validé")
+                st.rerun()
 
 # ---------------- APP METIER ----------------
 
@@ -175,12 +225,43 @@ if st.button("Calculer l'estimation"):
     if marque.lower() in ["mercedes","bmw","audi"]:
         base += 7000
 
+    if "tiguan" in modele.lower():
+        base = 26000
+
+    if "ix35" in modele.lower():
+        base = 12000
+
+    if "cla" in modele.lower():
+        base = 28000
+
+    if "amg" in finition.lower():
+        base += 4000
+
+    if boite == "Automatique":
+        base += 1500
+
+    if carburant == "Diesel":
+        base += 800
+
+    if portes <= 3:
+        base += 400
+    elif portes == 5:
+        base += 200
+
     base -= age * 1200
 
     if km > 80000:
         base -= 1000
 
-    bonus = len(options) * 150
+    bonus = 0
+    for opt in options:
+        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
+            bonus += 500
+        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants"]:
+            bonus += 300
+        else:
+            bonus += 150
+
     base += bonus
 
     prix_bas = int(base - 1500)
@@ -188,9 +269,9 @@ if st.button("Calculer l'estimation"):
     prix_haut = int(base + 2500)
 
     st.markdown(f"""
-## 📊 COTATION
+## 📊 COTATION RÉELLE
 
 🔻 Prix bas : {prix_bas} €  
-⚖️ Prix moyen : {prix_moyen} €  
+⚖️ Prix marché : {prix_moyen} €  
 🔺 Prix haut : {prix_haut} €
 """)
