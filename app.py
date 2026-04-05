@@ -56,7 +56,7 @@ st.title("🚗 VELIORA COTATION PRO")
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 
-finition = st.text_input("Finition (ex : GT Line, S Line...)")
+finition = st.text_input("Finition")
 sous_version = st.text_input("Sous-version / Options")
 
 # DATE
@@ -71,17 +71,18 @@ km = st.number_input("Kilométrage", 0, 400000, 90000)
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-# 🔥 NOUVEAU
-tech_boite = st.text_input("Technologie boîte (ex : DSG, EAT8, CVT...)")
+tech_boite = st.text_input("Technologie boîte (ex : DSG, EAT8...)")
 
 motorisation = st.text_input("Motorisation")
 
 portes = st.selectbox("Portes", [1,2,3,4,5])
-transmission = st.selectbox("Transmission", ["Traction","Propulsion","4WD"])
+
+# ✅ TRANSMISSION AVEC "-"
+transmission = st.selectbox("Transmission", ["-","Traction","Propulsion","4WD"])
 
 options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
 
-# 🔥 COMMISSION
+# COMMISSION
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- CALCUL ----------------
@@ -114,6 +115,7 @@ if st.button("🚀 Estimer"):
     if "clio" in modele.lower() or "208" in modele.lower():
         prix_neuf = 18000
 
+    # DÉCOTE
     if age <= 1:
         valeur = prix_neuf * 0.85
     elif age <= 3:
@@ -125,19 +127,25 @@ if st.button("🚀 Estimer"):
     else:
         valeur = prix_neuf * 0.42
 
+    # KM
     km_moyen = age * 15000
     valeur += (km_moyen - km) * 0.025
 
+    # MOTORISATION
     if "150" in motorisation.lower():
         valeur *= 1.08
 
+    # PORTES
     if portes <= 2:
         valeur *= 0.93
     elif portes == 5:
         valeur *= 1.03
 
+    # TRANSMISSION
     if transmission == "4WD":
         valeur *= 1.08
+    elif transmission == "Propulsion":
+        valeur *= 1.03
 
     # FINITION
     if "amg" in finition.lower():
@@ -165,20 +173,23 @@ if st.button("🚀 Estimer"):
     elif carburant == "Électrique":
         valeur *= 1.20
 
+    # OPTIONS
     valeur += len(options) * 120
 
+    # AJUSTEMENT
     valeur *= 1.05
-    valeur -= 1000
 
     if valeur < 3000:
         valeur = 3000
 
-    # 🔥 PRIX DE VENTE
-    prix_bas = int(valeur * 0.92)
-    prix_moyen = int(valeur + 700)
+    # 🔥 CORRECTION -650 SUR LES PRIX
+    correction = 650
+
+    prix_bas = int((valeur * 0.92) - correction)
+    prix_moyen = int((valeur + 700) - correction)
     prix_haut = int(prix_moyen + 700)
 
-    # 🔥 PRIX NET VENDEUR
+    # NET VENDEUR
     net_bas = prix_bas - commission
     net_moyen = prix_moyen - commission
     net_haut = prix_haut - commission
