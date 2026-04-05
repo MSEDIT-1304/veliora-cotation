@@ -7,7 +7,6 @@ import time
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
-PAYMENT_LINK = "https://ton-lien-stripe.com"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "TonMotDePasseFort123!"
 FILE_PATH = "users.json"
@@ -26,32 +25,12 @@ def save_users(data):
 
 users = load_users()
 
-# ✅ FIX ADMIN (IMPORTANT)
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
-        "expire": None,
-        "trial": False
+        "expire": None
     }
     save_users(users)
-
-# ---------------- TRIAL ----------------
-def create_trial(username, password):
-    users = load_users()
-    users[username] = {
-        "password": password,
-        "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-        "trial": True
-    }
-    save_users(users)
-
-# ---------------- CHECK ----------------
-def check_access(user):
-    if user["expire"] is None:
-        return True
-
-    expire = datetime.strptime(user["expire"], "%Y-%m-%d")
-    return datetime.now() <= expire
 
 # ---------------- AUTH ----------------
 if "auth" not in st.session_state:
@@ -60,47 +39,26 @@ if "auth" not in st.session_state:
 if not st.session_state.auth:
 
     st.title("🔐 Accès Veliora Pro")
-    st.info("Compte admin : admin / TonMotDePasseFort123!")
 
-    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit"])
+    user = st.text_input("Utilisateur", key="login_user")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
-    with tab1:
-        user = st.text_input("Utilisateur", key="login_user")
-        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    if st.button("Se connecter"):
 
-        if st.button("Se connecter", key="btn_login"):
-            users = load_users()
+        users = load_users()
 
-            if user in users and users[user]["password"] == pwd:
-
-                if not check_access(users[user]):
-                    st.error("⛔ Accès expiré")
-                    st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
-                    st.stop()
-
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-            else:
-                st.error("❌ Identifiants incorrects")
-
-    with tab2:
-        new_user = st.text_input("Créer un utilisateur", key="trial_user")
-        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
-
-        if st.button("Créer essai", key="btn_trial"):
-            users = load_users()
-            if new_user in users:
-                st.error("Utilisateur déjà existant")
-            else:
-                create_trial(new_user, new_pwd)
-                st.success("Compte créé")
+        if user in users and users[user]["password"] == pwd:
+            st.session_state.auth = True
+            st.session_state.user = user
+            st.rerun()
+        else:
+            st.error("Identifiants incorrects")
 
     st.stop()
 
 # ---------------- APP ----------------
 
-st.title("🚗 VELIORA COTATION EXPERT")
+st.title("🚗 VELIORA COTATION VENDEUR")
 
 marques = [
     "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault","Citroën","DS",
@@ -110,18 +68,17 @@ marques = [
 
 marque = st.selectbox("Marque", marques)
 modele = st.text_input("Modèle")
+sous_version = st.text_input("Finition / Sous-version (ex: AMG, GT Line...)")
+
 annee = st.number_input("Année", 1990, datetime.now().year, 2018)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-
 motorisation = st.text_input("Motorisation")
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-transmission = st.selectbox("Transmission", ["Traction","Propulsion","4x4 / AWD"])
-
-sous_version = st.text_input("Finition (ex: AMG, S-Line, GT Line...)")
+portes = st.selectbox("Portes", [1,2,3,4,5])
+transmission = st.selectbox("Transmission", ["Traction","Propulsion","4WD"])
 
 options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
 
@@ -149,21 +106,21 @@ if st.button("🚀 Estimer"):
     if "clio" in modele.lower() or "208" in modele.lower():
         prix_neuf = 18000
 
-    # DÉCOTE PRO
+    # DÉCOTE
     if age <= 1:
         valeur = prix_neuf * 0.85
     elif age <= 3:
-        valeur = prix_neuf * 0.70
+        valeur = prix_neuf * 0.72
     elif age <= 5:
-        valeur = prix_neuf * 0.60
+        valeur = prix_neuf * 0.62
     elif age <= 8:
-        valeur = prix_neuf * 0.50
+        valeur = prix_neuf * 0.52
     else:
-        valeur = prix_neuf * 0.40
+        valeur = prix_neuf * 0.42
 
     # KM
     km_moyen = age * 15000
-    valeur += (km_moyen - km) * 0.02
+    valeur += (km_moyen - km) * 0.025
 
     # MOTORISATION
     m = motorisation.lower()
@@ -179,16 +136,16 @@ if st.button("🚀 Estimer"):
         valeur *= 1.03
 
     # TRANSMISSION
-    if transmission == "4x4 / AWD":
+    if transmission == "4WD":
         valeur *= 1.08
     elif transmission == "Propulsion":
         valeur *= 1.03
 
     # VERSION
     v = sous_version.lower()
-    if any(x in v for x in ["amg","rs","gti","m"]):
+    if any(x in v for x in ["amg","rs","gti","m","sport"]):
         valeur *= 1.15
-    elif "line" in v:
+    elif any(x in v for x in ["line","pack"]):
         valeur *= 1.05
 
     # BOITE
@@ -202,38 +159,36 @@ if st.button("🚀 Estimer"):
         valeur *= 1.20
 
     # OPTIONS
-    valeur += len(options) * 150
+    valeur += len(options) * 120
 
     # AJUSTEMENT MARCHÉ
-    valeur *= 1.08
+    valeur *= 1.05
+
+    # 🔥 CORRECTION PRIX TROP HAUT
+    valeur -= 1000
 
     if valeur < 3000:
         valeur = 3000
 
-    prix_bas = int(valeur * 0.9)
-    prix_haut = int(valeur * 1.1)
-    reprise = int(valeur * 0.8)
+    prix_bas = int(valeur * 0.92)
+    prix_moyen = int(valeur)
+    prix_haut = int(valeur * 1.08)
 
-    # SCORE
-    score = 50
-    if km < km_moyen:
-        score += 10
-    if boite == "Automatique":
-        score += 5
-    if transmission == "4x4 / AWD":
-        score += 5
-
-    if score > 70:
-        verdict = "🔥 Bonne affaire"
-    elif score > 55:
-        verdict = "✅ Prix correct"
+    # VERDICT
+    if prix_moyen < valeur * 0.95:
+        verdict = "🔥 Très bonne affaire"
+    elif prix_moyen < valeur * 1.05:
+        verdict = "✅ Bonne affaire"
     else:
-        verdict = "⚠️ Surcoté"
+        verdict = "⚠️ Prix élevé"
 
     # RESULTAT
     st.markdown(f"""
-## 💰 {prix_bas} € - {prix_haut} €
-### 💸 Reprise pro : {reprise} €
-### 📊 Score : {score}/100
+## 💰 PRIX NET VENDEUR
+
+- Bas : **{prix_bas} €**
+- Moyen : **{prix_moyen} €**
+- Haut : **{prix_haut} €**
+
 ### {verdict}
 """)
