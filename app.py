@@ -65,11 +65,12 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
+    # -------- LOGIN --------
     with tab1:
-        user = st.text_input("Utilisateur")
-        pwd = st.text_input("Mot de passe", type="password")
+        user = st.text_input("Utilisateur", key="login_user")
+        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
-        if st.button("Se connecter"):
+        if st.button("Se connecter", key="btn_login"):
 
             users = load_users()
 
@@ -97,11 +98,13 @@ if not st.session_state.auth:
             else:
                 st.error("❌ Identifiants incorrects")
 
+    # -------- TRIAL --------
     with tab2:
-        new_user = st.text_input("Créer un utilisateur")
-        new_pwd = st.text_input("Mot de passe", type="password")
+        new_user = st.text_input("Créer un utilisateur", key="trial_user")
+        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
-        if st.button("Créer essai"):
+        if st.button("Créer essai", key="btn_trial"):
+            users = load_users()
             if new_user in users:
                 st.error("Utilisateur déjà existant")
             else:
@@ -124,26 +127,28 @@ marques = [
     "Toyota","Hyundai","Kia","Ford","Nissan","Volvo"
 ]
 
-marque = st.selectbox("Marque", marques)
-modele = st.text_input("Modèle")
-annee = st.number_input("Année", 1990, datetime.now().year, 2018)
-km = st.number_input("Kilométrage", 0, 400000, 90000)
+marque = st.selectbox("Marque", marques, key="marque")
+modele = st.text_input("Modèle", key="modele")
+annee = st.number_input("Année", 1990, datetime.now().year, 2018, key="annee")
+km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
 
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key="carburant")
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
 
 options = st.multiselect(
     "Options",
     [
         "Climatisation","GPS","Caméra recul","Caméra 360",
         "Cuir","Toit panoramique","Sièges chauffants","Audio premium"
-    ]
+    ],
+    key="options"
 )
 
 # ---------------- CALCUL ----------------
 
 st.markdown("###")
-if st.button("🚀 Calculer mon estimation", use_container_width=True):
+
+if st.button("🚀 Calculer mon estimation", use_container_width=True, key="btn_calc"):
 
     with st.spinner("Analyse du marché en cours..."):
         time.sleep(1.2)
@@ -232,7 +237,6 @@ if st.button("🚀 Calculer mon estimation", use_container_width=True):
     """, unsafe_allow_html=True)
 
     st.success("✔️ Estimation basée sur un modèle pro (décote réelle + marché)")
-
     st.info(f"💡 Prix conseillé de vente rapide : {prix_conseille} €")
 
     st.markdown(f"""
