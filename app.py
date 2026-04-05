@@ -59,14 +59,20 @@ st.caption("Exemples : Audi, BMW, Peugeot, Tesla…")
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 
-# 🔥 SOUS VERSION (BIEN VISIBLE)
-sous_version = st.text_input(
-    "Finition / Sous-version",
-    placeholder="Ex : AMG, S Line, GT Line, Business…"
-)
+# 🔥 FINITION + SOUS VERSION
+finition = st.text_input("Finition (ex : GT Line, S Line, Business...)")
+sous_version = st.text_input("Sous-version / Options (ex : Pack Tech, Full options...)")
 
-# 🔥 INFOS VEHICULE
-annee = st.number_input("Année", 1990, datetime.now().year, 2018)
+# 🔥 DATE MISE EN CIRCULATION
+col1, col2 = st.columns(2)
+
+with col1:
+    mois = st.selectbox("Mois mise en circulation", list(range(1, 13)))
+
+with col2:
+    annee = st.number_input("Année mise en circulation", 1990, datetime.now().year, 2018)
+
+# 🔥 AUTRES INFOS
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
@@ -91,7 +97,11 @@ if st.button("🚀 Estimer"):
     with st.spinner("Analyse du marché..."):
         time.sleep(1)
 
-    age = datetime.now().year - annee
+    # 🔥 AGE PRÉCIS
+    today = datetime.now()
+    age = today.year - annee
+    if today.month < mois:
+        age -= 1
 
     # PRIX NEUF
     prix_neuf = 25000
@@ -143,15 +153,19 @@ if st.button("🚀 Estimer"):
     elif transmission == "Propulsion":
         valeur *= 1.03
 
-    # 🔥 SOUS-VERSION (TRÈS IMPORTANT)
-    v = sous_version.lower()
-
-    if any(x in v for x in ["amg","rs","gti","gtd","m ","m sport","gt","cupra","vrs"]):
+    # FINITION
+    f = finition.lower()
+    if any(x in f for x in ["amg","rs","gti","m","gt"]):
         valeur *= 1.18
-    elif any(x in v for x in ["line","s line","gt line","r line","allure","shine","intens","initiale","business","exclusive"]):
+    elif any(x in f for x in ["line","business","allure","shine"]):
         valeur *= 1.08
-    elif any(x in v for x in ["access","trend","life","active","essential"]):
-        valeur *= 0.93
+
+    # SOUS VERSION
+    sv = sous_version.lower()
+    if "full" in sv:
+        valeur *= 1.05
+    elif "pack" in sv:
+        valeur *= 1.03
 
     # BOITE
     if boite == "Automatique":
@@ -168,8 +182,6 @@ if st.button("🚀 Estimer"):
 
     # AJUSTEMENT
     valeur *= 1.05
-
-    # CORRECTION PRIX
     valeur -= 1000
 
     if valeur < 3000:
@@ -196,13 +208,13 @@ if st.button("🚀 Estimer"):
 ## 💰 PRIX NET VENDEUR
 
 **Bas** : {prix_bas} €  
-
 **Moyen** : {prix_moyen} € {badge}  
-
 **Haut** : {prix_haut} €  
 
 ### {verdict}
 """)
 
+    if finition:
+        st.success(f"✔️ Finition : {finition}")
     if sous_version:
-        st.success(f"✔️ Finition prise en compte : {sous_version}")
+        st.success(f"✔️ Sous-version : {sous_version}")
