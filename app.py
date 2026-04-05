@@ -10,7 +10,6 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 PAYMENT_LINK = "https://ton-lien-stripe.com"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "TonMotDePasseFort123!"
-
 FILE_PATH = "users.json"
 
 # ---------------- USERS ----------------
@@ -43,16 +42,12 @@ def create_trial(username, password):
 def check_access(user):
     if user["expire"] is None:
         return True, None
-
     expire = datetime.strptime(user["expire"], "%Y-%m-%d")
     now = datetime.now()
-
     if now > expire:
         return False, "expired"
-
     if expire - now <= timedelta(days=7):
         return True, "warning"
-
     return True, None
 
 # ---------------- AUTH ----------------
@@ -63,14 +58,13 @@ if not st.session_state.auth:
 
     st.title("🔐 Accès Veliora Pro")
 
-    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
+    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit"])
 
     with tab1:
         user = st.text_input("Utilisateur", key="login_user")
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
         if st.button("Se connecter", key="btn_login"):
-
             users = load_users()
 
             if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
@@ -79,23 +73,17 @@ if not st.session_state.auth:
                 st.rerun()
 
             if user in users and users[user]["password"] == pwd:
-
-                valid, status = check_access(users[user])
-
+                valid, _ = check_access(users[user])
                 if not valid:
-                    st.error("⛔ Accès expiré")
-                    st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
+                    st.error("Accès expiré")
+                    st.markdown(f"[S'abonner]({PAYMENT_LINK})")
                     st.stop()
-
-                if status == "warning":
-                    st.warning("⚠️ Votre accès expire bientôt")
 
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
-
             else:
-                st.error("❌ Identifiants incorrects")
+                st.error("Identifiants incorrects")
 
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
@@ -113,156 +101,103 @@ if not st.session_state.auth:
 
 # ---------------- APP ----------------
 
-st.write(f"👤 Connecté : {st.session_state.user}")
-
-st.title("🚗 VELIORA COTATION PRO")
-st.info("💡 Remplis les infos pour obtenir une estimation réaliste du marché.")
-
-# ---------------- FORM ----------------
+st.title("🚗 VELIORA COTATION EXPERT")
 
 marques = [
-    "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault",
-    "Toyota","Hyundai","Kia","Ford","Nissan","Volvo"
+    "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault","Citroën","DS",
+    "Toyota","Hyundai","Kia","Ford","Nissan","Honda","Mazda","Volvo",
+    "Skoda","Seat","Cupra","Fiat","Alfa Romeo","Jeep","Dacia","Opel"
 ]
 
-marque = st.selectbox("Marque", marques, key="marque")
-modele = st.text_input("Modèle", key="modele")
-annee = st.number_input("Année", 1990, datetime.now().year, 2018, key="annee")
-km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
+marque = st.selectbox("Marque", marques)
+modele = st.text_input("Modèle")
+annee = st.number_input("Année", 1990, datetime.now().year, 2018)
+km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key="carburant")
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+motorisation = st.text_input("Motorisation")
+portes = st.selectbox("Portes", [1,2,3,4,5])
 
-motorisation = st.text_input("Motorisation (ex: 1.5 dCi 110)", key="motorisation")
-portes = st.selectbox("Nombre de portes", [3, 5], key="portes")
-
-options = st.multiselect(
-    "Options",
-    [
-        "Climatisation","GPS","Caméra recul","Caméra 360",
-        "Cuir","Toit panoramique","Sièges chauffants","Audio premium"
-    ],
-    key="options"
-)
+options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
 
 # ---------------- CALCUL ----------------
 
-st.markdown("###")
+if st.button("🚀 Estimer"):
 
-if st.button("🚀 Calculer mon estimation", use_container_width=True, key="btn_calc"):
+    with st.spinner("Analyse marché..."):
+        time.sleep(1)
 
-    with st.spinner("Analyse du marché en cours..."):
-        time.sleep(1.2)
+    age = datetime.now().year - annee
 
-    age = datetime.now().year - int(annee)
-
-    # 🔥 PRIX NEUF ESTIMÉ
-    prix_neuf = 25000
-
-    if marque.lower() in ["bmw", "mercedes", "audi"]:
-        prix_neuf = 45000
-
-    if "clio" in modele.lower() or "208" in modele.lower():
-        prix_neuf = 18000
-
-    if "3008" in modele.lower() or "tiguan" in modele.lower():
+    # SEGMENT
+    modele_lower = modele.lower()
+    if "suv" in modele_lower or "3008" in modele_lower:
         prix_neuf = 32000
-
-    if carburant == "Électrique":
-        prix_neuf += 8000
-
-    if carburant == "Hybride":
-        prix_neuf += 4000
-
-    # 🔥 DÉCOTE PRO
-    valeur = prix_neuf * 0.8
-    for i in range(max(age - 1, 0)):
-        valeur *= 0.90
-
-    # 🔥 KM
-    km_moyen = age * 15000
-    ecart_km = km - km_moyen
-
-    if ecart_km > 0:
-        valeur -= (ecart_km / 10000) * 500
+    elif "clio" in modele_lower or "208" in modele_lower:
+        prix_neuf = 18000
     else:
-        valeur += abs(ecart_km / 10000) * 300
+        prix_neuf = 25000
 
-    # 🔥 MOTORISATION
-    motorisation_lower = motorisation.lower()
+    # PREMIUM
+    if marque.lower() in ["bmw","audi","mercedes"]:
+        prix_neuf *= 1.5
 
-    if "90" in motorisation_lower or "100" in motorisation_lower:
-        valeur *= 0.95
-    elif "110" in motorisation_lower or "120" in motorisation_lower:
-        valeur *= 1.00
-    elif "130" in motorisation_lower or "150" in motorisation_lower:
-        valeur *= 1.05
-    elif "200" in motorisation_lower or "gt" in motorisation_lower:
-        valeur *= 1.10
+    # DÉCOTE
+    valeur = prix_neuf * 0.8
+    for i in range(age):
+        valeur *= 0.9
 
-    # 🔥 PORTES
-    if portes == 3:
-        valeur *= 0.95
+    # KM
+    km_moyen = age * 15000
+    valeur += (km_moyen - km) * 0.02
+
+    # PORTES
+    if portes <= 2:
+        valeur *= 0.93
     elif portes == 5:
-        valeur *= 1.02
+        valeur *= 1.03
 
-    # 🔥 OPTIONS
-    bonus = 0
-    for opt in options:
-        if opt in ["Toit panoramique", "Caméra 360"]:
-            bonus += 300
-        elif opt in ["GPS", "Caméra recul"]:
-            bonus += 150
-        else:
-            bonus += 80
-
-    valeur += bonus
-
-    # 🔥 AJUSTEMENTS
+    # BOITE
     if boite == "Automatique":
         valeur *= 1.05
 
+    # CARBURANT
     if carburant == "Diesel":
         valeur *= 0.95
+    if carburant == "Électrique":
+        valeur *= 1.2
+
+    # OPTIONS
+    valeur += len(options) * 150
 
     if valeur < 3000:
         valeur = 3000
 
     prix_bas = int(valeur * 0.9)
     prix_haut = int(valeur * 1.1)
-    prix_conseille = int((prix_bas + prix_haut) / 2)
+    reprise = int(valeur * 0.8)
 
-    # ---------------- RESULTAT ----------------
+    # SCORE
+    score = 50
+    if km < km_moyen:
+        score += 10
+    if boite == "Automatique":
+        score += 5
+    if carburant == "Électrique":
+        score += 10
 
-    st.markdown("---")
-
-    st.markdown(f"""
-    <div style="
-    padding:25px;
-    border-radius:15px;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:white;
-    text-align:center;
-    ">
-
-    <h2>📊 COTATION MARCHÉ</h2>
-    <p>{marque} {modele} • {annee}</p>
-
-    <h1>{prix_bas} € - {prix_haut} €</h1>
-
-    <p>Prix marché particulier</p>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.success("✔️ Estimation basée sur un modèle pro (décote réelle + marché)")
-    st.info(f"💡 Prix conseillé de vente rapide : {prix_conseille} €")
+    # VERDICT
+    if score > 70:
+        verdict = "🔥 Bonne affaire"
+    elif score > 55:
+        verdict = "✅ Prix correct"
+    else:
+        verdict = "⚠️ Surcoté"
 
     st.markdown(f"""
-### 🔍 Résumé véhicule
-- {marque} {modele}
-- {annee} • {km} km
-- {carburant} • {boite}
-- {motorisation}
-- {portes} portes
+## 💰 {prix_bas} € - {prix_haut} €
+### Reprise pro : {reprise} €
+### Score : {score}/100
+### {verdict}
 """)
