@@ -53,39 +53,23 @@ if not st.session_state.auth:
 
 st.title("🚗 VELIORA COTATION VENDEUR")
 
-# ---------------- BASE MODELES ----------------
+# 🔥 Suggestions marques
+st.caption("Exemples : Audi, BMW, Peugeot, Tesla, Lexus…")
 
+marque = st.text_input("Marque")
+modele = st.text_input("Modèle")
+
+# 🔥 Base modèles (suggestion uniquement)
 models_db = {
-    "Audi": ["A1","A3","A4","A5","A6","Q2","Q3","Q5","Q7"],
-    "BMW": ["Série 1","Série 3","Série 5","X1","X3","X5"],
-    "Mercedes": ["Classe A","Classe C","Classe E","GLA","GLC"],
-    "Peugeot": ["108","208","308","508","2008","3008","5008"],
-    "Renault": ["Clio","Megane","Captur","Kadjar","Scenic"],
-    "Volkswagen": ["Polo","Golf","Passat","Tiguan","T-Roc"],
-    "Citroën": ["C3","C4","C5 Aircross"],
-    "Toyota": ["Yaris","Corolla","RAV4"],
-    "Ford": ["Fiesta","Focus","Kuga","Puma"],
-    "Dacia": ["Sandero","Duster","Jogger"]
+    "audi": ["A1","A3","A4","A5","A6","Q2","Q3","Q5"],
+    "bmw": ["Série 1","Série 3","X1","X3","X5"],
+    "peugeot": ["208","308","3008","5008"],
+    "renault": ["Clio","Megane","Captur"],
+    "volkswagen": ["Polo","Golf","Tiguan"],
 }
 
-marques = list(models_db.keys()) + ["Autre"]
-
-marque_select = st.selectbox("Marque", marques)
-
-if marque_select == "Autre":
-    marque = st.text_input("Saisir la marque")
-    modele = st.text_input("Modèle")
-else:
-    marque = marque_select
-
-    modeles = models_db.get(marque, [])
-
-    modele_select = st.selectbox("Modèle", modeles + ["Autre"])
-
-    if modele_select == "Autre":
-        modele = st.text_input("Saisir le modèle")
-    else:
-        modele = modele_select
+if marque.lower() in models_db:
+    st.caption(f"Suggestions modèles : {', '.join(models_db[marque.lower()])}")
 
 # ---------------- AUTRES INFOS ----------------
 
