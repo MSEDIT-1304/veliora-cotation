@@ -26,12 +26,7 @@ def save_users(data):
 
 users = load_users()
 
-# 🔐 ADMIN PROTÉGÉ (toujours recréé si supprimé)
-users[ADMIN_USERNAME] = {
-    "password": ADMIN_PASSWORD,
-    "expire": None,
-    "trial": False
-}
+users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
 save_users(users)
 
 # ---------------- TRIAL ----------------
@@ -70,7 +65,6 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    # ---------- CONNEXION ----------
     with tab1:
         user = st.text_input("Utilisateur", key="login_user")
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
@@ -79,13 +73,11 @@ if not st.session_state.auth:
 
             users = load_users()
 
-            # ADMIN (accès illimité)
             if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
 
-            # CLIENT
             if user in users and users[user]["password"] == pwd:
 
                 valid, status = check_access(users[user])
@@ -105,19 +97,16 @@ if not st.session_state.auth:
             else:
                 st.error("❌ Identifiants incorrects")
 
-    # ---------- ESSAI GRATUIT ----------
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
         if st.button("Créer essai"):
-            users = load_users()
-
             if new_user in users:
                 st.error("Utilisateur déjà existant")
             else:
                 create_trial(new_user, new_pwd)
-                st.success("✅ Compte créé ! Connectez-vous")
+                st.success("Compte créé")
 
     st.stop()
 
@@ -128,7 +117,7 @@ st.write(f"👤 Connecté : {st.session_state.user}")
 st.title("🚗 VELIORA COTATION PRO")
 st.info("💡 Plus tu remplis d’informations, plus l’estimation sera précise.")
 
-# ---------------- FORMULAIRE COMPLET ----------------
+# ---------------- FORM ----------------
 
 marques = [
     "Audi","BMW","Mercedes","Volkswagen","Peugeot","Renault",
@@ -149,14 +138,11 @@ with col2:
     motorisation = st.text_input("Motorisation")
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-# 🔥 NOMBRE DE PORTES
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 
-# 🔥 SAISIE LIBRE
-annee = st.number_input("Année (ex: 2019)", 1990, datetime.now().year, 2019)
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# 🔥 OPTIONS COMPLÈTES
 options = st.multiselect(
     "Options du véhicule",
     [
@@ -171,53 +157,62 @@ options = st.multiselect(
     ]
 )
 
-# ---------------- ESTIMATION ----------------
+# ---------------- ESTIMATION EXPERT ----------------
 
 if st.button("Calculer l'estimation"):
 
     age = datetime.now().year - int(annee)
-    base = 15000
+    modele_lower = modele.lower()
+    marque_lower = marque.lower()
 
-    # Premium
-    if marque.lower() in ["mercedes","bmw","audi"]:
-        base += 7000
+    # 🔥 BASE MARCHÉ RÉELLE
+    base = 18000
 
-    # Modèles connus
-    if "tiguan" in modele.lower():
-        base = 26000
+    if "tiguan" in modele_lower:
+        base = 27000
+    elif "3008" in modele_lower:
+        base = 22000
+    elif "308" in modele_lower:
+        base = 17000
+    elif "clio" in modele_lower:
+        base = 14000
+    elif "208" in modele_lower:
+        base = 15000
+    elif "ix35" in modele_lower:
+        base = 11000
 
-    if "ix35" in modele.lower():
-        base = 12000
-
-    if "cla" in modele.lower():
-        base = 28000
-
-    # Finition
-    if "amg" in finition.lower():
+    # 🔥 PREMIUM
+    if marque_lower in ["mercedes","bmw","audi"]:
         base += 4000
 
-    # Boîte
+    # 🔥 BOITE
     if boite == "Automatique":
         base += 1500
 
-    # Carburant
+    # 🔥 CARBURANT
     if carburant == "Diesel":
-        base += 800
+        base += 500
+    elif carburant == "Hybride":
+        base += 2000
+    elif carburant == "Électrique":
+        base += 4000
 
-    # Portes
+    # 🔥 PORTES
     if portes <= 3:
-        base += 400
+        base += 300
     elif portes == 5:
         base += 200
 
-    # Âge
-    base -= age * 1200
+    # 🔥 ÂGE
+    base -= age * 1000
 
-    # Kilométrage
+    # 🔥 KM
     if km > 80000:
-        base -= 1000
+        base -= 800
+    if km > 120000:
+        base -= 1200
 
-    # Options intelligentes
+    # 🔥 OPTIONS INTELLIGENTES
     bonus = 0
     for opt in options:
         if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
@@ -229,14 +224,20 @@ if st.button("Calculer l'estimation"):
 
     base += bonus
 
+    # 🔥 SÉCURITÉ
+    if base < 5000:
+        base = 5000
+
     prix_bas = int(base - 1500)
     prix_moyen = int(base)
     prix_haut = int(base + 2500)
 
     st.markdown(f"""
-## 📊 COTATION RÉELLE
+## 📊 COTATION RÉELLE (TON CAS PRÉCIS)
 
-🔻 Prix bas : **{prix_bas} €**  
-⚖️ Prix marché : **{prix_moyen} €**  
-🔺 Prix haut : **{prix_haut} €**
+👉 Avec TON véhicule ({km} km) + finition + options :
+
+💰 💥 PRIX MARCHÉ PARTICULIER
+
+➡️ {prix_bas} € → {prix_haut} €
 """)
