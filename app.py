@@ -150,7 +150,7 @@ if st.button("Calculer l'estimation"):
 
     base += len(options) * 100
 
-    # 🔥 AJUSTEMENT FINAL
+    # 🔥 AJUSTEMENT FINAL (+1200€ env)
     base *= 0.90
 
     # ---------------- COMPARATIF ----------------
@@ -173,14 +173,26 @@ if st.button("Calculer l'estimation"):
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
+    # 🔥 BADGE INTELLIGENT
+    marche_moyen = prix_moyen
+    ecart = prix_moyen - marche_moyen
+
+    if ecart < -500:
+        badge = "🟢 Bonne affaire"
+    elif ecart <= 800:
+        badge = "🟡 Prix marché"
+    else:
+        badge = "🔴 Trop cher"
+
     net = prix_moyen - commission
 
+    # ---------------- AFFICHAGE ----------------
     st.markdown("## 📊 ESTIMATION")
 
     st.markdown(f"""
 ### 💰 Prix de vente
 🔻 Bas : {prix_bas} €  
-⚖️ Marché : {prix_moyen} €  
+⚖️ Marché : {prix_moyen} € {badge}  
 🔺 Haut : {prix_haut} €
 
 ### 🧾 Net vendeur
