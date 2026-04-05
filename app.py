@@ -97,7 +97,6 @@ if not st.session_state.auth:
                 if not valid:
                     st.error("⛔ Accès expiré")
                     st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
-                    st.info("📩 Après paiement, envoyez votre KBIS pour validation.")
                     st.stop()
 
                 if status == "warning":
@@ -158,14 +157,23 @@ else:
 ✔️ Profil entreprise enregistré  
 ✔️ Vérification en cours  
 ✔️ Accès sécurisé Veliora Pro  
-
-📩 Validation après réception et contrôle du KBIS
 """)
 
 st.divider()
 
-# 🔥 BOUTON PAIEMENT STRIPE
-st.markdown(f"[💳 S'abonner / Payer]({PAYMENT_LINK})")
+# 💳 PAIEMENT
+st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
+
+# 🔥 ACTIVATION SIMPLE
+if st.button("✅ J’ai payé → Activer mon abonnement"):
+    users = load_users()
+    users[st.session_state.user]["expire"] = (
+        datetime.now() + timedelta(days=30)
+    ).strftime("%Y-%m-%d")
+    save_users(users)
+    st.success("🎉 Abonnement activé pour 30 jours")
+
+st.divider()
 
 # ---------------- APP METIER ----------------
 
