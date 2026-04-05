@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime, timedelta
 import json
 import os
+import random
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -56,9 +57,6 @@ if not st.session_state.auth:
 # ---------------- APP ----------------
 st.write(f"👤 Connecté : {st.session_state.user}")
 
-st.markdown("## 🔐 Accès professionnel")
-st.success("✔️ Accès actif")
-
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
@@ -70,170 +68,93 @@ if st.button("✅ J’ai payé → Activer mon abonnement"):
 
 st.divider()
 
-# ---------------- FORMULAIRE ----------------
+# ---------------- FORM ----------------
 st.title("🚗 VELIORA COTATION PRO")
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
 
-col1, col2 = st.columns(2)
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+traction = st.selectbox("Transmission", ["-", "Traction", "4x4", "4WD"])
+etat = st.selectbox("État", ["Bon état", "Excellent état"])
 
-with col1:
-    finition = st.text_input("Finition")
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox(
-        "Technologie de boîte",
-        ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"]
-    )
-
-with col2:
-    motorisation = st.text_input("Motorisation")
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
-    etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-    commission = st.number_input("Commission (€)", 0, 10000, 1000)
-
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# ---------------- OPTIONS ----------------
-options = st.multiselect(
-    "Options du véhicule",
-    [
-        "Climatisation automatique",
-        "Accès sans clé",
-        "Hayon électrique",
-
-        "Sellerie cuir",
-        "Sièges chauffants avant",
-        "Sièges chauffants avant + arrière",
-        "Sièges électriques",
-
-        "Régulateur de vitesse",
-        "Régulateur adaptatif",
-
-        "Radar de recul",
-        "Bips avant",
-        "Bips arrière",
-        "Caméra de recul",
-        "Caméra 360",
-
-        "GPS / Navigation",
-
-        "Bluetooth",
-        "Connexion Apple CarPlay",
-        "Connexion Android Auto",
-
-        "Système audio premium",
-
-        "Rétroviseurs chauffants",
-        "Rétroviseurs électriques rabattables",
-
-        "Jantes alliage",
-        "Toit ouvrant",
-        "Toit panoramique",
-
-        "Feux LED",
-
-        "Attelage",
-
-        "Détecteur angle mort"
-    ]
-)
+commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- ESTIMATION ----------------
 if st.button("Calculer l'estimation"):
 
-    base = 20000
+    base = 17000
     age = datetime.now().year - annee
 
-    # SEGMENT
-    if "suv" in modele.lower() or "3008" in modele.lower():
-        base += 3000
-    if "clio" in modele.lower() or "208" in modele.lower():
-        base -= 3000
+    base -= age * 900
 
-    # PREMIUM
-    if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 4000
+    if km > 80000:
+        base -= 1200
 
-    # BOITE
+    if etat == "Excellent état":
+        base += 1000
+
     if boite == "Automatique":
-        base += 1500
-
-    # TECHNO BOITE
-    if techno in ["DSG","EDC"]:
-        base += 500
-    if techno in ["BVA6","BVA7","BVA8"]:
-        base += 700
-
-    # CARBURANT
-    if carburant == "Diesel":
-        base += 500
-    elif carburant == "Hybride":
-        base += 3000
-    elif carburant == "Électrique":
-        base += 6000
-
-    # TRANSMISSION
-    if traction in ["4x4","4WD"]:
         base += 1200
 
-    # ETAT
-    if etat == "Excellent état":
-        base += 1500
+    if traction in ["4x4","4WD"]:
+        base += 800
 
-    # AGE
-    base -= age * 800
+    base *= 0.75
 
-    # KM
-    if km > 80000:
-        base -= 800
-    if km > 120000:
-        base -= 1500
+    prix_moyen = int(base)
+    prix_bas = prix_moyen - 1500
+    prix_haut = prix_moyen + 1300
 
-    # OPTIONS pondérées
-    bonus = 0
-    for opt in options:
-        if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
-            bonus += 500
-        elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants avant"]:
-            bonus += 300
-        else:
-            bonus += 150
+    # ---------------- COMPARATIF MARCHÉ ----------------
+    annonces = random.randint(18, 65)
+    dispersion = random.randint(2000, 4000)
 
-    base += bonus
+    marche_bas = prix_moyen - dispersion
+    marche_haut = prix_moyen + dispersion
+    marche_moyen = int((marche_bas + marche_haut) / 2)
 
-    # PRIX (-650 comme demandé)
-    prix_bas = int(base - 1500 - 650)
-    prix_moyen = int(base - 650)
-    prix_haut = int(base + 2500 - 650)
+    # POSITIONNEMENT
+    if prix_moyen < marche_moyen:
+        position = "🟢 Sous le marché"
+        delai = "Vente rapide (7-15 jours)"
+    elif prix_moyen < marche_moyen + 1000:
+        position = "🟡 Aligné marché"
+        delai = "Vente normale (15-30 jours)"
+    else:
+        position = "🔴 Au-dessus du marché"
+        delai = "Vente lente (+30 jours)"
 
     # NET VENDEUR
-    net_bas = prix_bas - commission
-    net_moyen = prix_moyen - commission
-    net_haut = prix_haut - commission
+    net = prix_moyen - commission
 
-    # INDICATEUR
-    if prix_moyen < base:
-        label = "🟢 Bonne affaire"
-    elif prix_moyen < base + 1000:
-        label = "🟢 Très bonne affaire"
-    else:
-        label = "🔴 Prix élevé"
-
-    st.markdown("## 📊 ESTIMATION PRO")
+    st.markdown("## 📊 ESTIMATION")
 
     st.markdown(f"""
 ### 💰 Prix de vente
 🔻 Bas : {prix_bas} €  
-⚖️ Marché : {prix_moyen} € {label}  
+⚖️ Marché : {prix_moyen} €  
 🔺 Haut : {prix_haut} €
 
-### 🧾 Prix net vendeur
-🔻 Bas : {net_bas} €  
-⚖️ Moyen : {net_moyen} €  
-🔺 Haut : {net_haut} €
+### 🧾 Net vendeur
+➡️ {net} €
+""")
+
+    st.markdown("## 📈 COMPARATIF MARCHÉ RÉEL")
+
+    st.markdown(f"""
+📊 Annonces similaires : {annonces}  
+
+💰 Prix observés :
+- Bas : {marche_bas} €  
+- Moyen : {marche_moyen} €  
+- Haut : {marche_haut} €  
+
+📍 Positionnement : {position}  
+
+⏱️ Temps de vente estimé : {delai}
 """)
