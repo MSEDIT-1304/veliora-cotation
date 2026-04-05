@@ -25,7 +25,6 @@ def save_users(data):
         json.dump(data, f)
 
 users = load_users()
-
 users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "expire": None, "trial": False}
 save_users(users)
 
@@ -157,7 +156,7 @@ options = st.multiselect(
     ]
 )
 
-# ---------------- ESTIMATION EXPERT ----------------
+# ---------------- ESTIMATION MARCHÉ HAUT ----------------
 
 if st.button("Calculer l'estimation"):
 
@@ -165,79 +164,69 @@ if st.button("Calculer l'estimation"):
     modele_lower = modele.lower()
     marque_lower = marque.lower()
 
-    # 🔥 BASE MARCHÉ RÉELLE
-    base = 18000
+    # 🔥 BASE HAUTE MARCHÉ PARTICULIER
+    base = 22000
 
-    if "tiguan" in modele_lower:
-        base = 27000
-    elif "3008" in modele_lower:
-        base = 22000
-    elif "308" in modele_lower:
-        base = 17000
-    elif "clio" in modele_lower:
-        base = 14000
-    elif "208" in modele_lower:
-        base = 15000
-    elif "ix35" in modele_lower:
-        base = 11000
-
-    # 🔥 PREMIUM
-    if marque_lower in ["mercedes","bmw","audi"]:
+    # SEGMENT
+    if "suv" in modele_lower or "tiguan" in modele_lower or "3008" in modele_lower:
         base += 4000
 
-    # 🔥 BOITE
-    if boite == "Automatique":
-        base += 1500
+    if "clio" in modele_lower or "208" in modele_lower:
+        base -= 4000
 
-    # 🔥 CARBURANT
+    # PREMIUM
+    if marque_lower in ["mercedes","bmw","audi"]:
+        base += 5000
+
+    # BOITE
+    if boite == "Automatique":
+        base += 2000
+
+    # CARBURANT
     if carburant == "Diesel":
         base += 500
     elif carburant == "Hybride":
-        base += 2000
+        base += 3000
     elif carburant == "Électrique":
-        base += 4000
+        base += 6000
 
-    # 🔥 PORTES
-    if portes <= 3:
+    # PORTES
+    if portes == 5:
         base += 300
-    elif portes == 5:
-        base += 200
 
-    # 🔥 ÂGE
-    base -= age * 1000
+    # DÉCOTE DOUCE
+    base -= age * 700
 
-    # 🔥 KM
+    # KM
     if km > 80000:
-        base -= 800
+        base -= 500
     if km > 120000:
-        base -= 1200
+        base -= 1000
 
-    # 🔥 OPTIONS INTELLIGENTES
+    # OPTIONS
     bonus = 0
     for opt in options:
         if opt in ["Sellerie cuir","Toit panoramique","Caméra 360","Système audio premium"]:
-            bonus += 500
+            bonus += 600
         elif opt in ["GPS / Navigation","Caméra de recul","Sièges chauffants"]:
-            bonus += 300
+            bonus += 400
         else:
-            bonus += 150
+            bonus += 200
 
     base += bonus
 
-    # 🔥 SÉCURITÉ
-    if base < 5000:
-        base = 5000
+    if base < 7000:
+        base = 7000
 
     prix_bas = int(base - 1500)
-    prix_moyen = int(base)
-    prix_haut = int(base + 2500)
+    prix_haut = int(base + 3000)
 
     st.markdown(f"""
-## 📊 COTATION RÉELLE (TON CAS PRÉCIS)
+## 📊 COTATION RÉELLE (MARCHÉ PARTICULIER)
 
-👉 Avec TON véhicule ({km} km) + finition + options :
+👉 Avec TON véhicule ({km} km) :
 
-💰 💥 PRIX MARCHÉ PARTICULIER
+💰 💥 PRIX MARCHÉ
 
 ➡️ {prix_bas} € → {prix_haut} €
 """)
