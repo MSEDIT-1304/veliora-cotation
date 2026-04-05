@@ -51,38 +51,38 @@ if not st.session_state.auth:
 
 # ---------------- APP ----------------
 
-st.title("🚗 VELIORA COTATION VENDEUR")
+st.title("🚗 VELIORA COTATION PRO")
 
-st.caption("Exemples : Audi, BMW, Peugeot, Tesla…")
-
-# 🔥 MARQUE / MODELE
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 
-# 🔥 FINITION + SOUS VERSION
-finition = st.text_input("Finition (ex : GT Line, S Line, Business...)")
-sous_version = st.text_input("Sous-version / Options (ex : Pack Tech, Full options...)")
+finition = st.text_input("Finition (ex : GT Line, S Line...)")
+sous_version = st.text_input("Sous-version / Options")
 
-# 🔥 DATE MISE EN CIRCULATION
+# DATE
 col1, col2 = st.columns(2)
-
 with col1:
     mois = st.selectbox("Mois mise en circulation", list(range(1, 13)))
-
 with col2:
     annee = st.number_input("Année mise en circulation", 1990, datetime.now().year, 2018)
 
-# 🔥 AUTRES INFOS
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+
+# 🔥 NOUVEAU
+tech_boite = st.text_input("Technologie boîte (ex : DSG, EAT8, CVT...)")
+
 motorisation = st.text_input("Motorisation")
 
 portes = st.selectbox("Portes", [1,2,3,4,5])
 transmission = st.selectbox("Transmission", ["Traction","Propulsion","4WD"])
 
 options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit pano","Audio"])
+
+# 🔥 COMMISSION
+commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- CALCUL ----------------
 
@@ -97,28 +97,23 @@ if st.button("🚀 Estimer"):
     with st.spinner("Analyse du marché..."):
         time.sleep(1)
 
-    # 🔥 AGE PRÉCIS
     today = datetime.now()
     age = today.year - annee
     if today.month < mois:
         age -= 1
 
-    # PRIX NEUF
     prix_neuf = 25000
 
     if marque in ["bmw","audi","mercedes"]:
         prix_neuf = 45000
-
     if marque == "dacia":
         prix_neuf = 18000
 
-    if "suv" in modele.lower() or "3008" in modele.lower():
+    if "suv" in modele.lower():
         prix_neuf += 5000
-
     if "clio" in modele.lower() or "208" in modele.lower():
         prix_neuf = 18000
 
-    # DÉCOTE
     if age <= 1:
         valeur = prix_neuf * 0.85
     elif age <= 3:
@@ -130,46 +125,39 @@ if st.button("🚀 Estimer"):
     else:
         valeur = prix_neuf * 0.42
 
-    # KM
     km_moyen = age * 15000
     valeur += (km_moyen - km) * 0.025
 
-    # MOTORISATION
-    m = motorisation.lower()
-    if "150" in m or "gt" in m:
+    if "150" in motorisation.lower():
         valeur *= 1.08
-    elif "90" in m:
-        valeur *= 0.95
 
-    # PORTES
     if portes <= 2:
         valeur *= 0.93
     elif portes == 5:
         valeur *= 1.03
 
-    # TRANSMISSION
     if transmission == "4WD":
         valeur *= 1.08
-    elif transmission == "Propulsion":
-        valeur *= 1.03
 
     # FINITION
-    f = finition.lower()
-    if any(x in f for x in ["amg","rs","gti","m","gt"]):
+    if "amg" in finition.lower():
         valeur *= 1.18
-    elif any(x in f for x in ["line","business","allure","shine"]):
+    elif "line" in finition.lower():
         valeur *= 1.08
 
     # SOUS VERSION
-    sv = sous_version.lower()
-    if "full" in sv:
+    if "full" in sous_version.lower():
         valeur *= 1.05
-    elif "pack" in sv:
+    elif "pack" in sous_version.lower():
         valeur *= 1.03
 
     # BOITE
     if boite == "Automatique":
         valeur *= 1.05
+
+    # TECHNO BOITE
+    if any(x in tech_boite.lower() for x in ["dsg","eat","pdk"]):
+        valeur *= 1.03
 
     # CARBURANT
     if carburant == "Diesel":
@@ -177,20 +165,23 @@ if st.button("🚀 Estimer"):
     elif carburant == "Électrique":
         valeur *= 1.20
 
-    # OPTIONS
     valeur += len(options) * 120
 
-    # AJUSTEMENT
     valeur *= 1.05
     valeur -= 1000
 
     if valeur < 3000:
         valeur = 3000
 
-    # PRIX
+    # 🔥 PRIX DE VENTE
     prix_bas = int(valeur * 0.92)
     prix_moyen = int(valeur + 700)
     prix_haut = int(prix_moyen + 700)
+
+    # 🔥 PRIX NET VENDEUR
+    net_bas = prix_bas - commission
+    net_moyen = prix_moyen - commission
+    net_haut = prix_haut - commission
 
     # VERDICT
     if prix_bas < valeur * 0.9:
@@ -205,16 +196,19 @@ if st.button("🚀 Estimer"):
 
     # RESULTAT
     st.markdown(f"""
-## 💰 PRIX NET VENDEUR
+## 💰 PRIX DE VENTE
 
 **Bas** : {prix_bas} €  
 **Moyen** : {prix_moyen} € {badge}  
 **Haut** : {prix_haut} €  
 
+---
+
+## 💸 PRIX NET VENDEUR
+
+**Bas** : {net_bas} €  
+**Moyen** : {net_moyen} €  
+**Haut** : {net_haut} €  
+
 ### {verdict}
 """)
-
-    if finition:
-        st.success(f"✔️ Finition : {finition}")
-    if sous_version:
-        st.success(f"✔️ Sous-version : {sous_version}")
