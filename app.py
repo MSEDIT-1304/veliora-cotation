@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import os
 import time
@@ -26,30 +26,23 @@ def save_users(data):
 users = load_users()
 
 if ADMIN_USERNAME not in users:
-    users[ADMIN_USERNAME] = {
-        "password": ADMIN_PASSWORD,
-        "expire": None
-    }
+    users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD}
     save_users(users)
 
-# ---------------- AUTH ----------------
+# ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-
     st.title("🔐 Accès Veliora Pro")
 
     user = st.text_input("Utilisateur", key="login_user")
     pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
     if st.button("Se connecter"):
-
         users = load_users()
-
         if user in users and users[user]["password"] == pwd:
             st.session_state.auth = True
-            st.session_state.user = user
             st.rerun()
         else:
             st.error("Identifiants incorrects")
@@ -141,12 +134,24 @@ if st.button("🚀 Estimer"):
     elif transmission == "Propulsion":
         valeur *= 1.03
 
-    # VERSION
+    # 🔥 SOUS-VERSION (ULTRA IMPORTANT)
     v = sous_version.lower()
-    if any(x in v for x in ["amg","rs","gti","m","sport"]):
-        valeur *= 1.15
-    elif any(x in v for x in ["line","pack"]):
-        valeur *= 1.05
+
+    if any(x in v for x in [
+        "amg","rs","gti","gtd","m ","m sport","gt","cupra","vrs"
+    ]):
+        valeur *= 1.18
+
+    elif any(x in v for x in [
+        "line","s line","gt line","r line","allure","shine",
+        "intens","initiale","business","exclusive"
+    ]):
+        valeur *= 1.08
+
+    elif any(x in v for x in [
+        "access","trend","life","active","essential"
+    ]):
+        valeur *= 0.93
 
     # BOITE
     if boite == "Automatique":
@@ -164,20 +169,21 @@ if st.button("🚀 Estimer"):
     # AJUSTEMENT MARCHÉ
     valeur *= 1.05
 
-    # 🔥 CORRECTION PRIX TROP HAUT
+    # CORRECTION PRIX
     valeur -= 1000
 
     if valeur < 3000:
         valeur = 3000
 
+    # PRIX VENDEUR
     prix_bas = int(valeur * 0.92)
-    prix_moyen = int(valeur)
-    prix_haut = int(valeur * 1.08)
+    prix_moyen = int(valeur + 700)
+    prix_haut = int(prix_moyen + 700)
 
     # VERDICT
-    if prix_moyen < valeur * 0.95:
+    if prix_bas < valeur * 0.9:
         verdict = "🔥 Très bonne affaire"
-    elif prix_moyen < valeur * 1.05:
+    elif prix_bas < valeur:
         verdict = "✅ Bonne affaire"
     else:
         verdict = "⚠️ Prix élevé"
@@ -192,3 +198,6 @@ if st.button("🚀 Estimer"):
 
 ### {verdict}
 """)
+
+    if sous_version:
+        st.success(f"✔️ Finition détectée : {sous_version}")
