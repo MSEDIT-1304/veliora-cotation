@@ -34,6 +34,16 @@ if ADMIN_USERNAME not in users:
     }
     save_users(users)
 
+# ---------------- TRIAL ----------------
+def create_trial(username, password):
+    users = load_users()
+    users[username] = {
+        "password": password,
+        "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+        "verified": True
+    }
+    save_users(users)
+
 # ---------------- LOGIN ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
@@ -42,29 +52,45 @@ if not st.session_state.auth:
 
     st.title("🔐 Accès Veliora Pro")
 
-    user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
+    tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    if st.button("Se connecter"):
+    # LOGIN
+    with tab1:
+        user = st.text_input("Utilisateur")
+        pwd = st.text_input("Mot de passe", type="password")
 
-        users = load_users()
+        if st.button("Se connecter"):
 
-        if user in users and users[user]["password"] == pwd:
+            users = load_users()
 
-            expire = users[user]["expire"]
+            if user in users and users[user]["password"] == pwd:
 
-            if expire:
-                expire_date = datetime.strptime(expire, "%Y-%m-%d")
-                if datetime.now() > expire_date:
-                    st.error("⛔ Abonnement expiré")
-                    st.markdown(f"[💳 Payer]({PAYMENT_LINK})")
-                    st.stop()
+                expire = users[user]["expire"]
 
-            st.session_state.auth = True
-            st.session_state.user = user
-            st.rerun()
-        else:
-            st.error("Identifiants incorrects")
+                if expire:
+                    expire_date = datetime.strptime(expire, "%Y-%m-%d")
+                    if datetime.now() > expire_date:
+                        st.error("⛔ Accès expiré")
+                        st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
+                        st.stop()
+
+                st.session_state.auth = True
+                st.session_state.user = user
+                st.rerun()
+            else:
+                st.error("Identifiants incorrects")
+
+    # TRIAL
+    with tab2:
+        new_user = st.text_input("Créer un utilisateur")
+        new_pwd = st.text_input("Mot de passe", type="password")
+
+        if st.button("Créer essai"):
+            if new_user in users:
+                st.error("Utilisateur déjà existant")
+            else:
+                create_trial(new_user, new_pwd)
+                st.success("Compte créé")
 
     st.stop()
 
@@ -80,10 +106,10 @@ st.success("✔️ Accès professionnel validé")
 st.divider()
 
 # ---------------- ABONNEMENT ----------------
-if st.button("✅ J’ai payé → Activer mon abonnement"):
+if st.button("💳 Activer abonnement 1 an"):
     users[st.session_state.user]["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
     save_users(users)
-    st.success("🎉 Abonnement activé pour 1 an")
+    st.success("🎉 Abonnement actif 1 an")
     st.rerun()
 
 # ---------------- FORMULAIRE ----------------
@@ -135,7 +161,7 @@ if st.button("Estimer"):
 
     base += len(options) * 200
 
-    # ---------------- MARCHÉ SIMULÉ ----------------
+    # marché simulé
     annonces = []
     for i in range(3):
         km_sim = km + random.randint(-20000, 20000)
@@ -144,7 +170,6 @@ if st.button("Estimer"):
 
     marche = int(sum([p for _, p in annonces]) / len(annonces))
 
-    # ---------------- FUSION INTELLIGENTE ----------------
     capacar = base
     biwiz = base * 0.92
 
@@ -152,20 +177,16 @@ if st.button("Estimer"):
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    # ---------------- AFFICHAGE ----------------
-    st.markdown("## 📊 Estimation du marché")
-
+    st.markdown("## 📊 Comparatif marché")
     for km_sim, prix_sim in annonces:
         st.write(f"{km_sim} km → {prix_sim} €")
 
     st.markdown("## 💰 Prix de vente")
-
     st.write(f"🔻 Bas : {prix_bas} €")
     st.write(f"⚖️ Marché : {prix_moyen} € 🟢 Bonne affaire")
     st.write(f"🔺 Haut : {prix_haut} €")
 
     st.markdown("## 💸 Net vendeur")
-
     st.write(f"Bas : {prix_bas - commission} €")
     st.write(f"Moyen : {prix_moyen - commission} €")
     st.write(f"Haut : {prix_haut - commission} €")
