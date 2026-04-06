@@ -57,12 +57,49 @@ if not st.session_state.auth:
 # ---------------- APP ----------------
 st.write(f"👤 Connecté : {st.session_state.user}")
 
+# ---------------- GESTION ACCÈS ----------------
+user_data = users[st.session_state.user]
+
+# 🎁 Activer essai si inexistant
+if user_data["expire"] is None:
+    if st.button("🎁 Activer 7 jours gratuits"):
+        user_data["expire"] = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+        user_data["trial"] = True
+        save_users(users)
+        st.success("🎉 Essai gratuit activé")
+        st.rerun()
+
+# 🔒 Vérification expiration
+if user_data["expire"]:
+    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
+
+    if expire_date < datetime.now():
+        st.error("⛔ Accès expiré")
+
+        st.markdown(f"[💳 Reprendre abonnement]({PAYMENT_LINK})")
+
+        if st.button("✅ J’ai payé → Activer"):
+            user_data["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+            user_data["trial"] = False
+            save_users(users)
+            st.success("🎉 Abonnement réactivé")
+            st.rerun()
+
+        st.stop()
+
+# 💡 Statut utilisateur
+if user_data["trial"]:
+    st.info("🎁 Essai gratuit actif")
+else:
+    st.success("💎 Abonnement actif")
+
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users[st.session_state.user]["expire"] = (
         datetime.now() + timedelta(days=365)
     ).strftime("%Y-%m-%d")
+    users[st.session_state.user]["trial"] = False
     save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
@@ -136,77 +173,4 @@ if st.button("Calculer l'estimation"):
     if traction in ["4x4","4WD"]:
         base += 800
 
-    if etat == "Excellent état":
-        base += 1200
-    else:
-        base -= 500
-
-    base -= age * 900
-
-    if km > 80000:
-        base -= 1200
-    if km > 120000:
-        base -= 2000
-
-    base += len(options) * 100
-
-    # 🔥 AJUSTEMENT FINAL (+1200€ env)
-    base *= 0.90
-
-    # ---------------- COMPARATIF ----------------
-    annonces = []
-
-    for i in range(5):
-        km_a = max(10000, km + random.randint(-40000, 40000))
-        prix_a = base + random.randint(-2000, 2000)
-
-        if km_a > km:
-            prix_a -= (km_a - km) * 0.02
-        else:
-            prix_a += (km - km_a) * 0.02
-
-        annonces.append((int(km_a), int(prix_a)))
-
-    annonces = sorted(annonces, key=lambda x: x[0])
-
-    # 🔥 NOUVELLE ESTIMATION INTELLIGENTE
-    marche = int(sum([p for _, p in annonces]) / len(annonces))
-
-    capacar = base
-    biwiz = base * 0.92
-
-    prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
-
-    prix_bas = prix_moyen - 1200
-    prix_haut = prix_moyen + 1200
-
-    # 🔥 BADGE INTELLIGENT
-    marche_moyen = prix_moyen
-    ecart = prix_moyen - marche_moyen
-
-    if ecart < -500:
-        badge = "🟢 Bonne affaire"
-    elif ecart <= 800:
-        badge = "🟡 Prix marché"
-    else:
-        badge = "🔴 Trop cher"
-
-    net = prix_moyen - commission
-
-    # ---------------- AFFICHAGE ----------------
-    st.markdown("## 📊 ESTIMATION")
-
-    st.markdown(f"""
-### 💰 Prix de vente
-🔻 Bas : {prix_bas} €  
-⚖️ Marché : {prix_moyen} € {badge}  
-🔺 Haut : {prix_haut} €
-
-### 🧾 Net vendeur
-➡️ {net} €
-""")
-
-    st.markdown("## 📈 COMPARATIF ANNONCES")
-
-    for km_a, prix_a in annonces:
-        st.write(f"🚗 {km_a} km → {prix_a} €")
+    if etat == "Excellen
