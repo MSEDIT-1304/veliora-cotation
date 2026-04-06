@@ -4,7 +4,30 @@ import json
 import os
 import random
 
-st.set_page_config(page_title="Veliora Pro", layout="centered")
+st.set_page_config(page_title="Veliora Pro", layout="wide")
+
+# ---------------- DESIGN PREMIUM ----------------
+st.markdown("""
+<style>
+body {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+}
+.block-container {
+    padding-top: 2rem;
+}
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+.good {
+    color: #22c55e;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------- CONFIG ----------------
 PAYMENT_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -27,11 +50,7 @@ def save_users(data):
 users = load_users()
 
 if ADMIN_USERNAME not in users:
-    users[ADMIN_USERNAME] = {
-        "password": ADMIN_PASSWORD,
-        "expire": None,
-        "verified": True
-    }
+    users[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD}
     save_users(users)
 
 # ---------------- LOGIN ----------------
@@ -40,7 +59,8 @@ if "auth" not in st.session_state:
 
 if not st.session_state.auth:
 
-    st.title("🔐 Accès Veliora Pro")
+    st.title("🚗 Veliora Pro")
+    st.markdown("### 💎 Estimation professionnelle automobile")
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
@@ -49,10 +69,8 @@ if not st.session_state.auth:
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
         if st.button("Se connecter"):
-            users = load_users()
             if user in users and users[user]["password"] == pwd:
                 st.session_state.auth = True
-                st.session_state.user = user
                 st.rerun()
             else:
                 st.error("Identifiants incorrects")
@@ -62,17 +80,12 @@ if not st.session_state.auth:
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
         if st.button("Créer essai"):
-            users = load_users()
-            if new_user in users:
-                st.error("Utilisateur déjà existant")
-            else:
-                users[new_user] = {
-                    "password": new_pwd,
-                    "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
-                    "verified": True
-                }
-                save_users(users)
-                st.success("Compte créé")
+            users[new_user] = {"password": new_pwd}
+            save_users(users)
+            st.success("Compte créé")
+
+    st.markdown(f"💳 **Abonnement : 99€/AN (offre lancement)**")
+    st.markdown(f"[👉 S'abonner maintenant]({PAYMENT_LINK})")
 
     st.stop()
 
@@ -80,39 +93,36 @@ if not st.session_state.auth:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-marque = st.selectbox("Marque", ["Audi","BMW","Mercedes","Peugeot","Renault","Volkswagen"])
-modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
+col1, col2 = st.columns(2)
 
-annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-mois = st.selectbox("Mois", list(range(1,13)))
-km = st.number_input("Kilométrage", 0, 300000, 90000)
+with col1:
+    marques = ["Audi","BMW","Mercedes","Peugeot","Renault","Volkswagen","Autre"]
+    marque_select = st.selectbox("Marque", marques)
 
-etat = st.selectbox("État du véhicule", ["Excellent","Très bon","Bon","Correct"])
+    if marque_select == "Autre":
+        marque = st.text_input("Saisir la marque")
+    else:
+        marque = marque_select
 
+    modele = st.text_input("Modèle")
+    sous_version = st.text_input("Sous-version")
+
+with col2:
+    mois = st.selectbox("Mois", list(range(1,13)))
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+    km = st.number_input("Kilométrage", 0, 300000, 90000)
+
+etat = st.selectbox("État", ["Excellent","Très bon","Bon","Correct"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-tech_boite = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8"])
-
+tech = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8"])
 traction = st.selectbox("Transmission", ["-","4WD","4x4"])
 
-options = st.multiselect("Options complètes", [
-    "Clim automatique","Accès sans clé","Hayon électrique",
-    "Sellerie cuir","Sièges chauffants avant","Sièges chauffants AV/AR",
-    "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
-    "Radar de recul","Caméra de recul","Caméra 360",
-    "GPS","Bluetooth","CarPlay / Android Auto",
-    "Système audio premium","Jantes alliage","Toit ouvrant",
-    "Toit panoramique","Feux LED","Attelage",
-    "Détecteur angle mort","Rétros chauffants",
-    "Rétros rabattables électriques"
+options = st.multiselect("Options", [
+    "Clim auto","Cuir","GPS","Caméra","CarPlay",
+    "Toit ouvrant","LED","Attelage","Radar","Audio premium"
 ])
 
 commission = st.number_input("Commission (€)", 0, 5000, 1000)
-
-# ---------------- API FUTURE ----------------
-def get_market_data():
-    # 🔥 prêt pour API réelle plus tard
-    return None
 
 # ---------------- ESTIMATION ----------------
 
@@ -121,7 +131,6 @@ if st.button("Calculer estimation"):
     age = datetime.now().year - annee
 
     base = 18000
-
     base -= age * 850
     base -= (km / 10000) * 220
 
@@ -131,21 +140,16 @@ if st.button("Calculer estimation"):
     if boite == "Automatique":
         base += 1200
 
-    if traction in ["4WD","4x4"]:
+    if traction != "-":
         base += 1200
 
-    if etat == "Excellent":
-        base += 1200
-    elif etat == "Très bon":
-        base += 600
+    base += len(options) * 150
 
-    base += len(options) * 120
-
-    # ---------------- MARCHÉ SIMULÉ (PRO) ----------------
+    # 🔥 SIMULATION MARCHÉ TYPE LEBONCOIN
     annonces = []
-    for i in range(6):
-        km_fake = km + random.randint(-25000, 25000)
-        prix = int(base + random.randint(-1500, 1500))
+    for i in range(8):
+        km_fake = km + random.randint(-30000, 30000)
+        prix = int(base + random.randint(-1800, 1800))
         annonces.append((km_fake, prix))
 
     marche = int(sum([p for _, p in annonces]) / len(annonces))
@@ -158,22 +162,22 @@ if st.button("Calculer estimation"):
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    net_bas = prix_bas - commission
-    net_moyen = prix_moyen - commission
-    net_haut = prix_haut - commission
+    net = prix_moyen - commission
 
     # ---------------- AFFICHAGE ----------------
 
-    st.markdown("## 📊 PRIX DE VENTE")
-    st.write(f"🔻 Bas : {prix_bas} €")
-    st.write(f"⚖️ Marché : {prix_moyen} € 🟢 Bonne affaire")
-    st.write(f"🔺 Haut : {prix_haut} €")
+    st.markdown("## 📊 Résultat estimation")
 
-    st.markdown("## 💰 PRIX NET VENDEUR")
-    st.write(f"Bas : {net_bas} €")
-    st.write(f"Moyen : {net_moyen} €")
-    st.write(f"Haut : {net_haut} €")
+    st.markdown(f"""
+    <div class="card">
+    🔻 Bas : {prix_bas} €<br>
+    ⚖️ Marché : {prix_moyen} € <span class="good">Bonne affaire</span><br>
+    🔺 Haut : {prix_haut} €<br><br>
+    💰 Net vendeur : {net} €
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("## 📊 COMPARAISON MARCHÉ")
+    st.markdown("## 📊 Comparaison marché")
+
     for km_fake, prix in annonces:
         st.write(f"{km_fake} km → {prix} €")
