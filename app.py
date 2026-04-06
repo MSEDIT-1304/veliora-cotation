@@ -26,7 +26,6 @@ def save_users(data):
 
 users = load_users()
 
-# ADMIN
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
@@ -45,14 +44,12 @@ if not st.session_state.auth:
 
     tab1, tab2 = st.tabs(["Connexion", "Essai gratuit 7 jours"])
 
-    # LOGIN
     with tab1:
         user = st.text_input("Utilisateur", key="login_user")
         pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
         if st.button("Se connecter"):
             users = load_users()
-
             if user in users and users[user]["password"] == pwd:
                 st.session_state.auth = True
                 st.session_state.user = user
@@ -60,14 +57,12 @@ if not st.session_state.auth:
             else:
                 st.error("Identifiants incorrects")
 
-    # TRIAL
     with tab2:
         new_user = st.text_input("Créer un utilisateur", key="trial_user")
         new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
         if st.button("Créer essai"):
             users = load_users()
-
             if new_user in users:
                 st.error("Utilisateur déjà existant")
             else:
@@ -100,13 +95,24 @@ tech_boite = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8"])
 
 traction = st.selectbox("Transmission", ["-","4WD","4x4"])
 
-options = st.multiselect("Options", [
-    "Sièges chauffants avant","Sièges chauffants AV/AR","Attelage",
-    "CarPlay / Android Auto","Rétros chauffants","Rétros rabattables",
-    "Clim auto","GPS","Caméra","Cuir","Toit ouvrant"
+options = st.multiselect("Options complètes", [
+    "Clim automatique","Accès sans clé","Hayon électrique",
+    "Sellerie cuir","Sièges chauffants avant","Sièges chauffants AV/AR",
+    "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
+    "Radar de recul","Caméra de recul","Caméra 360",
+    "GPS","Bluetooth","CarPlay / Android Auto",
+    "Système audio premium","Jantes alliage","Toit ouvrant",
+    "Toit panoramique","Feux LED","Attelage",
+    "Détecteur angle mort","Rétros chauffants",
+    "Rétros rabattables électriques"
 ])
 
 commission = st.number_input("Commission (€)", 0, 5000, 1000)
+
+# ---------------- API FUTURE ----------------
+def get_market_data():
+    # 🔥 prêt pour API réelle plus tard
+    return None
 
 # ---------------- ESTIMATION ----------------
 
@@ -114,33 +120,32 @@ if st.button("Calculer estimation"):
 
     age = datetime.now().year - annee
 
-    base = 20000
+    base = 18000
 
-    base -= age * 900
-    base -= (km / 10000) * 250
+    base -= age * 850
+    base -= (km / 10000) * 220
 
     if marque in ["Audi","BMW","Mercedes"]:
-        base += 2000
+        base += 1800
 
     if boite == "Automatique":
         base += 1200
 
     if traction in ["4WD","4x4"]:
-        base += 1500
+        base += 1200
 
     if etat == "Excellent":
-        base += 1500
+        base += 1200
     elif etat == "Très bon":
-        base += 800
+        base += 600
 
-    # options
-    base += len(options) * 150
+    base += len(options) * 120
 
-    # ---------------- MARCHÉ SIMULÉ ----------------
+    # ---------------- MARCHÉ SIMULÉ (PRO) ----------------
     annonces = []
-    for i in range(5):
-        km_fake = km + random.randint(-30000, 30000)
-        prix = int(base + random.randint(-2000, 2000))
+    for i in range(6):
+        km_fake = km + random.randint(-25000, 25000)
+        prix = int(base + random.randint(-1500, 1500))
         annonces.append((km_fake, prix))
 
     marche = int(sum([p for _, p in annonces]) / len(annonces))
@@ -148,7 +153,6 @@ if st.button("Calculer estimation"):
     capacar = base
     biwiz = base * 0.92
 
-    # 🔥 FUSION INTELLIGENTE
     prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
 
     prix_bas = prix_moyen - 1200
