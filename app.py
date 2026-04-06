@@ -30,7 +30,7 @@ if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
-        "trial": False
+        "verified": True
     }
     save_users(users)
 
@@ -39,13 +39,27 @@ if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
+
     st.title("🔐 Accès Veliora Pro")
 
-    user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    user = st.text_input("Utilisateur")
+    pwd = st.text_input("Mot de passe", type="password")
 
     if st.button("Se connecter"):
+
+        users = load_users()
+
         if user in users and users[user]["password"] == pwd:
+
+            expire = users[user]["expire"]
+
+            if expire:
+                expire_date = datetime.strptime(expire, "%Y-%m-%d")
+                if datetime.now() > expire_date:
+                    st.error("⛔ Abonnement expiré")
+                    st.markdown(f"[💳 Payer]({PAYMENT_LINK})")
+                    st.stop()
+
             st.session_state.auth = True
             st.session_state.user = user
             st.rerun()
@@ -55,151 +69,103 @@ if not st.session_state.auth:
     st.stop()
 
 # ---------------- APP ----------------
+users = load_users()
+user_data = users[st.session_state.user]
+
 st.write(f"👤 Connecté : {st.session_state.user}")
 
-st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
-
-if st.button("✅ J’ai payé → Activer mon abonnement"):
-    users[st.session_state.user]["expire"] = (
-        datetime.now() + timedelta(days=365)
-    ).strftime("%Y-%m-%d")
-    save_users(users)
-    st.success("🎉 Abonnement activé pour 1 an")
+st.markdown("## 🔐 Accès professionnel")
+st.success("✔️ Accès professionnel validé")
 
 st.divider()
+
+# ---------------- ABONNEMENT ----------------
+if st.button("✅ J’ai payé → Activer mon abonnement"):
+    users[st.session_state.user]["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+    save_users(users)
+    st.success("🎉 Abonnement activé pour 1 an")
+    st.rerun()
 
 # ---------------- FORMULAIRE ----------------
 st.title("🚗 VELIORA COTATION PRO")
 
-marque = st.text_input("Marque")
+marque = st.selectbox("Marque", ["Audi","BMW","Mercedes","Peugeot","Renault","Volkswagen"])
 modele = st.text_input("Modèle")
 sous_version = st.text_input("Sous-version")
-finition = st.text_input("Finition")
-motorisation = st.text_input("Motorisation")
 
-col1, col2 = st.columns(2)
+annee = st.number_input("Année", 2000, datetime.now().year, 2018)
+km = st.number_input("Kilométrage", 0, 300000, 80000)
 
-with col1:
-    mois = st.selectbox("Mois de mise en circulation", list(range(1,13)))
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+tech_boite = st.selectbox("Technologie boîte", ["BVM5","BVM6","BVA6","BVA7","BVA8"])
+traction = st.selectbox("Transmission", ["Traction","Propulsion","4x4","AWD"])
 
-with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+etat = st.selectbox("État du véhicule", ["Excellent","Très bon","Bon","Moyen"])
 
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+options = st.multiselect("Options", [
+    "Clim automatique","Sièges chauffants AV","Sièges chauffants AV/AR",
+    "GPS","CarPlay / Android Auto","Caméra recul",
+    "Attelage","Rétros chauffants","Rétros rabattables"
+])
 
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
-km = st.number_input("Kilométrage", 0, 400000, 90000)
-
-options = st.multiselect(
-    "Options du véhicule",
-    [
-        "Climatisation automatique","Accès sans clé","Hayon électrique",
-        "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
-        "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
-        "Radar de recul","Bips avant","Bips arrière","Caméra de recul","Caméra 360",
-        "GPS / Navigation","Bluetooth","Connexion Apple CarPlay","Connexion Android Auto",
-        "Système audio premium","Rétroviseurs chauffants","Rétroviseurs électriques rabattables",
-        "Jantes alliage","Toit ouvrant","Toit panoramique","Feux LED","Attelage","Détecteur angle mort"
-    ]
-)
-
-commission = st.number_input("Commission (€)", 0, 10000, 1000)
+commission = st.number_input("Commission (€)", 0, 5000, 1000)
 
 # ---------------- ESTIMATION ----------------
-if st.button("Calculer l'estimation"):
+if st.button("Estimer"):
 
-    base = 17000
-    age = datetime.now().year - annee
+    base = 15000
 
-    if marque.lower() in ["bmw","audi","mercedes"]:
+    if marque in ["BMW","Audi","Mercedes"]:
         base += 3000
 
-    if boite == "Automatique":
-        base += 1200
-
-    if techno in ["DSG","EDC"]:
-        base += 400
-    if techno in ["BVA6","BVA7","BVA8"]:
-        base += 500
+    base -= (datetime.now().year - annee) * 800
+    base -= int(km / 20000) * 500
 
     if carburant == "Diesel":
-        base += 300
-    elif carburant == "Hybride":
-        base += 2500
-    elif carburant == "Électrique":
-        base += 5000
-
-    if traction in ["4x4","4WD"]:
-        base += 800
-
-    if etat == "Excellent état":
-        base += 1200
-    else:
         base -= 500
 
-    base -= age * 900
+    if boite == "Automatique":
+        base += 1000
 
-    if km > 80000:
-        base -= 1200
-    if km > 120000:
-        base -= 2000
+    if etat == "Excellent":
+        base += 1500
+    elif etat == "Moyen":
+        base -= 1500
 
-    base += len(options) * 100
+    base += len(options) * 200
 
-    # 🔥 AJUSTEMENT FINAL (+1200€ env)
-    base *= 0.90
-
-    # ---------------- COMPARATIF ----------------
+    # ---------------- MARCHÉ SIMULÉ ----------------
     annonces = []
+    for i in range(3):
+        km_sim = km + random.randint(-20000, 20000)
+        prix_sim = base + random.randint(-1500, 1500)
+        annonces.append((km_sim, prix_sim))
 
-    for i in range(5):
-        km_a = max(10000, km + random.randint(-40000, 40000))
-        prix_a = base + random.randint(-2000, 2000)
+    marche = int(sum([p for _, p in annonces]) / len(annonces))
 
-        if km_a > km:
-            prix_a -= (km_a - km) * 0.02
-        else:
-            prix_a += (km - km_a) * 0.02
+    # ---------------- FUSION INTELLIGENTE ----------------
+    capacar = base
+    biwiz = base * 0.92
 
-        annonces.append((int(km_a), int(prix_a)))
-
-    annonces = sorted(annonces, key=lambda x: x[0])
-
-    prix_moyen = int(sum([p for _, p in annonces]) / len(annonces))
+    prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    # 🔥 BADGE INTELLIGENT
-    marche_moyen = prix_moyen
-    ecart = prix_moyen - marche_moyen
-
-    if ecart < -500:
-        badge = "🟢 Bonne affaire"
-    elif ecart <= 800:
-        badge = "🟡 Prix marché"
-    else:
-        badge = "🔴 Trop cher"
-
-    net = prix_moyen - commission
-
     # ---------------- AFFICHAGE ----------------
-    st.markdown("## 📊 ESTIMATION")
+    st.markdown("## 📊 Estimation du marché")
 
-    st.markdown(f"""
-### 💰 Prix de vente
-🔻 Bas : {prix_bas} €  
-⚖️ Marché : {prix_moyen} € {badge}  
-🔺 Haut : {prix_haut} €
+    for km_sim, prix_sim in annonces:
+        st.write(f"{km_sim} km → {prix_sim} €")
 
-### 🧾 Net vendeur
-➡️ {net} €
-""")
+    st.markdown("## 💰 Prix de vente")
 
-    st.markdown("## 📈 COMPARATIF ANNONCES")
+    st.write(f"🔻 Bas : {prix_bas} €")
+    st.write(f"⚖️ Marché : {prix_moyen} € 🟢 Bonne affaire")
+    st.write(f"🔺 Haut : {prix_haut} €")
 
-    for km_a, prix_a in annonces:
-        st.write(f"🚗 {km_a} km → {prix_a} €")
+    st.markdown("## 💸 Net vendeur")
+
+    st.write(f"Bas : {prix_bas - commission} €")
+    st.write(f"Moyen : {prix_moyen - commission} €")
+    st.write(f"Haut : {prix_haut - commission} €")
