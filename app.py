@@ -60,8 +60,8 @@ st.write(f"👤 Connecté : {st.session_state.user}")
 # ---------------- GESTION ACCÈS ----------------
 user_data = users[st.session_state.user]
 
-# 🎁 Activer essai si inexistant
-if user_data["expire"] is None:
+# 🎁 TRIAL visible uniquement si jamais utilisé
+if not user_data.get("trial", False):
     if st.button("🎁 Activer 7 jours gratuits"):
         user_data["expire"] = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
         user_data["trial"] = True
@@ -87,19 +87,18 @@ if user_data["expire"]:
 
         st.stop()
 
-# 💡 Statut utilisateur
-if user_data["trial"]:
+# 💡 Statut
+if user_data.get("trial", False):
     st.info("🎁 Essai gratuit actif")
 else:
     st.success("💎 Abonnement actif")
 
+# Paiement manuel
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
-    users[st.session_state.user]["expire"] = (
-        datetime.now() + timedelta(days=365)
-    ).strftime("%Y-%m-%d")
-    users[st.session_state.user]["trial"] = False
+    user_data["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+    user_data["trial"] = False
     save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
@@ -173,7 +172,7 @@ if st.button("Calculer l'estimation"):
     if traction in ["4x4","4WD"]:
         base += 800
 
-    # ✅ CORRECTION PROPRE
+    # ✅ FIX FINAL
     if etat == "Excellent état":
         base += 1200
     else:
@@ -217,13 +216,10 @@ if st.button("Calculer l'estimation"):
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    # 🔥 BADGE
-    marche_moyen = prix_moyen
-    ecart = prix_moyen - marche_moyen
-
-    if ecart < -500:
+    # BADGE
+    if prix_moyen < marche - 500:
         badge = "🟢 Bonne affaire"
-    elif ecart <= 800:
+    elif prix_moyen <= marche + 800:
         badge = "🟡 Prix marché"
     else:
         badge = "🔴 Trop cher"
