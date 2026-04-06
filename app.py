@@ -173,7 +173,8 @@ if st.button("Calculer l'estimation"):
     if traction in ["4x4","4WD"]:
         base += 800
 
-    if etat == "Excellent état"::
+    # ✅ CORRECTION PROPRE
+    if etat == "Excellent état":
         base += 1200
     else:
         base -= 500
