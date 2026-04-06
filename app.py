@@ -173,4 +173,76 @@ if st.button("Calculer l'estimation"):
     if traction in ["4x4","4WD"]:
         base += 800
 
-    if etat == "Excellen
+    if etat == "Excellent état":":
+        base += 1200
+    else:
+        base -= 500
+
+    base -= age * 900
+
+    if km > 80000:
+        base -= 1200
+    if km > 120000:
+        base -= 2000
+
+    base += len(options) * 100
+
+    base *= 0.90
+
+    # ---------------- COMPARATIF ----------------
+    annonces = []
+
+    for i in range(5):
+        km_a = max(10000, km + random.randint(-40000, 40000))
+        prix_a = base + random.randint(-2000, 2000)
+
+        if km_a > km:
+            prix_a -= (km_a - km) * 0.02
+        else:
+            prix_a += (km - km_a) * 0.02
+
+        annonces.append((int(km_a), int(prix_a)))
+
+    annonces = sorted(annonces, key=lambda x: x[0])
+
+    # 🔥 ESTIMATION INTELLIGENTE
+    marche = int(sum([p for _, p in annonces]) / len(annonces))
+
+    capacar = base
+    biwiz = base * 0.92
+
+    prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
+
+    prix_bas = prix_moyen - 1200
+    prix_haut = prix_moyen + 1200
+
+    # 🔥 BADGE
+    marche_moyen = prix_moyen
+    ecart = prix_moyen - marche_moyen
+
+    if ecart < -500:
+        badge = "🟢 Bonne affaire"
+    elif ecart <= 800:
+        badge = "🟡 Prix marché"
+    else:
+        badge = "🔴 Trop cher"
+
+    net = prix_moyen - commission
+
+    # ---------------- AFFICHAGE ----------------
+    st.markdown("## 📊 ESTIMATION")
+
+    st.markdown(f"""
+### 💰 Prix de vente
+🔻 Bas : {prix_bas} €  
+⚖️ Marché : {prix_moyen} € {badge}  
+🔺 Haut : {prix_haut} €
+
+### 🧾 Net vendeur
+➡️ {net} €
+""")
+
+    st.markdown("## 📈 COMPARATIF ANNONCES")
+
+    for km_a, prix_a in annonces:
+        st.write(f"🚗 {km_a} km → {prix_a} €")
