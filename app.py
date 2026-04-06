@@ -26,20 +26,11 @@ def save_users(data):
 
 users = load_users()
 
+# ADMIN
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
-        "verified": True
-    }
-    save_users(users)
-
-# ---------------- TRIAL ----------------
-def create_trial(username, password):
-    users = load_users()
-    users[username] = {
-        "password": password,
-        "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
         "verified": True
     }
     save_users(users)
@@ -56,24 +47,13 @@ if not st.session_state.auth:
 
     # LOGIN
     with tab1:
-        user = st.text_input("Utilisateur")
-        pwd = st.text_input("Mot de passe", type="password")
+        user = st.text_input("Utilisateur", key="login_user")
+        pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
         if st.button("Se connecter"):
-
             users = load_users()
 
             if user in users and users[user]["password"] == pwd:
-
-                expire = users[user]["expire"]
-
-                if expire:
-                    expire_date = datetime.strptime(expire, "%Y-%m-%d")
-                    if datetime.now() > expire_date:
-                        st.error("⛔ Accès expiré")
-                        st.markdown(f"[💳 S'abonner]({PAYMENT_LINK})")
-                        st.stop()
-
                 st.session_state.auth = True
                 st.session_state.user = user
                 st.rerun()
@@ -82,111 +62,114 @@ if not st.session_state.auth:
 
     # TRIAL
     with tab2:
-        new_user = st.text_input("Créer un utilisateur")
-        new_pwd = st.text_input("Mot de passe", type="password")
+        new_user = st.text_input("Créer un utilisateur", key="trial_user")
+        new_pwd = st.text_input("Mot de passe", type="password", key="trial_pwd")
 
         if st.button("Créer essai"):
+            users = load_users()
+
             if new_user in users:
                 st.error("Utilisateur déjà existant")
             else:
-                create_trial(new_user, new_pwd)
+                users[new_user] = {
+                    "password": new_pwd,
+                    "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+                    "verified": True
+                }
+                save_users(users)
                 st.success("Compte créé")
 
     st.stop()
 
 # ---------------- APP ----------------
-users = load_users()
-user_data = users[st.session_state.user]
 
-st.write(f"👤 Connecté : {st.session_state.user}")
-
-st.markdown("## 🔐 Accès professionnel")
-st.success("✔️ Accès professionnel validé")
-
-st.divider()
-
-# ---------------- ABONNEMENT ----------------
-if st.button("💳 Activer abonnement 1 an"):
-    users[st.session_state.user]["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
-    save_users(users)
-    st.success("🎉 Abonnement actif 1 an")
-    st.rerun()
-
-# ---------------- FORMULAIRE ----------------
 st.title("🚗 VELIORA COTATION PRO")
 
 marque = st.selectbox("Marque", ["Audi","BMW","Mercedes","Peugeot","Renault","Volkswagen"])
 modele = st.text_input("Modèle")
 sous_version = st.text_input("Sous-version")
 
-annee = st.number_input("Année", 2000, datetime.now().year, 2018)
-km = st.number_input("Kilométrage", 0, 300000, 80000)
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+mois = st.selectbox("Mois", list(range(1,13)))
+km = st.number_input("Kilométrage", 0, 300000, 90000)
 
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+etat = st.selectbox("État du véhicule", ["Excellent","Très bon","Bon","Correct"])
+
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-tech_boite = st.selectbox("Technologie boîte", ["BVM5","BVM6","BVA6","BVA7","BVA8"])
-traction = st.selectbox("Transmission", ["Traction","Propulsion","4x4","AWD"])
+tech_boite = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8"])
 
-etat = st.selectbox("État du véhicule", ["Excellent","Très bon","Bon","Moyen"])
+traction = st.selectbox("Transmission", ["-","4WD","4x4"])
 
 options = st.multiselect("Options", [
-    "Clim automatique","Sièges chauffants AV","Sièges chauffants AV/AR",
-    "GPS","CarPlay / Android Auto","Caméra recul",
-    "Attelage","Rétros chauffants","Rétros rabattables"
+    "Sièges chauffants avant","Sièges chauffants AV/AR","Attelage",
+    "CarPlay / Android Auto","Rétros chauffants","Rétros rabattables",
+    "Clim auto","GPS","Caméra","Cuir","Toit ouvrant"
 ])
 
 commission = st.number_input("Commission (€)", 0, 5000, 1000)
 
 # ---------------- ESTIMATION ----------------
-if st.button("Estimer"):
 
-    base = 15000
+if st.button("Calculer estimation"):
 
-    if marque in ["BMW","Audi","Mercedes"]:
-        base += 3000
+    age = datetime.now().year - annee
 
-    base -= (datetime.now().year - annee) * 800
-    base -= int(km / 20000) * 500
+    base = 20000
 
-    if carburant == "Diesel":
-        base -= 500
+    base -= age * 900
+    base -= (km / 10000) * 250
+
+    if marque in ["Audi","BMW","Mercedes"]:
+        base += 2000
 
     if boite == "Automatique":
-        base += 1000
+        base += 1200
+
+    if traction in ["4WD","4x4"]:
+        base += 1500
 
     if etat == "Excellent":
         base += 1500
-    elif etat == "Moyen":
-        base -= 1500
+    elif etat == "Très bon":
+        base += 800
 
-    base += len(options) * 200
+    # options
+    base += len(options) * 150
 
-    # marché simulé
+    # ---------------- MARCHÉ SIMULÉ ----------------
     annonces = []
-    for i in range(3):
-        km_sim = km + random.randint(-20000, 20000)
-        prix_sim = base + random.randint(-1500, 1500)
-        annonces.append((km_sim, prix_sim))
+    for i in range(5):
+        km_fake = km + random.randint(-30000, 30000)
+        prix = int(base + random.randint(-2000, 2000))
+        annonces.append((km_fake, prix))
 
     marche = int(sum([p for _, p in annonces]) / len(annonces))
 
     capacar = base
     biwiz = base * 0.92
 
+    # 🔥 FUSION INTELLIGENTE
     prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
+
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    st.markdown("## 📊 Comparatif marché")
-    for km_sim, prix_sim in annonces:
-        st.write(f"{km_sim} km → {prix_sim} €")
+    net_bas = prix_bas - commission
+    net_moyen = prix_moyen - commission
+    net_haut = prix_haut - commission
 
-    st.markdown("## 💰 Prix de vente")
+    # ---------------- AFFICHAGE ----------------
+
+    st.markdown("## 📊 PRIX DE VENTE")
     st.write(f"🔻 Bas : {prix_bas} €")
     st.write(f"⚖️ Marché : {prix_moyen} € 🟢 Bonne affaire")
     st.write(f"🔺 Haut : {prix_haut} €")
 
-    st.markdown("## 💸 Net vendeur")
-    st.write(f"Bas : {prix_bas - commission} €")
-    st.write(f"Moyen : {prix_moyen - commission} €")
-    st.write(f"Haut : {prix_haut - commission} €")
+    st.markdown("## 💰 PRIX NET VENDEUR")
+    st.write(f"Bas : {net_bas} €")
+    st.write(f"Moyen : {net_moyen} €")
+    st.write(f"Haut : {net_haut} €")
+
+    st.markdown("## 📊 COMPARAISON MARCHÉ")
+    for km_fake, prix in annonces:
+        st.write(f"{km_fake} km → {prix} €")
