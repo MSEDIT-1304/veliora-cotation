@@ -41,8 +41,8 @@ if "auth" not in st.session_state:
 if not st.session_state.auth:
     st.title("🔐 Accès Veliora Pro")
 
-    user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
+    user = st.text_input("Utilisateur", key="login_user")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
     if st.button("Se connecter"):
         if user in users and users[user]["password"] == pwd:
@@ -57,51 +57,14 @@ if not st.session_state.auth:
 # ---------------- APP ----------------
 st.write(f"👤 Connecté : {st.session_state.user}")
 
-user_data = users[st.session_state.user]
-
-# 🔄 RESET AUTOMATIQUE SI EXPIRÉ
-if user_data.get("expire"):
-    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
-    if expire_date < datetime.now():
-        user_data["expire"] = None
-        user_data["trial"] = False
-        save_users(users)
-
-# 🎁 7 JOURS GRATUITS (TOUJOURS DISPONIBLE SI PAS D’ACCÈS)
-if user_data.get("expire") is None:
-    if st.button("🎁 Activer 7 jours gratuits"):
-        user_data["expire"] = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-        user_data["trial"] = True
-        save_users(users)
-        st.success("🎉 Essai gratuit activé")
-        st.rerun()
-
-# 🔒 BLOQUAGE SI EXPIRE (cas sécurité)
-if user_data.get("expire"):
-    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
-
-    if expire_date < datetime.now():
-        st.error("⛔ Accès expiré")
-        st.stop()
-
-# 💡 STATUT
-if user_data.get("expire"):
-    if user_data.get("trial"):
-        st.info("🎁 Essai gratuit actif")
-    else:
-        st.success("💎 Abonnement actif")
-else:
-    st.warning("⚠️ Aucun accès actif")
-
-# 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
-    user_data["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
-    user_data["trial"] = False
+    users[st.session_state.user]["expire"] = (
+        datetime.now() + timedelta(days=365)
+    ).strftime("%Y-%m-%d")
     save_users(users)
-    st.success("🎉 Abonnement activé")
-    st.rerun()
+    st.success("🎉 Abonnement activé pour 1 an")
 
 st.divider()
 
@@ -110,13 +73,39 @@ st.title("🚗 VELIORA COTATION PRO")
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
+sous_version = st.text_input("Sous-version")
+finition = st.text_input("Finition")
+motorisation = st.text_input("Motorisation")
 
-annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+col1, col2 = st.columns(2)
 
-etat = st.selectbox("État", ["Bon état", "Excellent état"])
+with col1:
+    mois = st.selectbox("Mois de mise en circulation", list(range(1,13)))
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+
+with col2:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
+    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+
+etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
+
+options = st.multiselect(
+    "Options du véhicule",
+    [
+        "Climatisation automatique","Accès sans clé","Hayon électrique",
+        "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
+        "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
+        "Radar de recul","Bips avant","Bips arrière","Caméra de recul","Caméra 360",
+        "GPS / Navigation","Bluetooth","Connexion Apple CarPlay","Connexion Android Auto",
+        "Système audio premium","Rétroviseurs chauffants","Rétroviseurs électriques rabattables",
+        "Jantes alliage","Toit ouvrant","Toit panoramique","Feux LED","Attelage","Détecteur angle mort"
+    ]
+)
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
@@ -124,6 +113,7 @@ commission = st.number_input("Commission (€)", 0, 10000, 1000)
 if st.button("Calculer l'estimation"):
 
     base = 17000
+    age = datetime.now().year - annee
 
     if marque.lower() in ["bmw","audi","mercedes"]:
         base += 3000
@@ -131,42 +121,85 @@ if st.button("Calculer l'estimation"):
     if boite == "Automatique":
         base += 1200
 
-    if carburant == "Hybride":
+    if techno in ["DSG","EDC"]:
+        base += 400
+    if techno in ["BVA6","BVA7","BVA8"]:
+        base += 500
+
+    if carburant == "Diesel":
+        base += 300
+    elif carburant == "Hybride":
         base += 2500
     elif carburant == "Électrique":
         base += 5000
+
+    if traction in ["4x4","4WD"]:
+        base += 800
 
     if etat == "Excellent état":
         base += 1200
     else:
         base -= 500
 
-    base -= (datetime.now().year - annee) * 900
+    base -= age * 900
 
     if km > 80000:
         base -= 1200
+    if km > 120000:
+        base -= 2000
 
+    base += len(options) * 100
+
+    # 🔥 AJUSTEMENT FINAL (+1200€ env)
     base *= 0.90
 
-    annonces = [
-        (random.randint(20000, 150000), base + random.randint(-2000, 2000))
-        for _ in range(5)
-    ]
+    # ---------------- COMPARATIF ----------------
+    annonces = []
 
-    marche = int(sum([p for _, p in annonces]) / len(annonces))
-    prix_moyen = int(base * 0.6 + marche * 0.4)
+    for i in range(5):
+        km_a = max(10000, km + random.randint(-40000, 40000))
+        prix_a = base + random.randint(-2000, 2000)
 
+        if km_a > km:
+            prix_a -= (km_a - km) * 0.02
+        else:
+            prix_a += (km - km_a) * 0.02
+
+        annonces.append((int(km_a), int(prix_a)))
+
+    annonces = sorted(annonces, key=lambda x: x[0])
+
+    prix_moyen = int(sum([p for _, p in annonces]) / len(annonces))
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
+    # 🔥 BADGE INTELLIGENT
+    marche_moyen = prix_moyen
+    ecart = prix_moyen - marche_moyen
+
+    if ecart < -500:
+        badge = "🟢 Bonne affaire"
+    elif ecart <= 800:
+        badge = "🟡 Prix marché"
+    else:
+        badge = "🔴 Trop cher"
+
     net = prix_moyen - commission
 
+    # ---------------- AFFICHAGE ----------------
+    st.markdown("## 📊 ESTIMATION")
+
     st.markdown(f"""
-### 💰 Prix
-Bas : {prix_bas} €  
-Moyen : {prix_moyen} €  
-Haut : {prix_haut} €
+### 💰 Prix de vente
+🔻 Bas : {prix_bas} €  
+⚖️ Marché : {prix_moyen} € {badge}  
+🔺 Haut : {prix_haut} €
 
 ### 🧾 Net vendeur
-{net} €
+➡️ {net} €
 """)
+
+    st.markdown("## 📈 COMPARATIF ANNONCES")
+
+    for km_a, prix_a in annonces:
+        st.write(f"🚗 {km_a} km → {prix_a} €")
