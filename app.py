@@ -169,7 +169,14 @@ if st.button("Calculer l'estimation"):
 
     annonces = sorted(annonces, key=lambda x: x[0])
 
-    prix_moyen = int(sum([p for _, p in annonces]) / len(annonces))
+    # 🔥 NOUVELLE ESTIMATION INTELLIGENTE
+    marche = int(sum([p for _, p in annonces]) / len(annonces))
+
+    capacar = base
+    biwiz = base * 0.92
+
+    prix_moyen = int(capacar * 0.4 + biwiz * 0.2 + marche * 0.4)
+
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
