@@ -203,4 +203,3 @@ if st.button("Calculer l'estimation"):
 
     for km_a, prix_a in annonces:
         st.write(f"🚗 {km_a} km → {prix_a} €")
-
