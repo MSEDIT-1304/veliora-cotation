@@ -59,8 +59,16 @@ st.write(f"👤 Connecté : {st.session_state.user}")
 
 user_data = users[st.session_state.user]
 
-# 🔥 BOUTON 7 JOURS (COMME AVANT)
-if not user_data.get("expire") or datetime.strptime(user_data["expire"], "%Y-%m-%d") < datetime.now():
+# 🔄 RESET AUTOMATIQUE SI EXPIRÉ
+if user_data.get("expire"):
+    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
+    if expire_date < datetime.now():
+        user_data["expire"] = None
+        user_data["trial"] = False
+        save_users(users)
+
+# 🎁 7 JOURS GRATUITS (TOUJOURS DISPONIBLE SI PAS D’ACCÈS)
+if user_data.get("expire") is None:
     if st.button("🎁 Activer 7 jours gratuits"):
         user_data["expire"] = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
         user_data["trial"] = True
@@ -68,22 +76,12 @@ if not user_data.get("expire") or datetime.strptime(user_data["expire"], "%Y-%m-
         st.success("🎉 Essai gratuit activé")
         st.rerun()
 
-# 🔒 BLOQUAGE SI EXPIRÉ
+# 🔒 BLOQUAGE SI EXPIRE (cas sécurité)
 if user_data.get("expire"):
     expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
 
     if expire_date < datetime.now():
         st.error("⛔ Accès expiré")
-
-        st.markdown(f"[💳 Reprendre abonnement]({PAYMENT_LINK})")
-
-        if st.button("✅ J’ai payé → Activer"):
-            user_data["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
-            user_data["trial"] = False
-            save_users(users)
-            st.success("🎉 Abonnement réactivé")
-            st.rerun()
-
         st.stop()
 
 # 💡 STATUT
@@ -92,15 +90,18 @@ if user_data.get("expire"):
         st.info("🎁 Essai gratuit actif")
     else:
         st.success("💎 Abonnement actif")
+else:
+    st.warning("⚠️ Aucun accès actif")
 
-# paiement manuel
+# 💳 PAIEMENT
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     user_data["expire"] = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
     user_data["trial"] = False
     save_users(users)
-    st.success("🎉 Abonnement activé pour 1 an")
+    st.success("🎉 Abonnement activé")
+    st.rerun()
 
 st.divider()
 
@@ -110,24 +111,19 @@ st.title("🚗 VELIORA COTATION PRO")
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 
-col1, col2 = st.columns(2)
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-with col1:
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-
-with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+etat = st.selectbox("État", ["Bon état", "Excellent état"])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
+
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ---------------- ESTIMATION ----------------
 if st.button("Calculer l'estimation"):
 
     base = 17000
-    age = datetime.now().year - annee
 
     if marque.lower() in ["bmw","audi","mercedes"]:
         base += 3000
@@ -145,22 +141,19 @@ if st.button("Calculer l'estimation"):
     else:
         base -= 500
 
-    base -= age * 900
+    base -= (datetime.now().year - annee) * 900
 
     if km > 80000:
         base -= 1200
 
     base *= 0.90
 
-    annonces = []
-
-    for i in range(5):
-        km_a = max(10000, km + random.randint(-40000, 40000))
-        prix_a = base + random.randint(-2000, 2000)
-        annonces.append((int(km_a), int(prix_a)))
+    annonces = [
+        (random.randint(20000, 150000), base + random.randint(-2000, 2000))
+        for _ in range(5)
+    ]
 
     marche = int(sum([p for _, p in annonces]) / len(annonces))
-
     prix_moyen = int(base * 0.6 + marche * 0.4)
 
     prix_bas = prix_moyen - 1200
@@ -168,12 +161,12 @@ if st.button("Calculer l'estimation"):
 
     net = prix_moyen - commission
 
-    st.markdown("## 📊 ESTIMATION")
-
     st.markdown(f"""
-Prix bas : {prix_bas} €  
-Prix moyen : {prix_moyen} €  
-Prix haut : {prix_haut} €
+### 💰 Prix
+Bas : {prix_bas} €  
+Moyen : {prix_moyen} €  
+Haut : {prix_haut} €
 
-Net vendeur : {net} €
+### 🧾 Net vendeur
+{net} €
 """)
