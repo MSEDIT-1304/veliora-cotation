@@ -92,28 +92,28 @@ if not st.session_state.logged:
         user_clean = user.strip()
         pwd_clean = pwd.strip()
 
-        # ADMIN
+        # ADMIN accès direct à l'app
         if user_clean == ADMIN_USER and pwd_clean == ADMIN_PASS:
             st.session_state.logged = True
-            st.session_state.admin = True
+            st.session_state.admin = False
+            st.session_state.user = "admin"
             st.rerun()
 
         # USER
-        elif True:
-            result = check_login(user_clean, pwd_clean)
+        result = check_login(user_clean, pwd_clean)
 
-            if result == "ok":
-                st.session_state.logged = True
-                st.session_state.user = user_clean
-                st.session_state.admin = False
-                st.rerun()
+        if result == "ok":
+            st.session_state.logged = True
+            st.session_state.user = user_clean
+            st.session_state.admin = False
+            st.rerun()
 
-            elif result == "expired":
-                st.error("⛔ Abonnement expiré")
-                st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
+        elif result == "expired":
+            st.error("⛔ Abonnement expiré")
+            st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
 
-            else:
-                st.error("Identifiant incorrect")
+        else:
+            st.error("Identifiant incorrect")
 
     st.stop()
 
