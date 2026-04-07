@@ -24,6 +24,14 @@ def save_users(users):
 
 users = load_users()
 
+# 🔥 ADMIN AUTO (important)
+if "admin" not in users:
+    users["admin"] = {
+        "password": "admin123",
+        "expire": "2099-01-01"
+    }
+    save_users(users)
+
 # ================= SESSION =================
 
 if "auth" not in st.session_state:
@@ -99,10 +107,7 @@ if expire:
         st.stop()
 
     else:
-        st.success(f"✅ Essai actif jusqu'au {expire}")
-
-else:
-    st.warning("Compte sans abonnement")
+        st.success(f"✅ Accès actif jusqu'au {expire}")
 
 # ================= CONTENU =================
 
