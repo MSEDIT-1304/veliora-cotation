@@ -54,15 +54,46 @@ if not st.session_state.auth:
 
     st.stop()
 
-# ---------------- APP ----------------
+# ---------------- USER DATA ----------------
+user_data = users[st.session_state.user]
+
+# ---------------- HEADER ----------------
 st.write(f"👤 Connecté : {st.session_state.user}")
 
+# ---------------- TRIAL 7 JOURS ----------------
+if not user_data.get("trial", False) and not user_data.get("expire"):
+    if st.button("🎁 Essai gratuit 7 jours"):
+        users[st.session_state.user]["trial"] = True
+        users[st.session_state.user]["expire"] = (
+            datetime.now() + timedelta(days=7)
+        ).strftime("%Y-%m-%d")
+        save_users(users)
+        st.success("🚀 Essai gratuit activé pour 7 jours !")
+        st.rerun()
+
+# ---------------- VERIFICATION ACCES ----------------
+if user_data.get("expire"):
+    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
+
+    if datetime.now() > expire_date:
+        st.error("⛔ Votre accès a expiré")
+        st.markdown(f"[💳 S’abonner pour continuer]({PAYMENT_LINK})")
+        st.stop()
+
+# ---------------- INFO TRIAL ----------------
+if user_data.get("trial", False):
+    expire_date = datetime.strptime(user_data["expire"], "%Y-%m-%d")
+    jours_restants = (expire_date - datetime.now()).days
+    st.info(f"🎁 Essai gratuit actif – {jours_restants} jour(s) restant(s)")
+
+# ---------------- PAIEMENT ----------------
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
     users[st.session_state.user]["expire"] = (
         datetime.now() + timedelta(days=365)
     ).strftime("%Y-%m-%d")
+    users[st.session_state.user]["trial"] = False
     save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
@@ -150,10 +181,8 @@ if st.button("Calculer l'estimation"):
 
     base += len(options) * 100
 
-    # 🔥 AJUSTEMENT FINAL (+1200€ env)
     base *= 0.90
 
-    # ---------------- COMPARATIF ----------------
     annonces = []
 
     for i in range(5):
@@ -173,20 +202,15 @@ if st.button("Calculer l'estimation"):
     prix_bas = prix_moyen - 1200
     prix_haut = prix_moyen + 1200
 
-    # 🔥 BADGE INTELLIGENT
-    marche_moyen = prix_moyen
-    ecart = prix_moyen - marche_moyen
-
-    if ecart < -500:
+    if prix_moyen < prix_moyen - 500:
         badge = "🟢 Bonne affaire"
-    elif ecart <= 800:
+    elif prix_moyen <= prix_moyen + 800:
         badge = "🟡 Prix marché"
     else:
         badge = "🔴 Trop cher"
 
     net = prix_moyen - commission
 
-    # ---------------- AFFICHAGE ----------------
     st.markdown("## 📊 ESTIMATION")
 
     st.markdown(f"""
