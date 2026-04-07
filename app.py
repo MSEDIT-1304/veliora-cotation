@@ -11,7 +11,7 @@ SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
 ADMIN_USER = "admin"
-ADMIN_PASS = "1234"
+ADMIN_PASS = "TonMotDePasseFort123!"
 
 # ---------------- LOAD USERS ----------------
 def load_users():
@@ -89,11 +89,13 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
+        # ADMIN
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
             st.rerun()
 
+        # USER
         result = check_login(user, pwd)
 
         if result == "ok":
