@@ -11,6 +11,10 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
+# 🔐 ADMIN
+ADMIN_USER = "admin"
+ADMIN_PASS = "VelioraAdmin123!"
+
 # ---------------- LOAD USERS ----------------
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
@@ -68,6 +72,7 @@ if not st.session_state.auth:
 
     st.title("🚗 Veliora Pro")
 
+    # ---------- ESSAI GRATUIT ----------
     st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
@@ -82,6 +87,7 @@ if not st.session_state.auth:
 
     st.markdown("---")
 
+    # ---------- LOGIN ----------
     st.subheader("🔐 Déjà client ?")
 
     user = st.text_input("Utilisateur")
@@ -89,23 +95,42 @@ if not st.session_state.auth:
 
     if st.button("Se connecter"):
 
+        # 🔥 ADMIN LOGIN
+        if user == ADMIN_USER and pwd == ADMIN_PASS:
+            st.session_state.auth = True
+            st.session_state.admin = True
+            st.rerun()
+
+        # 🔥 USER LOGIN
         ok, data = check_login(user, pwd)
 
         if ok:
             st.session_state.auth = True
             st.session_state.user = user
             st.session_state.data = data
+            st.session_state.admin = False
             st.rerun()
 
         else:
             if data == "expired":
                 st.error("⛔ Abonnement expiré")
-
-                st.markdown("### 💳 S’abonner")
-                st.markdown(f"[👉 S'abonner maintenant]({STRIPE_LINK})")
-
+                st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
             else:
                 st.error(data)
+
+    st.stop()
+
+# =========================
+# ADMIN PANEL
+# =========================
+if st.session_state.get("admin", False):
+
+    st.title("🛠️ ADMIN PANEL")
+
+    df = load_users()
+
+    st.write("### 👥 Utilisateurs")
+    st.dataframe(df)
 
     st.stop()
 
@@ -133,7 +158,7 @@ if datetime.now() > expire_date:
 st.divider()
 
 # =========================
-# TON APP ORIGINALE (INTOUCHÉE)
+# APP ORIGINALE (INTOUCHÉE)
 # =========================
 
 st.title("🚗 VELIORA COTATION PRO")
