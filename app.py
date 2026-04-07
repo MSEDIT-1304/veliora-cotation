@@ -1,36 +1,37 @@
 import streamlit as st
-from datetime import datetime, timedelta
 import pandas as pd
 import requests
+import random
+from datetime import datetime, timedelta, date
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
-PAYMENT_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
-
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M/export?format=csv"
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
+
+STRIPE_TEST = "https://buy.stripe.com/test_7sYcN67QC1lbcmneek9fW00"
+STRIPE_LIVE = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
 # ---------------- LOAD USERS ----------------
 def load_users():
     try:
-        df = pd.read_csv(SHEET_URL)
-        return df
+        return pd.read_csv(SHEET_URL)
     except:
-        return pd.DataFrame(columns=["username", "password", "expire", "trial"])
+        return pd.DataFrame(columns=["username","password","expire","trial"])
 
-# ---------------- LOGIN CHECK ----------------
+# ---------------- LOGIN ----------------
 def check_login(username, password):
     df = load_users()
-
     user = df[(df["username"] == username) & (df["password"] == password)]
 
     if user.empty:
         return False, None
 
-    expire_date = pd.to_datetime(user.iloc[0]["expire"])
+    expire = user.iloc[0]["expire"]
+    expire_date = datetime.strptime(str(expire), "%Y-%m-%d").date()
 
-    if pd.Timestamp.now() > expire_date:
+    if expire_date < date.today():
         return False, "expired"
 
     return True, user.iloc[0]
@@ -39,12 +40,15 @@ def check_login(username, password):
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-# ---------------- PAGE ACCUEIL ----------------
+# =========================
+# PAGE ACCUEIL
+# =========================
 if not st.session_state.auth:
 
     st.title("🚗 Veliora Pro")
 
-    st.markdown("### 🎁 Essai gratuit 7 jours")
+    # ---------- ESSAI GRATUIT ----------
+    st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
     new_pwd = st.text_input("Créer un mot de passe", type="password")
@@ -55,28 +59,30 @@ if not st.session_state.auth:
             expire_date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
 
             data = {
-                "username": new_user,
-                "password": new_pwd,
+                "username": new_user.strip(),
+                "password": new_pwd.strip(),
                 "expire": expire_date,
                 "trial": True
             }
 
             requests.post(WEBHOOK_URL, json=data)
 
-            st.success("Compte créé ! Attends 2 secondes puis connecte-toi.")
+            st.success("✅ Compte créé ! Attends 2 secondes puis connecte-toi.")
 
         else:
-            st.error("Remplir les champs")
+            st.error("❌ Remplir les champs")
 
     st.markdown("---")
 
-    st.markdown("### 🔐 Déjà client ?")
+    # ---------- LOGIN ----------
+    st.subheader("🔐 Déjà client ?")
 
     user = st.text_input("Utilisateur")
     pwd = st.text_input("Mot de passe", type="password")
 
     if st.button("Se connecter"):
-        ok, data = check_login(user, pwd)
+
+        ok, data = check_login(user.strip(), pwd.strip())
 
         if ok:
             st.session_state.auth = True
@@ -85,47 +91,47 @@ if not st.session_state.auth:
             st.rerun()
 
         elif data == "expired":
-            st.error("⛔ Accès expiré")
-            st.markdown(f"[💳 S’abonner]({PAYMENT_LINK})")
+            st.error("⛔ Abonnement expiré")
+
+            st.markdown("### 💳 S’abonner")
+
+            st.link_button("🧪 Mode test", STRIPE_TEST)
+            st.link_button("💳 99€/an", STRIPE_LIVE)
 
         else:
-            st.error("Identifiants incorrects")
-
-    # TEST WEBHOOK
-    if st.button("TEST WEBHOOK"):
-        requests.post(WEBHOOK_URL, json={
-            "username": "test",
-            "password": "123",
-            "expire": "2026-01-01",
-            "trial": True
-        })
-        st.success("Webhook envoyé")
+            st.error("❌ Identifiants incorrects")
 
     st.stop()
 
-# ---------------- USER CONNECTÉ ----------------
+# =========================
+# UTILISATEUR CONNECTÉ
+# =========================
+
 st.write(f"👤 Connecté : {st.session_state.user}")
 
 user_data = st.session_state.data
 
-# ---------------- INFO TRIAL ----------------
-expire_date = pd.to_datetime(user_data["expire"])
-jours_restants = (expire_date - pd.Timestamp.now()).days
+expire_date = datetime.strptime(str(user_data["expire"]), "%Y-%m-%d").date()
+jours_restants = (expire_date - date.today()).days
 
+# ---------- TRIAL ----------
 if user_data["trial"]:
     st.info(f"🎁 Essai actif – {jours_restants} jour(s) restant(s)")
 
-# ---------------- PAIEMENT ----------------
-st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
+# ---------- SI EXPIRÉ ----------
+if expire_date < date.today():
+    st.error("⛔ Abonnement expiré")
+    st.link_button("💳 S’abonner (99€/an)", STRIPE_LIVE)
+    st.stop()
 
+# ---------- PAIEMENT MANUEL (OPTION SECURITÉ) ----------
 if st.button("✅ J’ai payé → Activer mon abonnement"):
-
-    expire_date = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+    new_expire = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
 
     data = {
         "username": st.session_state.user,
         "password": user_data["password"],
-        "expire": expire_date,
+        "expire": new_expire,
         "trial": False
     }
 
@@ -135,7 +141,10 @@ if st.button("✅ J’ai payé → Activer mon abonnement"):
 
 st.divider()
 
-# ---------------- FORMULAIRE ----------------
+# =========================
+# APP PRINCIPALE (TON CODE ORIGINAL CONSERVÉ)
+# =========================
+
 st.title("🚗 VELIORA COTATION PRO")
 
 marque = st.text_input("Marque")
@@ -157,7 +166,6 @@ with col2:
     traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
