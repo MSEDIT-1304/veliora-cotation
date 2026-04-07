@@ -85,51 +85,57 @@ if menu == "🔐 Connexion":
 
     st.subheader("🎁 Essai gratuit 7 jours")
 
-    new_user = st.text_input("Créer un identifiant", key="new_user")
-    new_pwd = st.text_input("Créer un mot de passe", type="password", key="new_pwd")
+    with st.form("trial_form"):
+        new_user = st.text_input("Créer un identifiant")
+        new_pwd = st.text_input("Créer un mot de passe", type="password")
+        submit_trial = st.form_submit_button("🚀 Démarrer l'essai gratuit")
 
-    if st.button("🚀 Démarrer l'essai gratuit"):
-        if new_user and new_pwd:
-            send_to_webhook(new_user, new_pwd)
-            st.success("Compte créé !")
-        else:
-            st.error("Remplir les champs")
+        if submit_trial:
+            if new_user and new_pwd:
+                send_to_webhook(new_user, new_pwd)
+                st.success("Compte créé !")
+            else:
+                st.error("Remplir les champs")
 
     st.markdown("---")
 
     st.subheader("🔐 Connexion")
 
-    user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    with st.form("login_form"):
+        user = st.text_input("Utilisateur")
+        pwd = st.text_input("Mot de passe", type="password")
+        submit_login = st.form_submit_button("Se connecter")
 
-    if st.button("Se connecter"):
+        if submit_login:
 
-        if not user or not pwd:
-            st.error("Remplis les champs")
-            st.stop()
-
-        # ADMIN
-        if user == ADMIN_USER and pwd == ADMIN_PASS:
-            st.session_state.auth = True
-            st.session_state.admin = True
-            st.rerun()
-
-        # USER
-        ok, data = check_login(user, pwd)
-
-        if ok:
-            st.session_state.auth = True
-            st.session_state.user = user
-            st.session_state.data = data
-            st.session_state.admin = False
-            st.rerun()
-
-        else:
-            if data == "expired":
-                st.error("⛔ Abonnement expiré")
-                st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
+            if not user or not pwd:
+                st.error("Remplis les champs")
             else:
-                st.error(data)
+
+                # ADMIN
+                if user == ADMIN_USER and pwd == ADMIN_PASS:
+                    st.session_state.auth = True
+                    st.session_state.admin = True
+                    st.success("Connexion admin réussie ✅")
+                    st.rerun()
+
+                # USER
+                ok, data = check_login(user, pwd)
+
+                if ok:
+                    st.session_state.auth = True
+                    st.session_state.user = user
+                    st.session_state.data = data
+                    st.session_state.admin = False
+                    st.success("Connexion réussie ✅")
+                    st.rerun()
+
+                else:
+                    if data == "expired":
+                        st.error("⛔ Abonnement expiré")
+                        st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
+                    else:
+                        st.error(data)
 
 # ================= ADMIN =================
 elif menu == "🛠️ Admin":
@@ -149,6 +155,14 @@ elif menu == "🏠 Application":
         st.stop()
 
     st.write(f"👤 Connecté : {st.session_state.user}")
+
+    user_data = st.session_state.data
+    expire_date = user_data["expire"]
+
+    if datetime.now() > expire_date:
+        st.error("⛔ Abonnement expiré")
+        st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
+        st.stop()
 
     st.title("🚗 VELIORA COTATION PRO")
 
