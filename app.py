@@ -89,27 +89,31 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
+        user_clean = user.strip()
+        pwd_clean = pwd.strip()
+
         # ADMIN
-        if user == ADMIN_USER and pwd == ADMIN_PASS:
+        if user_clean == ADMIN_USER and pwd_clean == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
             st.rerun()
 
         # USER
-        result = check_login(user, pwd)
+        elif True:
+            result = check_login(user_clean, pwd_clean)
 
-        if result == "ok":
-            st.session_state.logged = True
-            st.session_state.user = user
-            st.session_state.admin = False
-            st.rerun()
+            if result == "ok":
+                st.session_state.logged = True
+                st.session_state.user = user_clean
+                st.session_state.admin = False
+                st.rerun()
 
-        elif result == "expired":
-            st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
+            elif result == "expired":
+                st.error("⛔ Abonnement expiré")
+                st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
 
-        else:
-            st.error("Identifiant incorrect")
+            else:
+                st.error("Identifiant incorrect")
 
     st.stop()
 
