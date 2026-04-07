@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import json
 import os
 import random
+import pandas as pd
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -10,41 +11,52 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 PAYMENT_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "TonMotDePasseFort123!"
-FILE_PATH = "users.json"
 
-# ---------------- USERS ----------------
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1JWWwLP3IKaG-EIsC3li84eouOFVFnv_C5MxBDQSzf3M/export?format=csv"
+
+# ---------------- USERS (GOOGLE SHEETS) ----------------
 def load_users():
-    if not os.path.exists(FILE_PATH):
-        with open(FILE_PATH, "w") as f:
-            json.dump({}, f)
-    with open(FILE_PATH, "r") as f:
-        return json.load(f)
+    try:
+        df = pd.read_csv(SHEET_URL)
+        users_dict = {}
 
+        for _, row in df.iterrows():
+            users_dict[row["username"]] = {
+                "password": row["password"],
+                "expire": row["expire"] if pd.notna(row["expire"]) else None,
+                "trial": bool(row["trial"])
+            }
+
+        return users_dict
+
+    except:
+        return {}
+
+# ⚠️ TEMPORAIRE (sera remplacé étape suivante)
 def save_users(data):
-    with open(FILE_PATH, "w") as f:
-        json.dump(data, f)
+    pass
 
 users = load_users()
 
+# ---------------- ADMIN AUTO ----------------
 if ADMIN_USERNAME not in users:
     users[ADMIN_USERNAME] = {
         "password": ADMIN_PASSWORD,
         "expire": None,
         "trial": False
     }
-    save_users(users)
 
 # ---------------- SESSION ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-# ---------------- ACCUEIL (TRIAL + LOGIN) ----------------
+# ---------------- ACCUEIL ----------------
 if not st.session_state.auth:
 
     st.title("🚗 Veliora Pro")
 
-    # 🔥 ESSAI GRATUIT DIRECT
     st.markdown("### 🎁 Essai gratuit 7 jours")
+
     new_user = st.text_input("Créer un identifiant")
     new_pwd = st.text_input("Créer un mot de passe", type="password")
 
@@ -55,7 +67,7 @@ if not st.session_state.auth:
                 "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
                 "trial": True
             }
-            save_users(users)
+
             st.session_state.auth = True
             st.session_state.user = new_user
             st.rerun()
@@ -64,8 +76,8 @@ if not st.session_state.auth:
 
     st.markdown("---")
 
-    # 🔐 LOGIN CLASSIQUE
     st.markdown("### 🔐 Déjà client ?")
+
     user = st.text_input("Utilisateur")
     pwd = st.text_input("Mot de passe", type="password")
 
@@ -108,7 +120,6 @@ if st.button("✅ J’ai payé → Activer mon abonnement"):
         datetime.now() + timedelta(days=365)
     ).strftime("%Y-%m-%d")
     users[st.session_state.user]["trial"] = False
-    save_users(users)
     st.success("🎉 Abonnement activé pour 1 an")
 
 st.divider()
