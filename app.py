@@ -34,60 +34,53 @@ if ADMIN_USERNAME not in users:
     }
     save_users(users)
 
-# ---------------- LOGIN ----------------
+# ---------------- SESSION ----------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+# ---------------- ACCUEIL (TRIAL + LOGIN) ----------------
 if not st.session_state.auth:
-    st.title("🔐 Accès Veliora Pro")
 
-    user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    st.title("🚗 Veliora Pro")
 
-    if st.button("Se connecter"):
+    # 🔥 ESSAI GRATUIT DIRECT
+    st.markdown("### 🎁 Essai gratuit 7 jours")
+    new_user = st.text_input("Créer un identifiant")
+    new_pwd = st.text_input("Créer un mot de passe", type="password")
 
-        # ✅ LOGIN EXISTANT
-        if user in users:
-            if users[user]["password"] == pwd:
-                st.session_state.auth = True
-                st.session_state.user = user
-                st.rerun()
-            else:
-                st.error("Mot de passe incorrect")
-
-        # 🔥 CREATION AUTO COMPTE
-        else:
-            users[user] = {
-                "password": pwd,
-                "expire": None,
-                "trial": False
+    if st.button("🚀 Démarrer l'essai gratuit"):
+        if new_user and new_pwd:
+            users[new_user] = {
+                "password": new_pwd,
+                "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+                "trial": True
             }
             save_users(users)
+            st.session_state.auth = True
+            st.session_state.user = new_user
+            st.rerun()
+        else:
+            st.error("Remplir les champs")
 
+    st.markdown("---")
+
+    # 🔐 LOGIN CLASSIQUE
+    st.markdown("### 🔐 Déjà client ?")
+    user = st.text_input("Utilisateur")
+    pwd = st.text_input("Mot de passe", type="password")
+
+    if st.button("Se connecter"):
+        if user in users and users[user]["password"] == pwd:
             st.session_state.auth = True
             st.session_state.user = user
-
-            st.success("🎉 Compte créé automatiquement !")
             st.rerun()
+        else:
+            st.error("Identifiants incorrects")
 
     st.stop()
 
 # ---------------- USER DATA ----------------
 user_data = users[st.session_state.user]
-
-# ---------------- HEADER ----------------
-st.write(f"👤 Connecté : {st.session_state.user}")
-
-# ---------------- TRIAL 7 JOURS ----------------
-if not user_data.get("trial", False) and not user_data.get("expire"):
-    if st.button("🎁 Essai gratuit 7 jours"):
-        users[st.session_state.user]["trial"] = True
-        users[st.session_state.user]["expire"] = (
-            datetime.now() + timedelta(days=7)
-        ).strftime("%Y-%m-%d")
-        save_users(users)
-        st.success("🚀 Essai gratuit activé pour 7 jours !")
-        st.rerun()
 
 # ---------------- VERIFICATION ACCES ----------------
 if user_data.get("expire"):
@@ -97,6 +90,9 @@ if user_data.get("expire"):
         st.error("⛔ Votre accès a expiré")
         st.markdown(f"[💳 S’abonner pour continuer]({PAYMENT_LINK})")
         st.stop()
+
+# ---------------- HEADER ----------------
+st.write(f"👤 Connecté : {st.session_state.user}")
 
 # ---------------- INFO TRIAL ----------------
 if user_data.get("trial", False):
