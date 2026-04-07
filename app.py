@@ -24,7 +24,7 @@ def load_users():
 
     return df
 
-# ---------------- CHECK LOGIN ----------------
+# ---------------- LOGIN ----------------
 def check_login(username, password):
     df = load_users()
 
@@ -68,34 +68,32 @@ if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
 
-    st.subheader("🎁 Essai gratuit")
+    st.subheader("🎁 Essai gratuit 7 jours")
 
-    new_user = st.text_input("Créer identifiant")
-    new_pass = st.text_input("Créer mot de passe", type="password")
+    new_user = st.text_input("Créer un identifiant")
+    new_pass = st.text_input("Créer un mot de passe", type="password")
 
     if st.button("Créer compte"):
         if new_user and new_pass:
             send_to_webhook(new_user, new_pass)
             st.success("Compte créé")
         else:
-            st.error("Remplir")
+            st.error("Remplir tous les champs")
 
     st.markdown("---")
 
     st.subheader("🔐 Connexion")
 
-    user = st.text_input("Utilisateur", key="u")
-    pwd = st.text_input("Mot de passe", type="password", key="p")
+    user = st.text_input("Utilisateur", key="login_user")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
     if st.button("Se connecter"):
 
-        # ADMIN
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
             st.rerun()
 
-        # USER
         result = check_login(user, pwd)
 
         if result == "ok":
@@ -105,8 +103,8 @@ if not st.session_state.logged:
             st.rerun()
 
         elif result == "expired":
-            st.error("Abonnement expiré")
-            st.markdown(f"[💳 Payer ici]({STRIPE_LINK})")
+            st.error("⛔ Abonnement expiré")
+            st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
@@ -116,7 +114,7 @@ if not st.session_state.logged:
 # ================= ADMIN =================
 if st.session_state.admin:
 
-    st.title("🛠 ADMIN")
+    st.title("🛠 ADMIN PANEL")
 
     if st.button("Se déconnecter"):
         st.session_state.logged = False
@@ -149,20 +147,27 @@ with col1:
 
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
+    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
     traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
 
-etat = st.selectbox("État", ["Bon état", "Excellent état"])
-portes = st.selectbox("Portes", [1,2,3,4,5])
+etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-options = st.multiselect("Options", [
-    "Climatisation","GPS","Cuir","Caméra","LED","Toit ouvrant","CarPlay","Android Auto"
-])
+options = st.multiselect(
+    "Options du véhicule",
+    [
+        "Climatisation automatique","Accès sans clé","Hayon électrique",
+        "Sellerie cuir","Sièges chauffants","Sièges électriques",
+        "Régulateur","Radar","Caméra","GPS","Bluetooth",
+        "CarPlay","Android Auto","Audio premium","Toit ouvrant",
+        "Toit panoramique","LED","Attelage"
+    ]
+)
 
-commission = st.number_input("Commission", 0, 10000, 1000)
+commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
-if st.button("Calculer"):
+if st.button("Calculer l'estimation"):
 
     base = 17000
     age = datetime.now().year - annee
@@ -173,14 +178,23 @@ if st.button("Calculer"):
     if boite == "Automatique":
         base += 1200
 
+    if carburant == "Hybride":
+        base += 2500
+    elif carburant == "Électrique":
+        base += 5000
+
     base -= age * 900
-    base -= km / 100
+
+    if km > 80000:
+        base -= 1200
+    if km > 120000:
+        base -= 2000
 
     base += len(options) * 100
-    base *= 0.9
+    base *= 0.90
 
     prix = int(base)
     net = prix - commission
 
-    st.success(f"Prix : {prix} €")
-    st.success(f"Net : {net} €")
+    st.markdown(f"### 💰 Prix estimé : {prix} €")
+    st.markdown(f"### 🧾 Net vendeur : {net} €")
