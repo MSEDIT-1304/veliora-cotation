@@ -24,13 +24,15 @@ def save_users(users):
 
 users = load_users()
 
-# 🔥 ADMIN AUTO (important)
-if "admin" not in users:
-    users["admin"] = {
-        "password": "admin123",
-        "expire": "2099-01-01"
-    }
-    save_users(users)
+# ================= ADMIN FORCÉ =================
+
+users["admin"] = {
+    "password": "admin123",
+    "expire": "2099-01-01"
+}
+
+# (on sauvegarde pour être sûr)
+save_users(users)
 
 # ================= SESSION =================
 
@@ -56,7 +58,7 @@ if st.button("Se connecter"):
     else:
         st.error("❌ Identifiants incorrects")
 
-# ================= INSCRIPTION ESSAI =================
+# ================= ESSAI =================
 
 st.markdown("### 🚀 Essai gratuit 7 jours")
 
