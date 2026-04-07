@@ -4,6 +4,7 @@ import json
 import os
 import random
 import pandas as pd
+import requests
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -13,6 +14,7 @@ ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "TonMotDePasseFort123!"
 
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1JWWwLP3IKaG-EIsC3li84eouOFVFnv_C5MxBDQSzf3M/export?format=csv"
+WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 
 # ---------------- USERS (GOOGLE SHEETS) ----------------
 def load_users():
@@ -32,9 +34,18 @@ def load_users():
     except:
         return {}
 
-# ⚠️ TEMPORAIRE (sera remplacé étape suivante)
-def save_users(data):
-    pass
+# ---------------- SAVE VIA WEBHOOK ----------------
+def save_users(username, password, expire, trial):
+    try:
+        data = {
+            "username": username,
+            "password": password,
+            "expire": expire,
+            "trial": trial
+        }
+        requests.post(WEBHOOK_URL, json=data)
+    except:
+        pass
 
 users = load_users()
 
@@ -50,7 +61,7 @@ if ADMIN_USERNAME not in users:
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-# ---------------- ACCUEIL ----------------
+# ---------------- PAGE ACCUEIL ----------------
 if not st.session_state.auth:
 
     st.title("🚗 Veliora Pro")
@@ -62,11 +73,16 @@ if not st.session_state.auth:
 
     if st.button("🚀 Démarrer l'essai gratuit"):
         if new_user and new_pwd:
+
+            expire_date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+
             users[new_user] = {
                 "password": new_pwd,
-                "expire": (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+                "expire": expire_date,
                 "trial": True
             }
+
+            save_users(new_user, new_pwd, expire_date, True)
 
             st.session_state.auth = True
             st.session_state.user = new_user
@@ -88,6 +104,16 @@ if not st.session_state.auth:
             st.rerun()
         else:
             st.error("Identifiants incorrects")
+
+    # 🔥 TEST WEBHOOK
+    if st.button("TEST WEBHOOK"):
+        requests.post(WEBHOOK_URL, json={
+            "username": "test",
+            "password": "123",
+            "expire": "2026-01-01",
+            "trial": True
+        })
+        st.success("Webhook envoyé")
 
     st.stop()
 
@@ -116,10 +142,19 @@ if user_data.get("trial", False):
 st.markdown(f"[💳 S’abonner / Payer]({PAYMENT_LINK})")
 
 if st.button("✅ J’ai payé → Activer mon abonnement"):
-    users[st.session_state.user]["expire"] = (
-        datetime.now() + timedelta(days=365)
-    ).strftime("%Y-%m-%d")
+
+    expire_date = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+
+    users[st.session_state.user]["expire"] = expire_date
     users[st.session_state.user]["trial"] = False
+
+    save_users(
+        st.session_state.user,
+        users[st.session_state.user]["password"],
+        expire_date,
+        False
+    )
+
     st.success("🎉 Abonnement activé pour 1 an")
 
 st.divider()
