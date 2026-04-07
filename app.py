@@ -45,12 +45,30 @@ if not st.session_state.auth:
     pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
     if st.button("Se connecter"):
-        if user in users and users[user]["password"] == pwd:
+
+        # ✅ LOGIN EXISTANT
+        if user in users:
+            if users[user]["password"] == pwd:
+                st.session_state.auth = True
+                st.session_state.user = user
+                st.rerun()
+            else:
+                st.error("Mot de passe incorrect")
+
+        # 🔥 CREATION AUTO COMPTE
+        else:
+            users[user] = {
+                "password": pwd,
+                "expire": None,
+                "trial": False
+            }
+            save_users(users)
+
             st.session_state.auth = True
             st.session_state.user = user
+
+            st.success("🎉 Compte créé automatiquement !")
             st.rerun()
-        else:
-            st.error("Identifiants incorrects")
 
     st.stop()
 
