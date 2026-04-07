@@ -10,7 +10,6 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
-# ADMIN
 ADMIN_USER = "admin"
 ADMIN_PASS = "VelioraAdmin123!"
 
@@ -68,13 +67,28 @@ if "admin" not in st.session_state:
     st.session_state.admin = False
 
 # =========================
-# PAGE LOGIN
+# MENU (TOUJOURS VISIBLE)
 # =========================
-if not st.session_state.auth:
+menu = st.sidebar.radio(
+    "Navigation",
+    ["🔐 Connexion", "🏠 Application", "🛠️ Admin", "🚪 Déconnexion"]
+)
+
+# =========================
+# DECONNEXION
+# =========================
+if menu == "🚪 Déconnexion":
+    st.session_state.auth = False
+    st.session_state.admin = False
+    st.rerun()
+
+# =========================
+# PAGE CONNEXION
+# =========================
+if menu == "🔐 Connexion":
 
     st.title("🚗 Veliora Pro")
 
-    # ESSAI GRATUIT
     st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
@@ -89,8 +103,7 @@ if not st.session_state.auth:
 
     st.markdown("---")
 
-    # LOGIN
-    st.subheader("🔐 Déjà client ?")
+    st.subheader("🔐 Connexion")
 
     user = st.text_input("Utilisateur")
     pwd = st.text_input("Mot de passe", type="password")
@@ -120,150 +133,122 @@ if not st.session_state.auth:
             else:
                 st.error(data)
 
-    st.stop()
-
 # =========================
-# MENU PROPRE
+# ADMIN PANEL
 # =========================
-
-menu = st.sidebar.radio(
-    "Navigation",
-    ["🏠 Application", "🛠️ Admin", "🚪 Déconnexion"]
-)
-
-# =========================
-# LOGOUT
-# =========================
-if menu == "🚪 Déconnexion":
-    st.session_state.auth = False
-    st.session_state.admin = False
-    st.rerun()
-
-# =========================
-# ADMIN
-# =========================
-if menu == "🛠️ Admin":
+elif menu == "🛠️ Admin":
 
     if not st.session_state.admin:
         st.error("⛔ Accès refusé")
-        st.stop()
-
-    st.title("🛠️ ADMIN PANEL")
-
-    df = load_users()
-    st.dataframe(df)
-
-    st.stop()
-
-# =========================
-# UTILISATEUR
-# =========================
-
-st.write(f"👤 Connecté : {st.session_state.user}")
-
-user_data = st.session_state.data
-
-expire_date = user_data["expire"]
-jours_restants = (expire_date - datetime.now()).days
-
-# TRIAL
-if user_data["trial"]:
-    st.info(f"🎁 Essai actif – {jours_restants} jour(s) restant(s)")
-
-# EXPIRED
-if datetime.now() > expire_date:
-    st.error("⛔ Abonnement expiré")
-    st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
-    st.stop()
-
-st.divider()
-
-# =========================
-# APP ORIGINALE
-# =========================
-
-st.title("🚗 VELIORA COTATION PRO")
-
-marque = st.text_input("Marque")
-modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
-finition = st.text_input("Finition")
-motorisation = st.text_input("Motorisation")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    mois = st.selectbox("Mois de mise en circulation", list(range(1,13)))
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-
-with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
-
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
-km = st.number_input("Kilométrage", 0, 400000, 90000)
-
-options = st.multiselect(
-    "Options du véhicule",
-    [
-        "Climatisation automatique","Accès sans clé","Hayon électrique",
-        "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
-        "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
-        "Radar de recul","Bips avant","Bips arrière","Caméra de recul","Caméra 360",
-        "GPS / Navigation","Bluetooth","Connexion Apple CarPlay","Connexion Android Auto",
-        "Système audio premium","Rétroviseurs chauffants","Rétroviseurs électriques rabattables",
-        "Jantes alliage","Toit ouvrant","Toit panoramique","Feux LED","Attelage","Détecteur angle mort"
-    ]
-)
-
-commission = st.number_input("Commission (€)", 0, 10000, 1000)
-
-if st.button("Calculer l'estimation"):
-
-    base = 17000
-    age = datetime.now().year - annee
-
-    if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 3000
-
-    if boite == "Automatique":
-        base += 1200
-
-    if techno in ["DSG","EDC"]:
-        base += 400
-    if techno in ["BVA6","BVA7","BVA8"]:
-        base += 500
-
-    if carburant == "Diesel":
-        base += 300
-    elif carburant == "Hybride":
-        base += 2500
-    elif carburant == "Électrique":
-        base += 5000
-
-    if traction in ["4x4","4WD"]:
-        base += 800
-
-    if etat == "Excellent état":
-        base += 1200
     else:
-        base -= 500
+        st.title("🛠️ ADMIN PANEL")
+        df = load_users()
+        st.dataframe(df)
 
-    base -= age * 900
+# =========================
+# APPLICATION
+# =========================
+elif menu == "🏠 Application":
 
-    if km > 80000:
-        base -= 1200
-    if km > 120000:
-        base -= 2000
+    if not st.session_state.auth:
+        st.warning("Veuillez vous connecter")
+    else:
+        st.write(f"👤 Connecté : {st.session_state.user}")
 
-    base += len(options) * 100
-    base *= 0.90
+        user_data = st.session_state.data
+        expire_date = user_data["expire"]
 
-    prix = int(base)
-    net = prix - commission
+        if datetime.now() > expire_date:
+            st.error("⛔ Abonnement expiré")
+            st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
+        else:
 
-    st.markdown(f"### 💰 Prix estimé : {prix} €")
-    st.markdown(f"### 🧾 Net vendeur : {net} €")
+            # =========================
+            # APP ORIGINALE
+            # =========================
+
+            st.title("🚗 VELIORA COTATION PRO")
+
+            marque = st.text_input("Marque")
+            modele = st.text_input("Modèle")
+            sous_version = st.text_input("Sous-version")
+            finition = st.text_input("Finition")
+            motorisation = st.text_input("Motorisation")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                mois = st.selectbox("Mois de mise en circulation", list(range(1,13)))
+                annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+                carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+
+            with col2:
+                boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+                techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
+                traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+
+            etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
+            portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
+            km = st.number_input("Kilométrage", 0, 400000, 90000)
+
+            options = st.multiselect(
+                "Options du véhicule",
+                [
+                    "Climatisation automatique","Accès sans clé","Hayon électrique",
+                    "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
+                    "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
+                    "Radar de recul","Bips avant","Bips arrière","Caméra de recul","Caméra 360",
+                    "GPS / Navigation","Bluetooth","Connexion Apple CarPlay","Connexion Android Auto",
+                    "Système audio premium","Rétroviseurs chauffants","Rétroviseurs électriques rabattables",
+                    "Jantes alliage","Toit ouvrant","Toit panoramique","Feux LED","Attelage","Détecteur angle mort"
+                ]
+            )
+
+            commission = st.number_input("Commission (€)", 0, 10000, 1000)
+
+            if st.button("Calculer l'estimation"):
+
+                base = 17000
+                age = datetime.now().year - annee
+
+                if marque.lower() in ["bmw","audi","mercedes"]:
+                    base += 3000
+
+                if boite == "Automatique":
+                    base += 1200
+
+                if techno in ["DSG","EDC"]:
+                    base += 400
+                if techno in ["BVA6","BVA7","BVA8"]:
+                    base += 500
+
+                if carburant == "Diesel":
+                    base += 300
+                elif carburant == "Hybride":
+                    base += 2500
+                elif carburant == "Électrique":
+                    base += 5000
+
+                if traction in ["4x4","4WD"]:
+                    base += 800
+
+                if etat == "Excellent état":
+                    base += 1200
+                else:
+                    base -= 500
+
+                base -= age * 900
+
+                if km > 80000:
+                    base -= 1200
+                if km > 120000:
+                    base -= 2000
+
+                base += len(options) * 100
+                base *= 0.90
+
+                prix = int(base)
+                net = prix - commission
+
+                st.markdown(f"### 💰 Prix estimé : {prix} €")
+                st.markdown(f"### 🧾 Net vendeur : {net} €")
