@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import requests
-import random
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
@@ -11,7 +10,7 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
-# 🔐 ADMIN
+# ADMIN
 ADMIN_USER = "admin"
 ADMIN_PASS = "VelioraAdmin123!"
 
@@ -65,14 +64,17 @@ def send_to_webhook(username, password):
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+if "admin" not in st.session_state:
+    st.session_state.admin = False
+
 # =========================
-# PAGE ACCUEIL
+# PAGE LOGIN
 # =========================
 if not st.session_state.auth:
 
     st.title("🚗 Veliora Pro")
 
-    # ---------- ESSAI GRATUIT ----------
+    # ESSAI GRATUIT
     st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
@@ -87,7 +89,7 @@ if not st.session_state.auth:
 
     st.markdown("---")
 
-    # ---------- LOGIN ----------
+    # LOGIN
     st.subheader("🔐 Déjà client ?")
 
     user = st.text_input("Utilisateur")
@@ -95,13 +97,13 @@ if not st.session_state.auth:
 
     if st.button("Se connecter"):
 
-        # 🔥 ADMIN LOGIN
+        # ADMIN
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.auth = True
             st.session_state.admin = True
             st.rerun()
 
-        # 🔥 USER LOGIN
+        # USER
         ok, data = check_login(user, pwd)
 
         if ok:
@@ -121,21 +123,40 @@ if not st.session_state.auth:
     st.stop()
 
 # =========================
-# ADMIN PANEL
+# MENU PROPRE
 # =========================
-if st.session_state.get("admin", False):
+
+menu = st.sidebar.radio(
+    "Navigation",
+    ["🏠 Application", "🛠️ Admin", "🚪 Déconnexion"]
+)
+
+# =========================
+# LOGOUT
+# =========================
+if menu == "🚪 Déconnexion":
+    st.session_state.auth = False
+    st.session_state.admin = False
+    st.rerun()
+
+# =========================
+# ADMIN
+# =========================
+if menu == "🛠️ Admin":
+
+    if not st.session_state.admin:
+        st.error("⛔ Accès refusé")
+        st.stop()
 
     st.title("🛠️ ADMIN PANEL")
 
     df = load_users()
-
-    st.write("### 👥 Utilisateurs")
     st.dataframe(df)
 
     st.stop()
 
 # =========================
-# UTILISATEUR CONNECTÉ
+# UTILISATEUR
 # =========================
 
 st.write(f"👤 Connecté : {st.session_state.user}")
@@ -145,11 +166,11 @@ user_data = st.session_state.data
 expire_date = user_data["expire"]
 jours_restants = (expire_date - datetime.now()).days
 
-# ---------- TRIAL ----------
+# TRIAL
 if user_data["trial"]:
     st.info(f"🎁 Essai actif – {jours_restants} jour(s) restant(s)")
 
-# ---------- SI EXPIRÉ ----------
+# EXPIRED
 if datetime.now() > expire_date:
     st.error("⛔ Abonnement expiré")
     st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
@@ -158,7 +179,7 @@ if datetime.now() > expire_date:
 st.divider()
 
 # =========================
-# APP ORIGINALE (INTOUCHÉE)
+# APP ORIGINALE
 # =========================
 
 st.title("🚗 VELIORA COTATION PRO")
