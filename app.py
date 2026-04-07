@@ -66,25 +66,19 @@ if "auth" not in st.session_state:
 if "admin" not in st.session_state:
     st.session_state.admin = False
 
-# =========================
-# MENU (TOUJOURS VISIBLE)
-# =========================
+# ================= MENU =================
 menu = st.sidebar.radio(
     "Navigation",
     ["🔐 Connexion", "🏠 Application", "🛠️ Admin", "🚪 Déconnexion"]
 )
 
-# =========================
-# DECONNEXION
-# =========================
+# ================= LOGOUT =================
 if menu == "🚪 Déconnexion":
     st.session_state.auth = False
     st.session_state.admin = False
     st.rerun()
 
-# =========================
-# PAGE CONNEXION
-# =========================
+# ================= LOGIN =================
 if menu == "🔐 Connexion":
 
     st.title("🚗 Veliora Pro")
@@ -110,13 +104,11 @@ if menu == "🔐 Connexion":
 
     if st.button("Se connecter"):
 
-        # ADMIN
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.auth = True
             st.session_state.admin = True
             st.rerun()
 
-        # USER
         ok, data = check_login(user, pwd)
 
         if ok:
@@ -133,122 +125,87 @@ if menu == "🔐 Connexion":
             else:
                 st.error(data)
 
-# =========================
-# ADMIN PANEL
-# =========================
+# ================= ADMIN =================
 elif menu == "🛠️ Admin":
 
     if not st.session_state.admin:
         st.error("⛔ Accès refusé")
-    else:
-        st.title("🛠️ ADMIN PANEL")
-        df = load_users()
-        st.dataframe(df)
+        st.stop()
 
-# =========================
-# APPLICATION
-# =========================
+    st.title("🛠️ ADMIN PANEL")
+    st.dataframe(load_users())
+
+# ================= APP =================
 elif menu == "🏠 Application":
 
     if not st.session_state.auth:
         st.warning("Veuillez vous connecter")
-    else:
-        st.write(f"👤 Connecté : {st.session_state.user}")
+        st.stop()
 
-        user_data = st.session_state.data
-        expire_date = user_data["expire"]
+    st.write(f"👤 Connecté : {st.session_state.user}")
 
-        if datetime.now() > expire_date:
-            st.error("⛔ Abonnement expiré")
-            st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
-        else:
+    user_data = st.session_state.data
+    expire_date = user_data["expire"]
 
-            # =========================
-            # APP ORIGINALE
-            # =========================
+    if datetime.now() > expire_date:
+        st.error("⛔ Abonnement expiré")
+        st.link_button("💳 S’abonner (99€/an)", STRIPE_LINK)
+        st.stop()
 
-            st.title("🚗 VELIORA COTATION PRO")
+    # ===== APP COMPLETE =====
 
-            marque = st.text_input("Marque")
-            modele = st.text_input("Modèle")
-            sous_version = st.text_input("Sous-version")
-            finition = st.text_input("Finition")
-            motorisation = st.text_input("Motorisation")
+    st.title("🚗 VELIORA COTATION PRO")
 
-            col1, col2 = st.columns(2)
+    marque = st.text_input("Marque")
+    modele = st.text_input("Modèle")
+    sous_version = st.text_input("Sous-version")
+    finition = st.text_input("Finition")
+    motorisation = st.text_input("Motorisation")
 
-            with col1:
-                mois = st.selectbox("Mois de mise en circulation", list(range(1,13)))
-                annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-                carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+    col1, col2 = st.columns(2)
 
-            with col2:
-                boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-                techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
-                traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+    with col1:
+        mois = st.selectbox("Mois", list(range(1,13)))
+        annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+        carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 
-            etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-            portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
-            km = st.number_input("Kilométrage", 0, 400000, 90000)
+    with col2:
+        boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+        techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
+        traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
 
-            options = st.multiselect(
-                "Options du véhicule",
-                [
-                    "Climatisation automatique","Accès sans clé","Hayon électrique",
-                    "Sellerie cuir","Sièges chauffants avant","Sièges chauffants avant + arrière",
-                    "Sièges électriques","Régulateur de vitesse","Régulateur adaptatif",
-                    "Radar de recul","Bips avant","Bips arrière","Caméra de recul","Caméra 360",
-                    "GPS / Navigation","Bluetooth","Connexion Apple CarPlay","Connexion Android Auto",
-                    "Système audio premium","Rétroviseurs chauffants","Rétroviseurs électriques rabattables",
-                    "Jantes alliage","Toit ouvrant","Toit panoramique","Feux LED","Attelage","Détecteur angle mort"
-                ]
-            )
+    etat = st.selectbox("État", ["Bon état", "Excellent état"])
+    portes = st.selectbox("Portes", [1,2,3,4,5])
+    km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-            commission = st.number_input("Commission (€)", 0, 10000, 1000)
+    options = st.multiselect("Options", [
+        "GPS","Cuir","Toit ouvrant","Caméra","LED","CarPlay","Android Auto"
+    ])
 
-            if st.button("Calculer l'estimation"):
+    commission = st.number_input("Commission", 0, 10000, 1000)
 
-                base = 17000
-                age = datetime.now().year - annee
+    if st.button("Calculer"):
 
-                if marque.lower() in ["bmw","audi","mercedes"]:
-                    base += 3000
+        base = 17000
+        age = datetime.now().year - annee
 
-                if boite == "Automatique":
-                    base += 1200
+        if marque.lower() in ["bmw","audi","mercedes"]:
+            base += 3000
 
-                if techno in ["DSG","EDC"]:
-                    base += 400
-                if techno in ["BVA6","BVA7","BVA8"]:
-                    base += 500
+        if boite == "Automatique":
+            base += 1200
 
-                if carburant == "Diesel":
-                    base += 300
-                elif carburant == "Hybride":
-                    base += 2500
-                elif carburant == "Électrique":
-                    base += 5000
+        if carburant == "Électrique":
+            base += 5000
 
-                if traction in ["4x4","4WD"]:
-                    base += 800
+        base -= age * 900
+        base -= km / 100
 
-                if etat == "Excellent état":
-                    base += 1200
-                else:
-                    base -= 500
+        base += len(options) * 100
+        base *= 0.9
 
-                base -= age * 900
+        prix = int(base)
+        net = prix - commission
 
-                if km > 80000:
-                    base -= 1200
-                if km > 120000:
-                    base -= 2000
-
-                base += len(options) * 100
-                base *= 0.90
-
-                prix = int(base)
-                net = prix - commission
-
-                st.markdown(f"### 💰 Prix estimé : {prix} €")
-                st.markdown(f"### 🧾 Net vendeur : {net} €")
+        st.success(f"Prix : {prix} €")
+        st.success(f"Net : {net} €")
