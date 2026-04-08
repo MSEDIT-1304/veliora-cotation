@@ -137,21 +137,16 @@ places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# 🔥 NOUVEAU : DEPARTEMENT OBLIGATOIRE
+# 🔥 Département obligatoire
 departement = st.selectbox(
     "Département",
-    [
-        "01","02","03","04","05","06","07","08","09",
-        "10","11","12","13","14","15","16","17","18","19",
-        "21","22","23","24","25","26","27","28","29",
-        "30","31","32","33","34","35","36","37","38","39",
-        "40","41","42","43","44","45","46","47","48","49",
-        "50","51","52","53","54","55","56","57","58","59",
-        "60","61","62","63","64","65","66","67","68","69",
-        "70","71","72","73","74","75","76","77","78","79",
-        "80","81","82","83","84","85","86","87","88","89",
-        "90","91","92","93","94","95","971","972","973","974"
-    ]
+    ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15",
+     "16","17","18","19","21","22","23","24","25","26","27","28","29","30","31",
+     "32","33","34","35","36","37","38","39","40","41","42","43","44","45","46",
+     "47","48","49","50","51","52","53","54","55","56","57","58","59","60","61",
+     "62","63","64","65","66","67","68","69","70","71","72","73","74","75","76",
+     "77","78","79","80","81","82","83","84","85","86","87","88","89","90","91",
+     "92","93","94","95","971","972","973","974"]
 )
 
 options = st.multiselect(
@@ -172,45 +167,43 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    base = 11500
+    base = 13500
     age = datetime.now().year - annee
 
     if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 3500
+        base += 4000
     elif marque.lower() in ["renault","peugeot","citroen"]:
-        base += 1200
+        base += 1800
 
     if boite == "Automatique":
-        base += 1200
+        base += 1500
 
     if carburant == "Hybride":
-        base += 1500
+        base += 1800
     elif carburant == "Électrique":
-        base += 3000
+        base += 3500
 
-    base -= age * 550
+    base -= age * 400
 
     if km > 80000:
-        base -= 900
+        base -= 600
     if km > 120000:
-        base -= 1300
+        base -= 900
     if km > 160000:
-        base -= 1800
+        base -= 1200
 
-    base += len(options) * 100
+    base += len(options) * 120
 
     if "captur" in modele.lower():
-        base += 800
+        base += 1200
 
-    # 🔥 BIWIZ
     prix_marche = int(base)
 
-    if prix_marche < 6800:
-        prix_marche = 6800
+    if prix_marche < 8500:
+        prix_marche = 8500
 
-    # 🔥 AJUSTEMENT DÉPARTEMENT
+    # Ajustement département
     coef_dep = 1.0
-
     if departement in ["75","92","93","94","91","77","78","95"]:
         coef_dep = 1.08
     elif departement in ["06","83"]:
@@ -224,9 +217,8 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.06)
-    prix_garage = int(prix_bas - 1000)
+    prix_bas = int(prix_marche * 0.93)
+    prix_haut = int(prix_marche * 1.05)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
@@ -236,9 +228,7 @@ if st.button("Calculer l'estimation"):
     net_bas = int(prix_bas - commission_calc)
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
-    net_garage = int(prix_garage - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
-    st.markdown(f"### 📊 Prix marché (BIWIZ) : {prix_marche} €  → Net vendeur : {net_marche} €")
-    st.markdown(f"### 🔺 Prix annonce : {prix_haut} €  → Net vendeur : {net_haut} €")
-    st.markdown(f"### 🟢 Prix Leboncoin (garage) : {prix_garage} €  → Net vendeur : {net_garage} €")
+    st.markdown(f"### 📊 Prix marché BIWIZ : {prix_marche} €  → Net vendeur : {net_marche} €")
+    st.markdown(f"### 🔺 Prix haut : {prix_haut} €  → Net vendeur : {net_haut} €")
