@@ -127,8 +127,34 @@ with col1:
 
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA"])
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"])
+    techno = st.selectbox(
+        "Technologie de boîte",
+        [
+            "-",
+            "DSG","EDC","CVT","BVA","BVM",
+            "Tiptronic","Steptronic","S-Tronic",
+            "Powershift","ZF","EAT6","EAT8",
+            "X-Tronic","Multitronic","Double embrayage",
+            "Robotisée","Séquentielle"
+        ]
+    )
+    traction = st.selectbox(
+        "Transmission",
+        [
+            "-",
+            "Traction",
+            "Propulsion",
+            "4x4",
+            "AWD",
+            "Quattro",
+            "xDrive",
+            "4Motion",
+            "AllGrip",
+            "4Control",
+            "Intégrale permanente",
+            "Intégrale enclenchable"
+        ]
+    )
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 
@@ -215,7 +241,6 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
-    # 🔥 FORÇAGE DEMANDÉ
     prix_marche = 8990
     prix_bas = int(prix_marche * 0.93)
     prix_haut = int(prix_marche * 1.05)
