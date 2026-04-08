@@ -226,7 +226,11 @@ if st.button("Calculer l'estimation"):
         commission_calc = commission
 
     net_bas = int(prix_bas - commission_calc)
-    net_marche = int(prix_marche - commission_calc)
+
+    # 🔥 FORÇAGE DEMANDÉ
+    prix_marche = 8990
+    net_marche = 7500
+
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
