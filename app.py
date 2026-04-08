@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -13,18 +12,16 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
-# ---------------- LOAD USERS ----------------
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
 
     df["username"] = df["username"].astype(str).str.strip()
-    df["password"] = df["password"]..astype(str).str.strip()
+    df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
     return df
 
-# ---------------- LOGIN ----------------
 def check_login(username, password):
     df = load_users()
 
@@ -43,7 +40,6 @@ def check_login(username, password):
 
     return "error"
 
-# ---------------- WEBHOOK ----------------
 def send_to_webhook(username, password):
     expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
 
@@ -56,15 +52,13 @@ def send_to_webhook(username, password):
 
     requests.post(WEBHOOK_URL, json=data)
 
-# ---------------- SESSION ----------------
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
-# ================= LOGIN =================
+# LOGIN
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
-    st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
     new_pass = st.text_input("Créer un mot de passe", type="password")
@@ -73,12 +67,8 @@ if not st.session_state.logged:
         if new_user and new_pass:
             send_to_webhook(new_user, new_pass)
             st.success("Compte créé")
-        else:
-            st.error("Remplir tous les champs")
 
     st.markdown("---")
-
-    st.subheader("🔐 Connexion")
 
     user = st.text_input("Utilisateur")
     pwd = st.text_input("Mot de passe", type="password")
@@ -96,34 +86,23 @@ if not st.session_state.logged:
             st.rerun()
 
         elif result == "expired":
-            st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
-
+            st.error("Abonnement expiré")
         else:
             st.error("Identifiant incorrect")
 
     st.stop()
 
-# ================= APP =================
-
-st.title("🚗 VELIORA COTATION PRO")
-
-if st.button("Se déconnecter"):
-    st.session_state.logged = False
-    st.rerun()
+# APP
+st.title("🚗 COTATION PRO")
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
 annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-departement = st.selectbox("Département", [
-    "75","13","69","59","33","06","44","31","34","Autre"
-])
+departement = st.selectbox("Département", ["75","13","69","59","33","06","44","31","34","Autre"])
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
-
-# ================= BASE MODELES =================
 
 prix_reference = {
     "captur": 9000,
@@ -133,8 +112,6 @@ prix_reference = {
     "208": 9000,
     "308": 9500
 }
-
-# ================= CALCUL =================
 
 if st.button("Calculer l'estimation"):
 
@@ -146,19 +123,14 @@ if st.button("Calculer l'estimation"):
             base = prix_reference[key]
 
     age = datetime.now().year - annee
-
-    # décote année
     base -= age * 400
 
-    # ajustement km
     if km > 80000:
         base -= 700
     if km > 120000:
         base -= 1200
 
-    # ---------------- DEPARTEMENT ----------------
     coef_dep = 1.0
-
     if departement == "75":
         coef_dep = 1.08
     elif departement == "13":
@@ -170,18 +142,9 @@ if st.button("Calculer l'estimation"):
 
     base = int(base * coef_dep)
 
-    # ================= SIMULATION ANNONCES =================
-    annonces = [
-        base * 1.05,
-        base * 0.98,
-        base * 1.02,
-        base * 1.00,
-        base * 0.95
-    ]
+    annonces = [base*1.05, base*0.98, base*1.02, base, base*0.95]
+    moyenne = sum(annonces)/len(annonces)
 
-    moyenne = sum(annonces) / len(annonces)
-
-    # ================= BIWIZ =================
     prix_marche = int(moyenne * 0.95)
 
     prix_bas = int(prix_marche * 0.93)
@@ -191,7 +154,6 @@ if st.button("Calculer l'estimation"):
     net_marche = prix_marche - commission
     net_haut = prix_haut - commission
 
-    # ================= AFFICHAGE =================
-    st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
-    st.markdown(f"### 📊 Prix marché BIWIZ : {prix_marche} €  → Net vendeur : {net_marche} €")
-    st.markdown(f"### 🔺 Prix haut : {prix_haut} €  → Net vendeur : {net_haut} €")
+    st.markdown(f"### Vente rapide : {prix_bas} € → Net : {net_bas} €")
+    st.markdown(f"### Prix marché BIWIZ : {prix_marche} € → Net : {net_marche} €")
+    st.markdown(f"### Prix haut : {prix_haut} € → Net : {net_haut} €")
