@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# CONFIG
+# ================= CONFIG =================
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -13,7 +13,7 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
-# LOAD USERS
+# ================= LOAD USERS =================
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
@@ -31,7 +31,7 @@ def load_users():
 
     return df
 
-# LOGIN
+# ================= LOGIN =================
 def check_login(username, password):
     df = load_users()
 
@@ -53,7 +53,7 @@ def check_login(username, password):
 
     return "ok"
 
-# WEBHOOK
+# ================= WEBHOOK =================
 def send_to_webhook(username, password):
     expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
 
@@ -65,22 +65,23 @@ def send_to_webhook(username, password):
         "active": True
     })
 
-# SESSION
+# ================= SESSION =================
 if "logged" not in st.session_state:
     st.session_state.logged = False
+
 if "admin" not in st.session_state:
     st.session_state.admin = False
 
-# LOGIN PAGE
+# ================= LOGIN PAGE =================
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
 
     st.subheader("Créer un compte")
-    new_user = st.text_input("Identifiant", key="new_user")
-    new_pass = st.text_input("Mot de passe", type="password", key="new_pass")
+    new_user = st.text_input("Identifiant", key="create_user")
+    new_pass = st.text_input("Mot de passe", type="password", key="create_pass")
 
-    if st.button("Créer compte"):
+    if st.button("Créer compte", key="btn_create"):
         if new_user and new_pass:
             send_to_webhook(new_user, new_pass)
             st.success("Compte créé")
@@ -91,9 +92,9 @@ if not st.session_state.logged:
 
     st.subheader("Connexion")
     user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pass")
 
-    if st.button("Se connecter"):
+    if st.button("Se connecter", key="btn_login"):
 
         # ADMIN PRIORITAIRE
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
@@ -109,19 +110,19 @@ if not st.session_state.logged:
             st.rerun()
 
         elif result == "expired":
-            st.error("Accès expiré")
-            st.markdown(f"[S'abonner]({STRIPE_LINK})")
+            st.error("⛔ Accès expiré")
+            st.markdown(f"[💳 S'abonner]({STRIPE_LINK})")
 
         elif result == "inactive":
-            st.error("Paiement échoué")
-            st.markdown(f"[Réactiver]({STRIPE_LINK})")
+            st.error("⛔ Paiement échoué")
+            st.markdown(f"[💳 Réactiver]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
 
     st.stop()
 
-# ADMIN DASHBOARD
+# ================= ADMIN =================
 if st.session_state.admin:
 
     st.title("📊 Dashboard Admin")
@@ -134,20 +135,22 @@ if st.session_state.admin:
 
     st.dataframe(df)
 
-    if st.button("Se déconnecter admin"):
+    if st.button("Se déconnecter admin", key="logout_admin"):
         st.session_state.logged = False
         st.session_state.admin = False
         st.rerun()
 
     st.stop()
 
-# APP
+# ================= APP =================
+
 st.title("🚗 Cotation véhicule")
 
-if st.button("Se déconnecter"):
+if st.button("Se déconnecter", key="logout_user"):
     st.session_state.logged = False
     st.rerun()
 
+# --- INFOS VEHICULE ---
 marque = st.text_input("Marque", key="marque")
 modele = st.text_input("Modèle", key="modele")
 sous_version = st.text_input("Sous-version", key="sous_version")
@@ -164,23 +167,29 @@ with col1:
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
     techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA"], key="techno")
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"], key="traction")
+    transmission = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"], key="transmission")
 
 etat = st.selectbox("État", ["Bon état", "Excellent état"], key="etat")
 places = st.selectbox("Places", [2,3,4,5,6,7], key="places")
 portes = st.selectbox("Portes", [1,2,3,4,5], key="portes")
 km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
 
-departement = st.selectbox("Département", ["75","13","69","59","33","06","44","31","34","Autre"], key="dep")
+departement = st.selectbox(
+    "Département",
+    ["75","13","69","59","33","06","44","31","34","Autre"],
+    key="departement"
+)
 
-options = st.multiselect("Options", [
-    "GPS","Caméra","Cuir","Toit ouvrant","LED","CarPlay"
-], key="options")
+options = st.multiselect(
+    "Options",
+    ["GPS","Caméra","Cuir","Toit ouvrant","LED","CarPlay"],
+    key="options"
+)
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000, key="commission")
 
-# CALCUL
-if st.button("Calculer l'estimation"):
+# ================= CALCUL =================
+if st.button("Calculer l'estimation", key="calc_btn"):
 
     base = 9000
 
@@ -199,6 +208,12 @@ if st.button("Calculer l'estimation"):
 
     if boite == "Automatique":
         base += 800
+
+    # effet département
+    if departement == "75":
+        base *= 1.08
+
+    base = int(base)
 
     annonces = [base*1.05, base, base*0.97]
     prix_marche = int(sum(annonces)/len(annonces) * 0.95)
