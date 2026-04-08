@@ -17,28 +17,20 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
-
     df["username"] = df["username"].astype(str).str.strip()
     df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
-
     return df
 
 # ---------------- LOGIN ----------------
 def check_login(username, password):
     df = load_users()
-
-    user = df[
-        (df["username"] == username.strip()) &
-        (df["password"] == password.strip())
-    ]
+    user = df[(df["username"] == username.strip()) & (df["password"] == password.strip())]
 
     if not user.empty:
         expire = user.iloc[0]["expire"]
-
         if datetime.now() > expire:
             return "expired"
-
         return "ok"
 
     return "error"
@@ -46,14 +38,12 @@ def check_login(username, password):
 # ---------------- WEBHOOK ----------------
 def send_to_webhook(username, password):
     expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-
     data = {
         "username": username,
         "password": password,
         "expire": expire,
         "trial": True
     }
-
     requests.post(WEBHOOK_URL, json=data)
 
 # ---------------- SESSION ----------------
@@ -89,22 +79,18 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
-        user_clean = user.strip()
-        pwd_clean = pwd.strip()
-
-        # ADMIN accès direct à l'app
-        if user_clean == ADMIN_USER and pwd_clean == ADMIN_PASS:
+        # ADMIN
+        if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
-            st.session_state.admin = False
-            st.session_state.user = "admin"
+            st.session_state.admin = True
             st.rerun()
 
         # USER
-        result = check_login(user_clean, pwd_clean)
+        result = check_login(user, pwd)
 
         if result == "ok":
             st.session_state.logged = True
-            st.session_state.user = user_clean
+            st.session_state.user = user
             st.session_state.admin = False
             st.rerun()
 
@@ -138,69 +124,91 @@ if st.button("Se déconnecter"):
     st.session_state.logged = False
     st.rerun()
 
+# -------- INFOS VEHICULE --------
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
-finition = st.text_input("Finition")
-motorisation = st.text_input("Motorisation")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    mois = st.selectbox("Mois", list(range(1,13)))
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-
-with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
-
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-options = st.multiselect(
-    "Options du véhicule",
-    [
-        "Climatisation automatique","Accès sans clé","Hayon électrique",
-        "Sellerie cuir","Sièges chauffants","Sièges électriques",
-        "Régulateur","Radar","Caméra","GPS","Bluetooth",
-        "CarPlay","Android Auto","Audio premium","Toit ouvrant",
-        "Toit panoramique","LED","Attelage"
-    ]
-)
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
+portes = st.selectbox("Portes", [2,3,4,5])
 
-commission = st.number_input("Commission (€)", 0, 10000, 1000)
+departement = st.text_input("Département")
 
-if st.button("Calculer l'estimation"):
+etat = st.selectbox("État", ["Bon état","Très bon état","Excellent état"])
 
-    base = 17000
-    age = datetime.now().year - annee
+options = st.multiselect("Options", [
+    "GPS","Cuir","Toit ouvrant","Caméra","LED","CarPlay","Android Auto",
+    "Régulateur","Radar","Sièges chauffants","Toit panoramique"
+])
 
+# -------- COMMISSION --------
+col1, col2 = st.columns(2)
+with col1:
+    commission_euro = st.number_input("Commission (€)", 0, 10000, 1000)
+with col2:
+    commission_pct = st.number_input("Commission (%)", 0, 100, 0)
+
+# ================= CALCUL =================
+if st.button("Calculer estimation"):
+
+    base = 20000
+
+    # Premium
     if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 3000
+        base += 4000
 
+    # Age
+    age = datetime.now().year - annee
+    base -= age * 800
+
+    # Kilométrage
+    base -= km * 0.05
+
+    # Boîte
     if boite == "Automatique":
-        base += 1200
+        base += 1500
 
+    # Carburant
     if carburant == "Hybride":
-        base += 2500
+        base += 2000
     elif carburant == "Électrique":
         base += 5000
 
-    base -= age * 900
+    # Options
+    base += len(options) * 150
 
-    if km > 80000:
-        base -= 1200
-    if km > 120000:
-        base -= 2000
+    # État
+    if etat == "Très bon état":
+        base += 1000
+    elif etat == "Excellent état":
+        base += 2000
 
-    base += len(options) * 100
-    base *= 0.90
+    # Département (marché dynamique)
+    if departement in ["75","92","78","69","13"]:
+        base += 1500
 
-    prix = int(base)
-    net = prix - commission
+    # ---- PRIX ----
+    prix_bas = int(base * 0.85)
+    prix_marche = int(base)
+    prix_haut = int(base * 1.15)
+    prix_pro = int(base * 0.75)
 
-    st.markdown(f"### 💰 Prix estimé : {prix} €")
-    st.markdown(f"### 🧾 Net vendeur : {net} €")
+    # ---- COMMISSION ----
+    commission_total = commission_euro + (prix_marche * commission_pct / 100)
+    net = prix_marche - commission_total
+
+    # ---- AFFICHAGE ----
+    st.markdown(f"## 🔻 Prix bas : {prix_bas} €")
+    st.markdown(f"## ⚖️ Prix marché : {prix_marche} €")
+    st.markdown(f"## 🔺 Prix haut : {prix_haut} €")
+
+    st.markdown("---")
+
+    st.markdown(f"### 🏢 Estimation PRO : {prix_pro} €")
+
+    st.markdown("---")
+
+    st.markdown(f"### 💰 Net vendeur : {int(net)} €")
