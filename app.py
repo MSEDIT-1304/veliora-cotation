@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# CONFIG
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -12,7 +13,7 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
-# ---------------- LOAD USERS ----------------
+# LOAD USERS
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
@@ -30,7 +31,7 @@ def load_users():
 
     return df
 
-# ---------------- LOGIN ----------------
+# LOGIN
 def check_login(username, password):
     df = load_users()
 
@@ -44,18 +45,15 @@ def check_login(username, password):
 
     u = user.iloc[0]
 
-    active = str(u["active"]).upper() == "TRUE"
-    expire = u["expire"]
-
-    if not active:
+    if str(u["active"]).upper() != "TRUE":
         return "inactive"
 
-    if datetime.now() > expire:
+    if datetime.now() > u["expire"]:
         return "expired"
 
     return "ok"
 
-# ---------------- WEBHOOK ----------------
+# WEBHOOK
 def send_to_webhook(username, password):
     expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
 
@@ -67,20 +65,20 @@ def send_to_webhook(username, password):
         "active": True
     })
 
-# ---------------- SESSION ----------------
+# SESSION
 if "logged" not in st.session_state:
     st.session_state.logged = False
 if "admin" not in st.session_state:
     st.session_state.admin = False
 
-# ================= LOGIN =================
+# LOGIN PAGE
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
 
     st.subheader("Créer un compte")
-    new_user = st.text_input("Identifiant")
-    new_pass = st.text_input("Mot de passe", type="password")
+    new_user = st.text_input("Identifiant", key="new_user")
+    new_pass = st.text_input("Mot de passe", type="password", key="new_pass")
 
     if st.button("Créer compte"):
         if new_user and new_pass:
@@ -92,12 +90,12 @@ if not st.session_state.logged:
     st.markdown("---")
 
     st.subheader("Connexion")
-    user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
+    user = st.text_input("Utilisateur", key="login_user")
+    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
 
     if st.button("Se connecter"):
 
-        # ADMIN DIRECT
+        # ADMIN PRIORITAIRE
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
@@ -123,7 +121,7 @@ if not st.session_state.logged:
 
     st.stop()
 
-# ================= ADMIN =================
+# ADMIN DASHBOARD
 if st.session_state.admin:
 
     st.title("📊 Dashboard Admin")
@@ -136,29 +134,53 @@ if st.session_state.admin:
 
     st.dataframe(df)
 
-    if st.button("Se déconnecter"):
+    if st.button("Se déconnecter admin"):
         st.session_state.logged = False
         st.session_state.admin = False
         st.rerun()
 
     st.stop()
 
-# ================= APP =================
-
-st.title("🚗 Cotation")
+# APP
+st.title("🚗 Cotation véhicule")
 
 if st.button("Se déconnecter"):
     st.session_state.logged = False
     st.rerun()
 
-marque = st.text_input("Marque")
-modele = st.text_input("Modèle")
-annee = st.number_input("Année", 1990, 2025, 2019)
-km = st.number_input("KM", 0, 400000, 90000)
+marque = st.text_input("Marque", key="marque")
+modele = st.text_input("Modèle", key="modele")
+sous_version = st.text_input("Sous-version", key="sous_version")
+finition = st.text_input("Finition", key="finition")
+motorisation = st.text_input("Motorisation", key="motorisation")
 
-commission = st.number_input("Commission", 0, 10000, 1000)
+col1, col2 = st.columns(2)
 
-if st.button("Calculer"):
+with col1:
+    mois = st.selectbox("Mois", list(range(1,13)), key="mois")
+    annee = st.number_input("Année", 1990, 2025, 2019, key="annee")
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key="carburant")
+
+with col2:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
+    techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA"], key="techno")
+    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"], key="traction")
+
+etat = st.selectbox("État", ["Bon état", "Excellent état"], key="etat")
+places = st.selectbox("Places", [2,3,4,5,6,7], key="places")
+portes = st.selectbox("Portes", [1,2,3,4,5], key="portes")
+km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
+
+departement = st.selectbox("Département", ["75","13","69","59","33","06","44","31","34","Autre"], key="dep")
+
+options = st.multiselect("Options", [
+    "GPS","Caméra","Cuir","Toit ouvrant","LED","CarPlay"
+], key="options")
+
+commission = st.number_input("Commission (€)", 0, 10000, 1000, key="commission")
+
+# CALCUL
+if st.button("Calculer l'estimation"):
 
     base = 9000
 
@@ -170,6 +192,13 @@ if st.button("Calculer"):
 
     if km > 80000:
         base -= 700
+    if km > 120000:
+        base -= 1200
+
+    base += len(options) * 100
+
+    if boite == "Automatique":
+        base += 800
 
     annonces = [base*1.05, base, base*0.97]
     prix_marche = int(sum(annonces)/len(annonces) * 0.95)
@@ -177,6 +206,10 @@ if st.button("Calculer"):
     prix_bas = int(prix_marche * 0.93)
     prix_haut = int(prix_marche * 1.05)
 
-    st.write("Vente rapide :", prix_bas)
-    st.write("Marché :", prix_marche)
-    st.write("Haut :", prix_haut)
+    net_bas = prix_bas - commission
+    net_marche = prix_marche - commission
+    net_haut = prix_haut - commission
+
+    st.markdown(f"### 🔻 Vente rapide : {prix_bas} € → Net : {net_bas} €")
+    st.markdown(f"### 📊 Marché : {prix_marche} € → Net : {net_marche} €")
+    st.markdown(f"### 🔺 Haut : {prix_haut} € → Net : {net_haut} €")
