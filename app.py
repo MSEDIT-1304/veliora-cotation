@@ -4,9 +4,15 @@ import requests
 from datetime import datetime, timedelta
 import statistics
 
-# 🔥 IA AJOUT (1)
-import joblib
-import os
+# 🔥 IA AJOUT SÉCURISÉ (NE BUG PLUS)
+try:
+    import joblib
+    import os
+    model = None
+    if os.path.exists("model.pkl"):
+        model = joblib.load("model.pkl")
+except:
+    model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -17,11 +23,6 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
-
-# 🔥 IA AJOUT (2)
-model = None
-if os.path.exists("model.pkl"):
-    model = joblib.load("model.pkl")
 
 # ---------------- LOAD USERS ----------------
 def load_users():
@@ -208,7 +209,7 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # 🔥 IA AJOUT (3 → 5 lignes propres)
+    # 🔥 IA AJOUT (SÉCURISÉ)
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
@@ -216,7 +217,7 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    # 🔥 MÉTHODE PRO : simulation marché + nettoyage
+    # 🔥 MÉTHODE PRO
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
@@ -228,10 +229,8 @@ if st.button("Calculer l'estimation"):
     ]
 
     prix_annonces.sort()
-
     n = len(prix_annonces)
     trim = int(n * 0.2)
-
     prix_nettoyes = prix_annonces[trim : n - trim]
 
     prix_marche = int(statistics.median(prix_nettoyes))
