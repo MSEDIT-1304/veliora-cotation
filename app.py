@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -12,6 +13,7 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
+# ---------------- LOAD USERS ----------------
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
@@ -22,6 +24,7 @@ def load_users():
 
     return df
 
+# ---------------- LOGIN LOGIC ----------------
 def check_login(username, password):
     df = load_users()
 
@@ -30,16 +33,24 @@ def check_login(username, password):
         (df["password"] == password.strip())
     ]
 
-    if not user.empty:
-        expire = user.iloc[0]["expire"]
+    if user.empty:
+        return "error"
 
-        if datetime.now() > expire:
-            return "expired"
+    user_data = user.iloc[0]
 
-        return "ok"
+    expire = user_data["expire"]
+    trial = str(user_data.get("trial", "FALSE")).upper() == "TRUE"
+    active = str(user_data.get("active", "TRUE")).upper() == "TRUE"
 
-    return "error"
+    if not active:
+        return "inactive"
 
+    if datetime.now() > expire:
+        return "expired"
+
+    return "ok"
+
+# ---------------- WEBHOOK ----------------
 def send_to_webhook(username, password):
     expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
 
@@ -47,18 +58,24 @@ def send_to_webhook(username, password):
         "username": username,
         "password": password,
         "expire": expire,
-        "trial": True
+        "trial": True,
+        "active": True
     }
 
     requests.post(WEBHOOK_URL, json=data)
 
+# ---------------- SESSION ----------------
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
-# LOGIN
+if "admin" not in st.session_state:
+    st.session_state.admin = False
+
+# ================= LOGIN =================
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
+    st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
     new_pass = st.text_input("Créer un mot de passe", type="password")
@@ -67,8 +84,12 @@ if not st.session_state.logged:
         if new_user and new_pass:
             send_to_webhook(new_user, new_pass)
             st.success("Compte créé")
+        else:
+            st.error("Remplir tous les champs")
 
     st.markdown("---")
+
+    st.subheader("🔐 Connexion")
 
     user = st.text_input("Utilisateur")
     pwd = st.text_input("Mot de passe", type="password")
@@ -77,33 +98,90 @@ if not st.session_state.logged:
 
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
+            st.session_state.admin = True
             st.rerun()
 
         result = check_login(user, pwd)
 
         if result == "ok":
             st.session_state.logged = True
+            st.session_state.admin = False
             st.rerun()
 
         elif result == "expired":
-            st.error("Abonnement expiré")
+            st.error("⛔ Votre accès a expiré")
+            st.warning("Abonnez-vous pour continuer")
+            st.markdown(f"### 👉 [💳 S'abonner]({STRIPE_LINK})")
+            st.stop()
+
+        elif result == "inactive":
+            st.error("⛔ Paiement échoué ou abonnement suspendu")
+            st.markdown(f"### 👉 [💳 Réactiver mon abonnement]({STRIPE_LINK})")
+            st.stop()
+
         else:
             st.error("Identifiant incorrect")
 
     st.stop()
 
-# APP
-st.title("🚗 COTATION PRO")
+# ================= ADMIN DASHBOARD =================
+if st.session_state.admin:
+
+    st.title("📊 Dashboard Admin")
+
+    df = load_users()
+
+    st.metric("Utilisateurs", len(df))
+    st.metric("Actifs", df[df["active"] == True].shape[0])
+    st.metric("Expirés", df[df["expire"] < datetime.now()].shape[0])
+
+    st.dataframe(df)
+
+    if st.button("Se déconnecter"):
+        st.session_state.logged = False
+        st.session_state.admin = False
+        st.rerun()
+
+    st.stop()
+
+# ================= APP =================
+
+st.title("🚗 VELIORA COTATION PRO")
+
+if st.button("Se déconnecter"):
+    st.session_state.logged = False
+    st.rerun()
 
 marque = st.text_input("Marque")
 modele = st.text_input("Modèle")
-annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+sous_version = st.text_input("Sous-version")
+finition = st.text_input("Finition")
+motorisation = st.text_input("Motorisation")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    mois = st.selectbox("Mois", list(range(1,13)))
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+
+with col2:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+    techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA"])
+    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"])
+
+etat = st.selectbox("État", ["Bon état", "Excellent état"])
+places = st.selectbox("Places", [2,3,4,5,6,7])
+portes = st.selectbox("Portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
 departement = st.selectbox("Département", ["75","13","69","59","33","06","44","31","34","Autre"])
 
+options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit ouvrant","LED","CarPlay"])
+
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
+# ================= PRIX BASE =================
 prix_reference = {
     "captur": 9000,
     "clio": 8000,
@@ -113,10 +191,12 @@ prix_reference = {
     "308": 9500
 }
 
+# ================= CALCUL =================
+
 if st.button("Calculer l'estimation"):
 
-    modele_clean = modele.lower()
     base = 8500
+    modele_clean = modele.lower()
 
     for key in prix_reference:
         if key in modele_clean:
@@ -130,15 +210,14 @@ if st.button("Calculer l'estimation"):
     if km > 120000:
         base -= 1200
 
+    base += len(options) * 100
+
+    if boite == "Automatique":
+        base += 800
+
     coef_dep = 1.0
     if departement == "75":
         coef_dep = 1.08
-    elif departement == "13":
-        coef_dep = 1.05
-    elif departement == "69":
-        coef_dep = 1.04
-    elif departement == "59":
-        coef_dep = 0.95
 
     base = int(base * coef_dep)
 
@@ -154,6 +233,6 @@ if st.button("Calculer l'estimation"):
     net_marche = prix_marche - commission
     net_haut = prix_haut - commission
 
-    st.markdown(f"### Vente rapide : {prix_bas} € → Net : {net_bas} €")
-    st.markdown(f"### Prix marché BIWIZ : {prix_marche} € → Net : {net_marche} €")
-    st.markdown(f"### Prix haut : {prix_haut} € → Net : {net_haut} €")
+    st.markdown(f"### 🔻 Vente rapide : {prix_bas} € → Net vendeur : {net_bas} €")
+    st.markdown(f"### 📊 Prix marché BIWIZ : {prix_marche} € → Net vendeur : {net_marche} €")
+    st.markdown(f"### 🔺 Prix haut : {prix_haut} € → Net vendeur : {net_haut} €")
