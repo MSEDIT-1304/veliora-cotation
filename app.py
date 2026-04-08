@@ -18,20 +18,21 @@ def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
 
+    df.columns = df.columns.str.strip().str.lower()
+
     df["username"] = df["username"].astype(str).str.strip()
     df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
-    # 🔥 sécurité colonne active
+    # sécurités anti crash
     if "active" not in df.columns:
         df["active"] = True
-
     if "trial" not in df.columns:
         df["trial"] = True
 
     return df
 
-# ---------------- LOGIN LOGIC ----------------
+# ---------------- LOGIN ----------------
 def check_login(username, password):
     df = load_users()
 
@@ -46,12 +47,15 @@ def check_login(username, password):
     user_data = user.iloc[0]
 
     expire = user_data["expire"]
+
     trial = str(user_data["trial"]).upper() == "TRUE"
     active = str(user_data["active"]).upper() == "TRUE"
 
+    # 🔴 paiement échoué
     if not active:
         return "inactive"
 
+    # 🔴 expiré (trial ou abonnement)
     if datetime.now() > expire:
         return "expired"
 
@@ -116,13 +120,14 @@ if not st.session_state.logged:
             st.rerun()
 
         elif result == "expired":
-            st.error("⛔ Votre accès a expiré")
+            st.error("⛔ Accès expiré")
+            st.warning("Abonnez-vous pour continuer")
             st.markdown(f"### 👉 [💳 S'abonner]({STRIPE_LINK})")
             st.stop()
 
         elif result == "inactive":
-            st.error("⛔ Paiement échoué ou abonnement suspendu")
-            st.markdown(f"### 👉 [💳 Réactiver mon abonnement]({STRIPE_LINK})")
+            st.error("⛔ Paiement échoué")
+            st.markdown(f"### 👉 [💳 Réactiver]({STRIPE_LINK})")
             st.stop()
 
         else:
@@ -130,7 +135,7 @@ if not st.session_state.logged:
 
     st.stop()
 
-# ================= ADMIN DASHBOARD =================
+# ================= ADMIN =================
 if st.session_state.admin:
 
     st.title("📊 Dashboard Admin")
@@ -191,7 +196,7 @@ options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit ouvrant","LED"
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
-# ================= BASE MODELES =================
+# ================= PRIX =================
 prix_reference = {
     "captur": 9000,
     "clio": 8000,
@@ -200,8 +205,6 @@ prix_reference = {
     "208": 9000,
     "308": 9500
 }
-
-# ================= CALCUL =================
 
 if st.button("Calculer l'estimation"):
 
