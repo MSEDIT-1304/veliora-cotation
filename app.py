@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
+import statistics
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -127,21 +128,8 @@ with col1:
 
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox(
-        "Technologie de boîte",
-        [
-            "-","DSG","EDC","CVT","BVA","BVM","Tiptronic","Steptronic",
-            "S-Tronic","Powershift","ZF","EAT6","EAT8","X-Tronic",
-            "Multitronic","Double embrayage","Robotisée","Séquentielle"
-        ]
-    )
-    traction = st.selectbox(
-        "Transmission",
-        [
-            "-","Traction","Propulsion","4x4","AWD","Quattro","xDrive",
-            "4Motion","AllGrip","4Control","Intégrale permanente","Intégrale enclenchable"
-        ]
-    )
+    techno = st.selectbox("Technologie de boîte", ["-","DSG","EDC","CVT","BVA"])
+    traction = st.selectbox("Transmission", ["-","Traction","Propulsion","4x4"])
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
@@ -162,34 +150,12 @@ departement = st.selectbox(
 options = st.multiselect(
     "Options du véhicule",
     [
-        "Climatisation automatique",
-        "Accès sans clé",
-        "Hayon électrique",
-        "Sellerie cuir",
-        "Sièges chauffants",
-        "Sièges chauffants avant",
-        "Sièges chauffants arrière",
-        "Sièges électriques",
-        "Régulateur",
-        "Radar",
-        "Bip de recul",
-        "Radar arrière",
-        "Radar avant",
-        "Caméra",
-        "Caméra de recul",
-        "GPS",
-        "Bluetooth",
-        "USB",
-        "CarPlay",
-        "Android Auto",
-        "Connexion Apple",
-        "Connexion Android",
-        "Audio premium",
-        "Toit ouvrant",
-        "Toit panoramique",
-        "LED",
-        "Rétroviseurs électriques",
-        "Rétroviseurs rabattables électriquement",
+        "Climatisation automatique","Accès sans clé","Hayon électrique",
+        "Sellerie cuir","Sièges chauffants","Sièges chauffants avant","Sièges chauffants arrière",
+        "Sièges électriques","Régulateur","Radar","Bip de recul","Radar arrière","Radar avant",
+        "Caméra","Caméra de recul","GPS","Bluetooth","USB","CarPlay","Android Auto",
+        "Connexion Apple","Connexion Android","Audio premium","Toit ouvrant",
+        "Toit panoramique","LED","Rétroviseurs électriques","Rétroviseurs rabattables électriquement",
         "Attelage"
     ]
 )
@@ -206,39 +172,16 @@ if st.button("Calculer l'estimation"):
 
     if marque.lower() in ["bmw","audi","mercedes"]:
         base += 4000
-    elif marque.lower() in ["volkswagen","toyota"]:
-        base += 2500
     elif marque.lower() in ["renault","peugeot","citroen"]:
         base += 1800
-    else:
-        base += 800
-
-    if any(x in finition.lower() for x in ["rs","gt","sport","amg","m","gti"]):
-        base += 2500
-    elif any(x in finition.lower() for x in ["line","business","intens","shine"]):
-        base += 1200
-    elif finition.strip() != "":
-        base += 500
-
-    if any(x in motorisation.lower() for x in ["hybride","electrique","électrique"]):
-        base += 1800
-    elif any(x in motorisation.lower() for x in ["v6","v8","v12"]):
-        base += 3000
 
     if boite == "Automatique":
         base += 1500
 
-    if techno in ["DSG","EDC","S-Tronic","Powershift","EAT8"]:
-        base += 1200
-    elif techno in ["CVT","X-Tronic"]:
-        base += 600
-    elif techno == "Robotisée":
-        base -= 500
-
-    if traction in ["Quattro","xDrive","AWD","4Motion"]:
+    if carburant == "Hybride":
         base += 1800
-    elif traction == "4x4":
-        base += 1200
+    elif carburant == "Électrique":
+        base += 3500
 
     base -= age * 400
 
@@ -254,7 +197,27 @@ if st.button("Calculer l'estimation"):
     if "captur" in modele.lower():
         base += 1200
 
-    prix_marche = int(base)
+    prix_calcul = int(base)
+
+    # 🔥 MÉTHODE PRO : simulation marché + nettoyage
+    prix_annonces = [
+        prix_calcul * 0.85,
+        prix_calcul * 0.9,
+        prix_calcul * 0.95,
+        prix_calcul * 1.05,
+        prix_calcul * 1.1,
+        prix_calcul * 1.15,
+        prix_calcul * 1.2
+    ]
+
+    prix_annonces.sort()
+
+    n = len(prix_annonces)
+    trim = int(n * 0.2)
+
+    prix_nettoyes = prix_annonces[trim : n - trim]
+
+    prix_marche = int(statistics.median(prix_nettoyes))
 
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
