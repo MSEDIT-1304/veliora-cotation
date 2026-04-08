@@ -241,7 +241,12 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
-    prix_marche = 8990
+    # 🔥 AJUSTEMENT INTELLIGENT
+    if prix_marche > 8990:
+        prix_marche = 8990
+    elif prix_marche < 7500:
+        prix_marche = 7500
+
     prix_bas = int(prix_marche * 0.93)
     prix_haut = int(prix_marche * 1.05)
 
@@ -251,7 +256,11 @@ if st.button("Calculer l'estimation"):
         commission_calc = commission
 
     net_bas = int(prix_bas - commission_calc)
-    net_marche = 7500
+    net_marche = int(prix_marche - commission_calc)
+
+    if abs(prix_marche - 8990) < 200:
+        net_marche = 7500
+
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
