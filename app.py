@@ -162,11 +162,35 @@ departement = st.selectbox(
 options = st.multiselect(
     "Options du véhicule",
     [
-        "Climatisation automatique","Accès sans clé","Hayon électrique",
-        "Sellerie cuir","Sièges chauffants","Sièges électriques",
-        "Régulateur","Radar","Caméra","GPS","Bluetooth",
-        "CarPlay","Android Auto","Audio premium","Toit ouvrant",
-        "Toit panoramique","LED","Attelage"
+        "Climatisation automatique",
+        "Accès sans clé",
+        "Hayon électrique",
+        "Sellerie cuir",
+        "Sièges chauffants",
+        "Sièges chauffants avant",
+        "Sièges chauffants arrière",
+        "Sièges électriques",
+        "Régulateur",
+        "Radar",
+        "Bip de recul",
+        "Radar arrière",
+        "Radar avant",
+        "Caméra",
+        "Caméra de recul",
+        "GPS",
+        "Bluetooth",
+        "USB",
+        "CarPlay",
+        "Android Auto",
+        "Connexion Apple",
+        "Connexion Android",
+        "Audio premium",
+        "Toit ouvrant",
+        "Toit panoramique",
+        "LED",
+        "Rétroviseurs électriques",
+        "Rétroviseurs rabattables électriquement",
+        "Attelage"
     ]
 )
 
