@@ -10,7 +10,6 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
-# 🔥 ADMIN ULTRA FIABLE
 ADMIN_USER = "admin"
 ADMIN_PASS = "VelioraAdminSecure2026!"
 
@@ -41,8 +40,8 @@ def check_login(username, password):
     df = load_users()
 
     user = df[
-        (df["username"] == username.strip()) &
-        (df["password"] == password.strip())
+        (df["username"] == username) &
+        (df["password"] == password)
     ]
 
     if user.empty:
@@ -85,39 +84,33 @@ def login_page():
     st.title("🚗 Veliora Pro")
     st.subheader("🎁 Essai gratuit 7 jours")
 
-    # --- CREATE ACCOUNT ---
     st.subheader("Créer un compte")
     new_user = st.text_input("Identifiant", key="create_user")
     new_pass = st.text_input("Mot de passe", type="password", key="create_pass")
 
-    if st.button("Créer compte", key="btn_create"):
+    if st.button("Créer compte"):
         if new_user and new_pass:
-            send_to_webhook(new_user, new_pass)
+            send_to_webhook(new_user.strip(), new_pass.strip())
             st.success("Compte créé")
         else:
             st.error("Remplir tous les champs")
 
     st.markdown("---")
 
-    # --- LOGIN ---
     st.subheader("Connexion")
-    user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pass")
+    user = st.text_input("Utilisateur")
+    pwd = st.text_input("Mot de passe", type="password")
 
-    if st.button("Se connecter", key="btn_login"):
+    if st.button("Se connecter"):
 
-        user_clean = user.strip()
-        pwd_clean = pwd.strip()
-
-        # 🔥 ADMIN PRIORITAIRE (CORRIGÉ)
-        if user_clean.lower() == ADMIN_USER.lower() and pwd_clean == ADMIN_PASS:
+        # 🔥 ADMIN DIRECT (FORCÉ)
+        if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
-            st.success("Connexion admin OK")
             st.rerun()
 
         # 🔽 USERS CLASSIQUES
-        result = check_login(user_clean, pwd_clean)
+        result = check_login(user.strip(), pwd.strip())
 
         if result == "ok":
             st.session_state.logged = True
@@ -147,7 +140,7 @@ def admin_page():
 
     st.dataframe(df)
 
-    if st.button("Se déconnecter admin", key="logout_admin"):
+    if st.button("Se déconnecter admin"):
         st.session_state.logged = False
         st.session_state.admin = False
         st.rerun()
@@ -156,7 +149,7 @@ def admin_page():
 def app_page():
     st.title("🚗 VELIORA COTATION PRO")
 
-    if st.button("Se déconnecter", key="logout_user"):
+    if st.button("Se déconnecter"):
         st.session_state.logged = False
         st.rerun()
 
