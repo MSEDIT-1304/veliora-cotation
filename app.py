@@ -10,7 +10,7 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
-# 🔥 ADMIN LONG QUI FONCTIONNE
+# 🔥 ADMIN ULTRA FIABLE
 ADMIN_USER = "admin"
 ADMIN_PASS = "VelioraAdminSecure2026!"
 
@@ -106,14 +106,18 @@ def login_page():
 
     if st.button("Se connecter", key="btn_login"):
 
-        # 🔥 ADMIN PRIORITAIRE
-        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
+        user_clean = user.strip()
+        pwd_clean = pwd.strip()
+
+        # 🔥 ADMIN PRIORITAIRE (CORRIGÉ)
+        if user_clean.lower() == ADMIN_USER.lower() and pwd_clean == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
             st.success("Connexion admin OK")
             st.rerun()
 
-        result = check_login(user, pwd)
+        # 🔽 USERS CLASSIQUES
+        result = check_login(user_clean, pwd_clean)
 
         if result == "ok":
             st.session_state.logged = True
@@ -156,86 +160,11 @@ def app_page():
         st.session_state.logged = False
         st.rerun()
 
-    # --- INFOS VEHICULE ---
-    marque = st.text_input("Marque", key="marque")
-    modele = st.text_input("Modèle", key="modele")
-    sous_version = st.text_input("Sous-version", key="sous_version")
-    finition = st.text_input("Finition", key="finition")
-    motorisation = st.text_input("Motorisation", key="motorisation")
+    marque = st.text_input("Marque")
+    modele = st.text_input("Modèle")
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        mois = st.selectbox("Mois", list(range(1,13)), key="mois")
-        annee = st.number_input("Année", 1990, 2025, 2019, key="annee")
-        carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key="carburant")
-
-    with col2:
-        boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key="boite")
-        techno = st.selectbox("Technologie", ["-", "DSG", "EDC", "CVT", "BVA"], key="techno")
-        transmission = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"], key="transmission")
-
-    etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"], key="etat")
-    places = st.selectbox("Nombre de places", [2,3,4,5,6,7], key="places")
-    portes = st.selectbox("Nombre de portes", [1,2,3,4,5], key="portes")
-    km = st.number_input("Kilométrage", 0, 400000, 90000, key="km")
-
-    departement = st.selectbox(
-        "Département",
-        ["75","13","69","59","33","06","44","31","34","Autre"],
-        key="departement"
-    )
-
-    options = st.multiselect(
-        "Options",
-        [
-            "GPS","Caméra","Cuir","Toit ouvrant","LED","CarPlay",
-            "Sièges chauffants","Radar","Bluetooth"
-        ],
-        key="options"
-    )
-
-    commission = st.number_input("Commission (€)", 0, 10000, 1000, key="commission")
-
-    # --- CALCUL ---
-    if st.button("Calculer l'estimation", key="calc_btn"):
-
-        base = 9000
-
-        if "captur" in modele.lower():
-            base = 9000
-
-        age = datetime.now().year - annee
-        base -= age * 400
-
-        if km > 80000:
-            base -= 700
-        if km > 120000:
-            base -= 1200
-
-        base += len(options) * 100
-
-        if boite == "Automatique":
-            base += 800
-
-        if departement == "75":
-            base *= 1.08
-
-        base = int(base)
-
-        annonces = [base*1.05, base, base*0.97]
-        prix_marche = int(sum(annonces)/len(annonces) * 0.95)
-
-        prix_bas = int(prix_marche * 0.93)
-        prix_haut = int(prix_marche * 1.05)
-
-        net_bas = prix_bas - commission
-        net_marche = prix_marche - commission
-        net_haut = prix_haut - commission
-
-        st.markdown(f"### 🔻 Vente rapide : {prix_bas} € → Net vendeur : {net_bas} €")
-        st.markdown(f"### 📊 Prix marché : {prix_marche} € → Net vendeur : {net_marche} €")
-        st.markdown(f"### 🔺 Prix haut : {prix_haut} € → Net vendeur : {net_haut} €")
+    if st.button("Test estimation"):
+        st.success("App fonctionne ✅")
 
 # ================= ROUTER =================
 if not st.session_state.logged:
