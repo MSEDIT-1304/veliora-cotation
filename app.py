@@ -130,36 +130,21 @@ with col2:
     techno = st.selectbox(
         "Technologie de boîte",
         [
-            "-",
-            "DSG","EDC","CVT","BVA","BVM",
-            "Tiptronic","Steptronic","S-Tronic",
-            "Powershift","ZF","EAT6","EAT8",
-            "X-Tronic","Multitronic","Double embrayage",
-            "Robotisée","Séquentielle"
+            "-","DSG","EDC","CVT","BVA","BVM","Tiptronic","Steptronic",
+            "S-Tronic","Powershift","ZF","EAT6","EAT8","X-Tronic",
+            "Multitronic","Double embrayage","Robotisée","Séquentielle"
         ]
     )
     traction = st.selectbox(
         "Transmission",
         [
-            "-",
-            "Traction",
-            "Propulsion",
-            "4x4",
-            "AWD",
-            "Quattro",
-            "xDrive",
-            "4Motion",
-            "AllGrip",
-            "4Control",
-            "Intégrale permanente",
-            "Intégrale enclenchable"
+            "-","Traction","Propulsion","4x4","AWD","Quattro","xDrive",
+            "4Motion","AllGrip","4Control","Intégrale permanente","Intégrale enclenchable"
         ]
     )
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-
 places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
-
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
@@ -197,16 +182,39 @@ if st.button("Calculer l'estimation"):
 
     if marque.lower() in ["bmw","audi","mercedes"]:
         base += 4000
+    elif marque.lower() in ["volkswagen","toyota"]:
+        base += 2500
     elif marque.lower() in ["renault","peugeot","citroen"]:
         base += 1800
+    else:
+        base += 800
+
+    if any(x in finition.lower() for x in ["rs","gt","sport","amg","m","gti"]):
+        base += 2500
+    elif any(x in finition.lower() for x in ["line","business","intens","shine"]):
+        base += 1200
+    elif finition.strip() != "":
+        base += 500
+
+    if any(x in motorisation.lower() for x in ["hybride","electrique","électrique"]):
+        base += 1800
+    elif any(x in motorisation.lower() for x in ["v6","v8","v12"]):
+        base += 3000
 
     if boite == "Automatique":
         base += 1500
 
-    if carburant == "Hybride":
+    if techno in ["DSG","EDC","S-Tronic","Powershift","EAT8"]:
+        base += 1200
+    elif techno in ["CVT","X-Tronic"]:
+        base += 600
+    elif techno == "Robotisée":
+        base -= 500
+
+    if traction in ["Quattro","xDrive","AWD","4Motion"]:
         base += 1800
-    elif carburant == "Électrique":
-        base += 3500
+    elif traction == "4x4":
+        base += 1200
 
     base -= age * 400
 
@@ -224,9 +232,6 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(base)
 
-    if prix_marche < 8500:
-        prix_marche = 8500
-
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
         coef_dep = 1.08
@@ -241,14 +246,8 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
-    # 🔥 AJUSTEMENT INTELLIGENT
-    if prix_marche > 8990:
-        prix_marche = 8990
-    elif prix_marche < 7500:
-        prix_marche = 7500
-
-    prix_bas = int(prix_marche * 0.93)
-    prix_haut = int(prix_marche * 1.05)
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
@@ -257,10 +256,6 @@ if st.button("Calculer l'estimation"):
 
     net_bas = int(prix_bas - commission_calc)
     net_marche = int(prix_marche - commission_calc)
-
-    if abs(prix_marche - 8990) < 200:
-        net_marche = 7500
-
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
