@@ -4,6 +4,10 @@ import requests
 from datetime import datetime, timedelta
 import statistics
 
+# 🔥 IA AJOUT (1)
+import joblib
+import os
+
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
@@ -13,6 +17,11 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
+
+# 🔥 IA AJOUT (2)
+model = None
+if os.path.exists("model.pkl"):
+    model = joblib.load("model.pkl")
 
 # ---------------- LOAD USERS ----------------
 def load_users():
@@ -198,6 +207,14 @@ if st.button("Calculer l'estimation"):
         base += 1200
 
     prix_calcul = int(base)
+
+    # 🔥 IA AJOUT (3 → 5 lignes propres)
+    if model:
+        try:
+            prix_ia = int(model.predict([[annee, km]])[0])
+            prix_calcul = int((prix_calcul * 0.7) + (prix_ia * 0.3))
+        except:
+            pass
 
     # 🔥 MÉTHODE PRO : simulation marché + nettoyage
     prix_annonces = [
