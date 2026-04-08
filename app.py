@@ -60,14 +60,10 @@ def send_to_webhook(username, password):
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
-if "admin" not in st.session_state:
-    st.session_state.admin = False
-
 # ================= LOGIN =================
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
-
     st.subheader("🎁 Essai gratuit 7 jours")
 
     new_user = st.text_input("Créer un identifiant")
@@ -84,24 +80,19 @@ if not st.session_state.logged:
 
     st.subheader("🔐 Connexion")
 
-    user = st.text_input("Utilisateur", key="login_user")
-    pwd = st.text_input("Mot de passe", type="password", key="login_pwd")
+    user = st.text_input("Utilisateur")
+    pwd = st.text_input("Mot de passe", type="password")
 
     if st.button("Se connecter"):
 
-        user_clean = user.strip()
-        pwd_clean = pwd.strip()
-
-        if user_clean == ADMIN_USER and pwd_clean == ADMIN_PASS:
+        if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
-            st.session_state.user = "admin"
             st.rerun()
 
-        result = check_login(user_clean, pwd_clean)
+        result = check_login(user, pwd)
 
         if result == "ok":
             st.session_state.logged = True
-            st.session_state.user = user_clean
             st.rerun()
 
         elif result == "expired":
@@ -136,12 +127,11 @@ with col1:
 
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA", "BVA6", "BVA7", "BVA8"])
-    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4", "4WD"])
+    techno = st.selectbox("Technologie de boîte", ["-", "DSG", "EDC", "CVT", "BVA"])
+    traction = st.selectbox("Transmission", ["-", "Traction", "Propulsion", "4x4"])
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 
-# AJOUT PLACES
 places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
 
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
@@ -158,7 +148,6 @@ options = st.multiselect(
     ]
 )
 
-# commission conservée mais invisible dans résultat
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
@@ -166,46 +155,58 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    base = 12000
+    base = 11500
     age = datetime.now().year - annee
 
     if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 4000
+        base += 3500
     elif marque.lower() in ["renault","peugeot","citroen"]:
-        base += 1500
+        base += 1200
 
     if boite == "Automatique":
-        base += 1500
+        base += 1200
 
     if carburant == "Hybride":
-        base += 2000
+        base += 1500
     elif carburant == "Électrique":
-        base += 4000
+        base += 3000
 
-    base -= age * 500
+    base -= age * 550
 
     if km > 80000:
-        base -= 800
+        base -= 900
     if km > 120000:
-        base -= 1200
+        base -= 1300
     if km > 160000:
-        base -= 1500
+        base -= 1800
 
-    base += len(options) * 150
+    base += len(options) * 100
 
     if "captur" in modele.lower():
-        base += 1000
+        base += 800
 
+    # 🔥 PRIX MARCHÉ BIWIZ
     prix_marche = int(base)
 
-    if prix_marche < 7000:
-        prix_marche = 7000
+    if prix_marche < 6800:
+        prix_marche = 6800
 
-    prix_bas = int(prix_marche * 0.93)
-    prix_haut = int(prix_marche * 1.08)
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.06)
+
+    # commission interne
+    if commission_pct > 0:
+        commission_calc = prix_marche * (commission_pct / 100)
+    else:
+        commission_calc = commission
+
+    net_bas = int(prix_bas - commission_calc)
+    net_marche = int(prix_marche - commission_calc)
+    net_haut = int(prix_haut - commission_calc)
+
     prix_garage = int(prix_bas - 1000)
 
-    st.markdown(f"### 💰 Prix bas : {prix_bas} €")
-    st.markdown(f"### 📊 Prix marché : {prix_marche} €")
-    st.markdown(f"### 🚀 Prix haut : {prix_haut} €")
+    st.markdown(f"### 🔻 Prix vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
+    st.markdown(f"### 📊 Prix marché (BIWIZ) : {prix_marche} €  → Net vendeur : {net_marche} €")
+    st.markdown(f"### 🔺 Prix annonce (Leboncoin) : {prix_haut} €  → Net vendeur : {net_haut} €")
     st.markdown(f"### 🏪 Prix garage : {prix_garage} €")
