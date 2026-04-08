@@ -22,6 +22,13 @@ def load_users():
     df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
+    # 🔥 sécurité colonne active
+    if "active" not in df.columns:
+        df["active"] = True
+
+    if "trial" not in df.columns:
+        df["trial"] = True
+
     return df
 
 # ---------------- LOGIN LOGIC ----------------
@@ -39,8 +46,8 @@ def check_login(username, password):
     user_data = user.iloc[0]
 
     expire = user_data["expire"]
-    trial = str(user_data.get("trial", "FALSE")).upper() == "TRUE"
-    active = str(user_data.get("active", "TRUE")).upper() == "TRUE"
+    trial = str(user_data["trial"]).upper() == "TRUE"
+    active = str(user_data["active"]).upper() == "TRUE"
 
     if not active:
         return "inactive"
@@ -110,7 +117,6 @@ if not st.session_state.logged:
 
         elif result == "expired":
             st.error("⛔ Votre accès a expiré")
-            st.warning("Abonnez-vous pour continuer")
             st.markdown(f"### 👉 [💳 S'abonner]({STRIPE_LINK})")
             st.stop()
 
@@ -131,9 +137,13 @@ if st.session_state.admin:
 
     df = load_users()
 
-    st.metric("Utilisateurs", len(df))
-    st.metric("Actifs", df[df["active"] == True].shape[0])
-    st.metric("Expirés", df[df["expire"] < datetime.now()].shape[0])
+    total_users = len(df)
+    actifs = df[df["active"] == True].shape[0]
+    expires = df[df["expire"] < datetime.now()].shape[0]
+
+    st.metric("Utilisateurs", total_users)
+    st.metric("Actifs", actifs)
+    st.metric("Expirés", expires)
 
     st.dataframe(df)
 
@@ -181,7 +191,7 @@ options = st.multiselect("Options", ["GPS","Caméra","Cuir","Toit ouvrant","LED"
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
-# ================= PRIX BASE =================
+# ================= BASE MODELES =================
 prix_reference = {
     "captur": 9000,
     "clio": 8000,
