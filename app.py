@@ -137,7 +137,6 @@ places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
 portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-# 🔥 Département obligatoire
 departement = st.selectbox(
     "Département",
     ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15",
@@ -202,7 +201,6 @@ if st.button("Calculer l'estimation"):
     if prix_marche < 8500:
         prix_marche = 8500
 
-    # Ajustement département
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
         coef_dep = 1.08
@@ -217,6 +215,8 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
+    # 🔥 FORÇAGE DEMANDÉ
+    prix_marche = 8990
     prix_bas = int(prix_marche * 0.93)
     prix_haut = int(prix_marche * 1.05)
 
@@ -226,11 +226,7 @@ if st.button("Calculer l'estimation"):
         commission_calc = commission
 
     net_bas = int(prix_bas - commission_calc)
-
-    # 🔥 FORÇAGE DEMANDÉ
-    prix_marche = 8990
     net_marche = 7500
-
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
