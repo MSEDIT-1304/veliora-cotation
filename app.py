@@ -24,7 +24,7 @@ def load_users():
     df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
-    # sécurités anti crash
+    # sécurité colonnes
     if "active" not in df.columns:
         df["active"] = True
     if "trial" not in df.columns:
@@ -47,15 +47,12 @@ def check_login(username, password):
     user_data = user.iloc[0]
 
     expire = user_data["expire"]
-
     trial = str(user_data["trial"]).upper() == "TRUE"
     active = str(user_data["active"]).upper() == "TRUE"
 
-    # 🔴 paiement échoué
     if not active:
         return "inactive"
 
-    # 🔴 expiré (trial ou abonnement)
     if datetime.now() > expire:
         return "expired"
 
@@ -107,11 +104,14 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
-        if user == ADMIN_USER and pwd == ADMIN_PASS:
+        # 🔥 ADMIN PRIORITAIRE (FIX)
+        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin = True
+            st.success("Connexion admin réussie")
             st.rerun()
 
+        # 🔽 USER NORMAL
         result = check_login(user, pwd)
 
         if result == "ok":
@@ -121,7 +121,6 @@ if not st.session_state.logged:
 
         elif result == "expired":
             st.error("⛔ Accès expiré")
-            st.warning("Abonnez-vous pour continuer")
             st.markdown(f"### 👉 [💳 S'abonner]({STRIPE_LINK})")
             st.stop()
 
