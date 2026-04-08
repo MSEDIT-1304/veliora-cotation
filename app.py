@@ -138,8 +138,26 @@ with col1:
 
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-    techno = st.selectbox("Technologie de boîte", ["-","DSG","EDC","CVT","BVA"])
-    traction = st.selectbox("Transmission", ["-","Traction","Propulsion","4x4"])
+
+    # 🔥 AJOUT UNIQUEMENT ICI
+    techno = st.selectbox(
+        "Technologie de boîte",
+        [
+            "-","DSG","EDC","CVT","BVA","BVM",
+            "BVA6","BVA8","BVA9",
+            "BVM6","BVM7",
+            "7G-Tronic","9G-Tronic"
+        ]
+    )
+
+    # 🔥 AJOUT UNIQUEMENT ICI
+    traction = st.selectbox(
+        "Transmission",
+        [
+            "-","Traction","Propulsion","4x4",
+            "4WD","4x4 permanent","4x4 enclenchable"
+        ]
+    )
 
 etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
 places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
@@ -209,7 +227,6 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # 🔥 IA AJOUT (SÉCURISÉ)
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
@@ -217,7 +234,6 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    # 🔥 MÉTHODE PRO
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
