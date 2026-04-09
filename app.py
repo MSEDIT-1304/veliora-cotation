@@ -71,6 +71,14 @@ def send_to_webhook(username, password):
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
+# 🔥 AJOUT PERSISTANCE ADMIN
+if "admin_logged" not in st.session_state:
+    st.session_state.admin_logged = False
+
+# 🔥 AUTO LOGIN ADMIN
+if st.session_state.admin_logged:
+    st.session_state.logged = True
+
 # ================= LOGIN =================
 if not st.session_state.logged:
 
@@ -98,6 +106,7 @@ if not st.session_state.logged:
 
         if user == ADMIN_USER and pwd == ADMIN_PASS:
             st.session_state.logged = True
+            st.session_state.admin_logged = True  # 🔥 AJOUT
             st.rerun()
 
         result = check_login(user, pwd)
@@ -121,6 +130,7 @@ st.title("🚗 VELIORA COTATION PRO")
 
 if st.button("Se déconnecter"):
     st.session_state.logged = False
+    st.session_state.admin_logged = False  # 🔥 AJOUT
     st.rerun()
 
 marque = st.text_input("Marque")
@@ -139,7 +149,6 @@ with col1:
 with col2:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-    # 🔥 AJOUT UNIQUEMENT ICI
     techno = st.selectbox(
         "Technologie de boîte",
         [
@@ -150,7 +159,6 @@ with col2:
         ]
     )
 
-    # 🔥 AJOUT UNIQUEMENT ICI
     traction = st.selectbox(
         "Transmission",
         [
@@ -280,4 +288,3 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
     st.markdown(f"### 📊 Prix marché BIWIZ : {prix_marche} €  → Net vendeur : {net_marche} €")
     st.markdown(f"### 🔺 Prix haut : {prix_haut} €  → Net vendeur : {net_haut} €")
-
