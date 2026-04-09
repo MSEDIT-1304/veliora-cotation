@@ -155,7 +155,6 @@ with col2:
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
 ```
-# 🔥 AJOUT UNIQUEMENT ICI
 techno = st.selectbox(
     "Technologie de boîte",
     [
@@ -166,7 +165,6 @@ techno = st.selectbox(
     ]
 )
 
-# 🔥 AJOUT UNIQUEMENT ICI
 traction = st.selectbox(
     "Transmission",
     [
