@@ -104,9 +104,10 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
-        if user == ADMIN_USER and pwd == ADMIN_PASS:
+        # 🔥 FIX BUG MOT DE PASSE
+        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
-            st.session_state.admin_logged = True  # 🔥 AJOUT
+            st.session_state.admin_logged = True
             st.rerun()
 
         result = check_login(user, pwd)
@@ -130,7 +131,7 @@ st.title("🚗 VELIORA COTATION PRO")
 
 if st.button("Se déconnecter"):
     st.session_state.logged = False
-    st.session_state.admin_logged = False  # 🔥 AJOUT
+    st.session_state.admin_logged = False
     st.rerun()
 
 marque = st.text_input("Marque")
