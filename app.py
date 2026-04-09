@@ -4,13 +4,13 @@ import requests
 from datetime import datetime, timedelta
 import statistics
 
-# 🔥 IA AJOUT SÉCURISÉ (NE BUG PLUS)
+# 🔥 IA AJOUT SÉCURISÉ (ULTRA STABLE)
 
-try:
-import joblib
 import os
 model = None
 if os.path.exists("model.pkl"):
+try:
+import joblib
 model = joblib.load("model.pkl")
 except:
 model = None
