@@ -56,7 +56,7 @@ def check_login(username, password):
 
 # ---------------- WEBHOOK ----------------
 def send_to_webhook(username, password):
-    expire = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+    expire = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     data = {
         "username": username,
@@ -83,7 +83,10 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
-    st.subheader("🎁 Essai gratuit 7 jours")
+    st.subheader("🎁 Essai gratuit 3 jours")
+
+    st.info("Après 3 jours d'essai, accès complet : 99€/an.")
+    st.markdown(f"[💳 S'abonner maintenant]({STRIPE_LINK})")
 
     new_user = st.text_input("Créer un identifiant")
     new_pass = st.text_input("Créer un mot de passe", type="password")
@@ -104,7 +107,6 @@ if not st.session_state.logged:
 
     if st.button("Se connecter"):
 
-        # 🔥 FIX BUG MOT DE PASSE
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin_logged = True
