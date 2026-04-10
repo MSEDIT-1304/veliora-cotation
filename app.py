@@ -324,5 +324,5 @@ if st.button("Calculer l'estimation"):
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
-    st.markdown(f"### 📊 Prix marché BIWIZ : {prix_marche} €  → Net vendeur : {net_marche} €")
+    st.markdown(f"### 📊 Prix marché : {prix_marche} €  → Net vendeur : {net_marche} €")
     st.markdown(f"### 🔺 Prix haut : {prix_haut} €  → Net vendeur : {net_haut} €")
