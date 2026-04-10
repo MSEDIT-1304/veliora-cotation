@@ -3,8 +3,9 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import statistics
+import re
 
-# 🔥 IA AJOUT SÉCURISÉ (NE BUG PLUS)
+# 🔥 IA AJOUT SÉCURISÉ
 try:
     import joblib
     import os
@@ -71,11 +72,9 @@ def send_to_webhook(username, password):
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
-# 🔥 AJOUT PERSISTANCE ADMIN
 if "admin_logged" not in st.session_state:
     st.session_state.admin_logged = False
 
-# 🔥 AUTO LOGIN ADMIN
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
@@ -206,110 +205,111 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    base = 13500
-    age = datetime.now().year - annee
+    base = 12000
 
-    if marque.lower() in ["bmw","audi","mercedes"]:
+    modele_lower = modele.lower()
+    marque_lower = marque.lower()
+    finition_lower = finition.lower()
+
+    # SEGMENT
+    if any(x in modele_lower for x in ["3008","qashqai","tiguan","x1","x3","captur","2008"]):
         base += 4000
-    elif marque.lower() in ["renault","peugeot","citroen"]:
-        base += 1800
+    elif any(x in modele_lower for x in ["clio","208","c3","polo","yaris"]):
+        base -= 1500
+    elif any(x in modele_lower for x in ["serie 3","a4","classe c"]):
+        base += 5000
+    elif any(x in modele_lower for x in ["x5","q7","gle","classe e","a6"]):
+        base += 9000
 
-    if boite == "Automatique":
-        base += 1500
-
-    if carburant == "Hybride":
-        base += 1800
-    elif carburant == "Électrique":
-        base += 3500
-
-    base -= age * 400
-
-    if km > 80000:
-        base -= 600
-    if km > 120000:
-        base -= 900
-    if km > 160000:
-        base -= 1200
-
-    base += len(options) * 120
-
-    if "captur" in modele.lower():
-        base += 1200
-
-    # 🔥 AJOUT INTELLIGENCE
-    if marque.lower() in ["bmw","audi","mercedes"]:
+    # MARQUE
+    if marque_lower in ["bmw","audi","mercedes","porsche"]:
+        base *= 1.25
+    elif marque_lower in ["volkswagen","toyota","skoda"]:
         base *= 1.10
-    elif marque.lower() in ["volkswagen","toyota"]:
-        base *= 1.05
-    elif marque.lower() in ["dacia","fiat"]:
-        base *= 0.92
+    elif marque_lower in ["dacia","fiat","kia"]:
+        base *= 0.90
 
-    if any(x in finition.lower() for x in ["line","sport","gt","amg","m","rs"]):
+    # FINITION
+    if any(x in finition_lower for x in ["amg","rs","m","gt","sportline"]):
+        base += 3000
+    elif any(x in finition_lower for x in ["line","business","intens","allure"]):
+        base += 1000
+    elif any(x in finition_lower for x in ["access","trend","active"]):
+        base -= 1500
+
+    # PUISSANCE
+    puissance = re.findall(r"\d+", motorisation)
+    if puissance:
+        p = int(puissance[0])
+        if p >= 200:
+            base += 2500
+        elif p >= 150:
+            base += 1500
+        elif p < 100:
+            base -= 1200
+
+    # KM AFFINÉ
+    if km < 30000:
+        base += 2000
+    elif km < 60000:
+        base += 1000
+    elif km < 90000:
+        base += 0
+    elif km < 120000:
+        base -= 1000
+    elif km < 150000:
+        base -= 2000
+    else:
+        base -= 3500
+
+    # AGE RÉALISTE
+    age = datetime.now().year - annee
+    if age <= 2:
+        base -= age * 800
+    elif age <= 5:
+        base -= age * 1200
+    else:
+        base -= age * 1500
+
+    # OPTIONS
+    base += len(options) * 150
+
+    # BOITE
+    if boite == "Automatique":
+        base += 1200
+
+    # CARBURANT
+    if carburant == "Hybride":
         base += 1500
+    elif carburant == "Électrique":
+        base += 3000
 
-    if any(x in finition.lower() for x in ["business","trend","access"]):
-        base -= 800
-
-    if "hybride" in motorisation.lower():
-        base += 1200
-
-    if "electrique" in motorisation.lower() or "électrique" in motorisation.lower():
-        base += 2500
-
-    if any(x in motorisation.lower() for x in ["150","180","200"]):
-        base += 1200
-
+    # TECHNO BOITE BONUS
     if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
         base += 800
 
-    if techno in ["BVM","-"]:
-        base -= 300
-
-    if any(x in modele.lower() for x in ["3008","2008","captur","clio","208","qashqai"]):
-        base += 1200
-
-    if any(x in modele.lower() for x in ["laguna","c5","407"]):
-        base -= 1200
-
-    prix_calcul = int(base)
-
+    # IA
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
-            prix_calcul = int((prix_calcul * 0.55) + (prix_ia * 0.45))
+            base = (base * 0.6) + (prix_ia * 0.4)
         except:
             pass
 
+    # AJUSTEMENT FINAL ANTI SOUS-COTATION
+    base *= 1.08
+
+    prix_calcul = int(base)
+
     prix_annonces = [
-        prix_calcul * 0.85,
         prix_calcul * 0.9,
         prix_calcul * 0.95,
+        prix_calcul,
         prix_calcul * 1.05,
-        prix_calcul * 1.1,
-        prix_calcul * 1.15,
-        prix_calcul * 1.2
+        prix_calcul * 1.1
     ]
 
-    prix_annonces.sort()
-    n = len(prix_annonces)
-    trim = int(n * 0.2)
-    prix_nettoyes = prix_annonces[trim : n - trim]
-
-    prix_marche = int(statistics.median(prix_nettoyes))
-
-    coef_dep = 1.0
-    if departement in ["75","92","93","94","91","77","78","95"]:
-        coef_dep = 1.08
-    elif departement in ["06","83"]:
-        coef_dep = 1.07
-    elif departement in ["69","33","31","34","44"]:
-        coef_dep = 1.04
-    elif departement in ["52","23","15","48","70","58"]:
-        coef_dep = 0.92
-    elif departement in ["59","62","08"]:
-        coef_dep = 0.95
-
-    prix_marche = int(prix_marche * coef_dep)
+    prix_marche = int(statistics.median(prix_annonces))
 
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
