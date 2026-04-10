@@ -71,11 +71,9 @@ def send_to_webhook(username, password):
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
-# 🔥 AJOUT PERSISTANCE ADMIN
 if "admin_logged" not in st.session_state:
     st.session_state.admin_logged = False
 
-# 🔥 AUTO LOGIN ADMIN
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
@@ -236,7 +234,6 @@ if st.button("Calculer l'estimation"):
     if "captur" in modele.lower():
         base += 1200
 
-    # 🔥 AJOUT INTELLIGENCE
     if marque.lower() in ["bmw","audi","mercedes"]:
         base *= 1.10
     elif marque.lower() in ["volkswagen","toyota"]:
@@ -323,7 +320,33 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    st.markdown(f"### 🔻 Vente rapide : {prix_bas} €  → Net vendeur : {net_bas} €")
-    st.markdown(f"### 📊 Prix marché : {prix_marche} €  → Net vendeur : {net_marche} €")
-    st.markdown(f"### 🔺 Prix haut : {prix_haut} €  → Net vendeur : {net_haut} €")
+    # ===== DESIGN AMÉLIORÉ =====
+    st.markdown("---")
+    st.markdown("## 📊 Résultat de l'estimation")
 
+    col1, col2, col3 = st.columns(3)
+
+    def card(title, prix, net, color):
+        st.markdown(f"""
+        <div style="
+            background-color:{color};
+            padding:20px;
+            border-radius:15px;
+            text-align:center;
+            box-shadow:0 4px 15px rgba(0,0,0,0.2);
+        ">
+            <h4 style='margin-bottom:10px;'>{title}</h4>
+            <h2 style='margin:5px 0;'>{prix} €</h2>
+            <p style='opacity:0.8;'>Net vendeur</p>
+            <h3>{net} €</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col1:
+        card("🔻 Vente rapide", prix_bas, net_bas, "#1e293b")
+
+    with col2:
+        card("📊 Prix marché", prix_marche, net_marche, "#0f766e")
+
+    with col3:
+        card("🔺 Prix haut", prix_haut, net_haut, "#7c2d12")
