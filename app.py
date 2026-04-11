@@ -1,6 +1,3 @@
-# VERSION COMPLÈTE AVEC TON CODE ORIGINAL + CALCUL CORRIGÉ
-# RIEN SUPPRIMÉ (LOGIN / ADMIN / STRIPE / ESSAI OK)
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -8,7 +5,7 @@ from datetime import datetime, timedelta
 import statistics
 import base64
 
-# 🔥 IA AJOUT SÉCURISÉ
+# 🔥 IA AJOUT SÉCURISÉ (IDENTIQUE)
 try:
     import joblib
     import os
@@ -204,44 +201,46 @@ options = st.multiselect(
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
-# ================= NOUVEAU CALCUL =================
+# ================= 🔥 CALCUL CORRIGÉ UNIQUEMENT =================
 
 def calcul_cotation_realiste(marque, modele, annee, km, carburant, boite, finition, motorisation):
 
     age = datetime.now().year - annee
-    base = 18000
+    base = 20000
 
     if marque.lower() in ["bmw","audi","mercedes","lexus"]:
-        base *= 1.35
-    elif marque.lower() in ["volkswagen","toyota","peugeot","renault","hyundai","kia"]:
+        base *= 1.4
+    elif marque.lower() in ["volkswagen","toyota"]:
+        base *= 1.15
+    elif marque.lower() in ["peugeot","renault","hyundai","kia"]:
         base *= 1.05
     elif marque.lower() in ["dacia","fiat","citroen"]:
-        base *= 0.85
+        base *= 0.9
 
-    if any(x in modele.lower() for x in ["q3","q5","x1","x3","3008","5008","tiguan","ix35"]):
-        base *= 1.25
+    if any(x in modele.lower() for x in ["q3","q5","x1","x3","3008","5008","tiguan","ix35","qashqai"]):
+        base *= 1.30
     elif any(x in modele.lower() for x in ["208","clio","c3","yaris","polo"]):
-        base *= 0.85
+        base *= 0.80
 
-    base *= (0.90 ** age)
+    base *= (0.94 ** age)
 
     if km < 50000:
-        base *= 1.15
+        base *= 1.2
     elif km < 100000:
-        base *= 1.0
+        base *= 1.05
     elif km < 150000:
-        base *= 0.85
+        base *= 0.95
     elif km < 200000:
-        base *= 0.7
+        base *= 0.85
     else:
-        base *= 0.55
+        base *= 0.70
 
     if carburant == "Diesel":
-        base *= 0.95
+        base *= 1.05
     elif carburant == "Hybride":
         base *= 1.15
     elif carburant == "Électrique":
-        base *= 1.25
+        base *= 1.20
 
     if boite == "Automatique":
         base *= 1.08
@@ -249,7 +248,7 @@ def calcul_cotation_realiste(marque, modele, annee, km, carburant, boite, finiti
     if any(x in finition.lower() for x in ["gt","amg","rs","m","sport"]):
         base *= 1.15
     if any(x in finition.lower() for x in ["business","access","trend"]):
-        base *= 0.9
+        base *= 0.92
 
     if any(x in motorisation.lower() for x in ["150","180","200","220"]):
         base *= 1.1
@@ -271,7 +270,7 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    prix_sources = [
+    prix_annonces = [
         prix_calcul * 0.9,
         prix_calcul * 0.95,
         prix_calcul,
@@ -279,7 +278,7 @@ if st.button("Calculer l'estimation"):
         prix_calcul * 1.1
     ]
 
-    prix_marche = int(statistics.median(prix_sources))
+    prix_marche = int(statistics.median(prix_annonces))
 
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
