@@ -19,7 +19,10 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
-MAKE_PRICE_WEBHOOK = "TON_WEBHOOK_MAKE_ICI"
+
+# ✅ CORRECTION ICI
+MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
+
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
