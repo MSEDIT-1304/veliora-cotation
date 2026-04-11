@@ -76,6 +76,10 @@ if "logged" not in st.session_state:
 if "admin_logged" not in st.session_state:
     st.session_state.admin_logged = False
 
+# 🔥 RESET ID (clé dynamique)
+if "reset_id" not in st.session_state:
+    st.session_state.reset_id = 0
+
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
@@ -131,33 +135,36 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-# 🔥 BOUTON RESET
+# 🔥 RESET FIX
 if st.button("🔄 Nouvelle cotation (reset)"):
-    for key in list(st.session_state.keys()):
-        if key not in ["logged", "admin_logged"]:
-            del st.session_state[key]
+    st.session_state.reset_id += 1
     st.rerun()
 
+# 🔐 LOGOUT
 if st.button("Se déconnecter"):
     st.session_state.logged = False
     st.session_state.admin_logged = False
     st.rerun()
 
-marque = st.text_input("Marque")
-modele = st.text_input("Modèle")
-sous_version = st.text_input("Sous-version")
-finition = st.text_input("Finition")
-motorisation = st.text_input("Motorisation")
+# ================= INPUTS =================
+
+rid = st.session_state.reset_id
+
+marque = st.text_input("Marque", key=f"marque_{rid}")
+modele = st.text_input("Modèle", key=f"modele_{rid}")
+sous_version = st.text_input("Sous-version", key=f"sous_{rid}")
+finition = st.text_input("Finition", key=f"finition_{rid}")
+motorisation = st.text_input("Motorisation", key=f"moteur_{rid}")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    mois = st.selectbox("Mois", list(range(1,13)))
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019)
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+    mois = st.selectbox("Mois", list(range(1,13)), key=f"mois_{rid}")
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carb_{rid}")
 
 with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 
     techno = st.selectbox(
         "Technologie de boîte",
@@ -166,7 +173,8 @@ with col2:
             "BVA6","BVA8","BVA9",
             "BVM6","BVM7",
             "7G-Tronic","9G-Tronic"
-        ]
+        ],
+        key=f"tech_{rid}"
     )
 
     traction = st.selectbox(
@@ -174,13 +182,14 @@ with col2:
         [
             "-","Traction","Propulsion","4x4",
             "4WD","4x4 permanent","4x4 enclenchable"
-        ]
+        ],
+        key=f"traction_{rid}"
     )
 
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"])
-places = st.selectbox("Nombre de places", [2,3,4,5,6,7])
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5])
-km = st.number_input("Kilométrage", 0, 400000, 90000)
+etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"], key=f"etat_{rid}")
+places = st.selectbox("Nombre de places", [2,3,4,5,6,7], key=f"places_{rid}")
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5], key=f"portes_{rid}")
+km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
 
 departement = st.selectbox(
     "Département",
@@ -190,7 +199,8 @@ departement = st.selectbox(
      "47","48","49","50","51","52","53","54","55","56","57","58","59","60","61",
      "62","63","64","65","66","67","68","69","70","71","72","73","74","75","76",
      "77","78","79","80","81","82","83","84","85","86","87","88","89","90","91",
-     "92","93","94","95","971","972","973","974"]
+     "92","93","94","95","971","972","973","974"],
+    key=f"dep_{rid}"
 )
 
 options = st.multiselect(
@@ -203,11 +213,12 @@ options = st.multiselect(
         "Connexion Apple","Connexion Android","Audio premium","Toit ouvrant",
         "Toit panoramique","LED","Rétroviseurs électriques","Rétroviseurs rabattables électriquement",
         "Attelage"
-    ]
+    ],
+    key=f"options_{rid}"
 )
 
-commission = st.number_input("Commission (€)", 0, 10000, 1000)
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
+commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"com_{rid}")
+commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comp_{rid}")
 
 # ================= CALCUL =================
 
