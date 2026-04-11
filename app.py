@@ -205,141 +205,47 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
+    base = 13500
     age = datetime.now().year - annee
-    base = 22000
 
-    if age <= 2:
-        base *= 0.75
-    elif age <= 5:
-        base *= 0.60
-    elif age <= 8:
-        base *= 0.45
-    elif age <= 12:
-        base *= 0.30
-    else:
-        base *= 0.20
+    base -= age * 400
 
-    if km < 30000:
-        base *= 1.15
-    elif km < 80000:
-        base *= 1.00
-    elif km < 120000:
-        base *= 0.85
-    elif km < 160000:
-        base *= 0.70
-    else:
-        base *= 0.55
+    if km > 80000:
+        base -= 600
+    if km > 120000:
+        base -= 900
 
-    marque_lower = marque.lower()
-
-    if marque_lower in ["audi","bmw","mercedes"]:
-        base *= 1.25
-    elif marque_lower in ["volkswagen","toyota","skoda"]:
-        base *= 1.10
-    elif marque_lower in ["peugeot","renault","citroen"]:
-        base *= 0.95
-    elif marque_lower in ["dacia","fiat","opel"]:
-        base *= 0.80
-
-    moteur = motorisation.lower()
-
-    if any(x in moteur for x in ["1.0","1.1","1.2","1.3"]) and carburant == "Essence":
-        base *= 0.60
-
-    if "puretech" in moteur:
-        base *= 0.75
-
-        # 🔥 AMÉLIORATION PRO KM PURETECH
-        if km > 80000:
-            base *= 0.85
-        if km > 120000:
-            base *= 0.75
-
-    if carburant == "Diesel":
-        base *= 1.05
-    if carburant == "Hybride":
-        base *= 1.15
-    if carburant == "Électrique":
-        base *= 1.20
-
-    if boite == "Automatique":
-        base *= 1.08
-    else:
-        base *= 0.95
-
-    if any(x in finition.lower() for x in ["gt","amg","rs","m","sport"]):
-        base *= 1.15
-    if any(x in finition.lower() for x in ["base","access","trend"]):
-        base *= 0.85
-
-    modele_lower = modele.lower()
-
-    if "208" in modele_lower:
-        base *= 0.80
-    if "clio" in modele_lower:
-        base *= 0.90
-    if "captur" in modele_lower:
-        base *= 1.05
-    if "q3" in modele_lower:
-        base *= 1.20
-    if "ix35" in modele_lower:
-        base *= 1.10
-
-    if "208" in modele_lower and carburant == "Essence":
-        if age > 8:
-            base *= 0.75
-        if km > 100000:
-            base *= 0.80
-
-    base += len(options) * 80
-
-    # 🔥 PLANCHER MARCHÉ (ANTI PRIX ABSURDE)
-    plancher = 3000
-    if "208" in modele_lower:
-        plancher = 4500
-    if "clio" in modele_lower:
-        plancher = 4000
-    if base < plancher:
-        base = plancher
+    base += len(options) * 120
 
     prix_calcul = int(base)
 
-    if model:
-        try:
-            prix_ia = int(model.predict([[annee, km]])[0])
-            prix_calcul = int((prix_calcul * 0.6) + (prix_ia * 0.4))
-        except:
-            pass
+    # 🔥 APPEL MAKE LEBONCOIN
+    prix_marche_api = None
+    try:
+        response = requests.post(
+            "TON_WEBHOOK_MAKE_ICI",
+            json={
+                "marque": marque,
+                "modele": modele,
+                "annee": annee,
+                "km": km
+            }
+        )
+        data = response.json()
+        if "prix_marche" in data:
+            prix_marche_api = int(data["prix_marche"])
+    except:
+        pass
 
-    prix_annonces = [
-        prix_calcul * 0.75,
-        prix_calcul * 0.80,
-        prix_calcul * 0.85,
-        prix_calcul * 0.90,
-        prix_calcul * 1.00,
-        prix_calcul * 1.05,
-        prix_calcul * 1.10
-    ]
+    prix_annonces = [prix_calcul * 0.85, prix_calcul * 1.1]
 
-    prix_annonces.sort()
-    prix_marche = int(statistics.median(prix_annonces))
+    if prix_marche_api:
+        prix_marche = prix_marche_api
+    else:
+        prix_marche = int(statistics.median(prix_annonces))
 
-    coef_dep = 1.0
-    if departement in ["75","92","93","94","91","77","78","95"]:
-        coef_dep = 1.08
-    elif departement in ["06","83"]:
-        coef_dep = 1.07
-    elif departement in ["69","33","31","34","44"]:
-        coef_dep = 1.04
-    elif departement in ["52","23","15","48","70","58"]:
-        coef_dep = 0.92
-    elif departement in ["59","62","08"]:
-        coef_dep = 0.95
-
-    prix_marche = int(prix_marche * coef_dep)
-
-    prix_bas = int(prix_marche * 0.90)
-    prix_haut = int(prix_marche * 1.10)
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
@@ -363,26 +269,3 @@ if st.button("Calculer l'estimation"):
 
     with col3:
         st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
-
-    annonce = f"""
-🚗 {marque} {modele}
-📅 {annee} | {km} km
-⚙️ {motorisation} | {finition}
-
-💰 Prix conseillé : {prix_marche} €
-"""
-    st.text_area("📋 Annonce prête à copier", annonce)
-
-    contenu = f"""
-ESTIMATION VELIORA
-
-{marque} {modele}
-{annee} - {km} km
-
-Prix marché : {prix_marche} €
-Net vendeur : {net_marche} €
-"""
-
-    b64 = base64.b64encode(contenu.encode()).decode()
-    href = f'<a href="data:file/txt;base64,{b64}" download="estimation_veliora.txt">📄 Télécharger estimation</a>'
-    st.markdown(href, unsafe_allow_html=True)
