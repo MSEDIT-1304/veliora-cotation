@@ -251,8 +251,8 @@ if st.button("Calculer l'estimation"):
         if response.status_code == 200:
             data = response.json()
 
-            if "prix_marche" in data and data["prix_marche"] > 3000:
-                prix_marche_api = int(data["prix_marche"])
+            if "result" in data:
+    st.success(f"Réponse API: {data['result']}")
 
     except Exception as e:
         st.error(f"Erreur API : {e}")
