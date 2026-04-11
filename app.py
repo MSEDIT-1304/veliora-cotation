@@ -293,6 +293,15 @@ if st.button("Calculer l'estimation"):
 
     base += len(options) * 80
 
+    # 🔥 PLANCHER MARCHÉ (ANTI PRIX ABSURDE)
+    plancher = 3000
+    if "208" in modele_lower:
+        plancher = 4500
+    if "clio" in modele_lower:
+        plancher = 4000
+    if base < plancher:
+        base = plancher
+
     prix_calcul = int(base)
 
     if model:
