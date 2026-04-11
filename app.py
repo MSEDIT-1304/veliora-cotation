@@ -19,6 +19,7 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
+MAKE_PRICE_WEBHOOK = "TON_WEBHOOK_MAKE_ICI"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
@@ -130,6 +131,13 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
+# 🔥 BOUTON RESET
+if st.button("🔄 Nouvelle cotation (reset)"):
+    for key in list(st.session_state.keys()):
+        if key not in ["logged", "admin_logged"]:
+            del st.session_state[key]
+    st.rerun()
+
 if st.button("Se déconnecter"):
     st.session_state.logged = False
     st.session_state.admin_logged = False
@@ -219,11 +227,11 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # 🔥 APPEL MAKE LEBONCOIN
+    # ===== API MAKE =====
     prix_marche_api = None
     try:
         response = requests.post(
-            "TON_WEBHOOK_MAKE_ICI",
+            MAKE_PRICE_WEBHOOK,
             json={
                 "marque": marque,
                 "modele": modele,
@@ -237,12 +245,33 @@ if st.button("Calculer l'estimation"):
     except:
         pass
 
-    prix_annonces = [prix_calcul * 0.85, prix_calcul * 1.1]
+    prix_annonces = [
+        prix_calcul * 0.85,
+        prix_calcul * 0.9,
+        prix_calcul * 0.95,
+        prix_calcul * 1.05,
+        prix_calcul * 1.1
+    ]
 
     if prix_marche_api:
         prix_marche = prix_marche_api
     else:
         prix_marche = int(statistics.median(prix_annonces))
+
+    # ===== CORRECTION PURETECH =====
+    moteur = motorisation.lower()
+
+    if "puretech" in moteur:
+        prix_marche *= 0.80
+
+        if km > 80000:
+            prix_marche *= 0.85
+        if km > 120000:
+            prix_marche *= 0.75
+        if annee < 2016:
+            prix_marche *= 0.85
+
+    prix_marche = int(prix_marche)
 
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
