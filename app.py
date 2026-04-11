@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import statistics
+import base64
 
 # 🔥 IA AJOUT SÉCURISÉ (NE BUG PLUS)
 try:
@@ -320,7 +321,7 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    # ===== DESIGN PRO (FIABLE) =====
+    # ===== RESULTAT DESIGN =====
     st.markdown("---")
     st.markdown("## 📊 Résultat de l'estimation")
 
@@ -330,8 +331,33 @@ if st.button("Calculer l'estimation"):
         st.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
 
     with col2:
-        st.metric("📊 Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
+        st.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
 
     with col3:
         st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
+
+    # ===== COPIER ANNONCE =====
+    annonce = f"""
+🚗 {marque} {modele}
+📅 {annee} | {km} km
+⚙️ {motorisation} | {finition}
+
+💰 Prix conseillé : {prix_marche} €
+"""
+    st.text_area("📋 Annonce prête à copier", annonce)
+
+    # ===== TELECHARGEMENT CLIENT (SANS LIB) =====
+    contenu = f"""
+ESTIMATION VELIORA
+
+{marque} {modele}
+{annee} - {km} km
+
+Prix marché : {prix_marche} €
+Net vendeur : {net_marche} €
+"""
+
+    b64 = base64.b64encode(contenu.encode()).decode()
+    href = f'<a href="data:file/txt;base64,{b64}" download="estimation_veliora.txt">📄 Télécharger estimation</a>'
+    st.markdown(href, unsafe_allow_html=True)
 
