@@ -22,7 +22,6 @@ WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 
 # ✅ IMPORTANT : webhook différent pour prix
-MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/XXXXX_PRIX"
 
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
