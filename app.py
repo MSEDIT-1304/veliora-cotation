@@ -3,9 +3,8 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import statistics
-import base64
 
-# 🔥 IA AJOUT SÉCURISÉ (IDENTIQUE)
+# 🔥 IA AJOUT SÉCURISÉ (NE BUG PLUS)
 try:
     import joblib
     import os
@@ -201,84 +200,99 @@ options = st.multiselect(
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
-# ================= 🔥 CALCUL CORRIGÉ UNIQUEMENT =================
-
-def calcul_cotation_realiste(marque, modele, annee, km, carburant, boite, finition, motorisation):
-
-    age = datetime.now().year - annee
-    base = 20000
-
-    if marque.lower() in ["bmw","audi","mercedes","lexus"]:
-        base *= 1.4
-    elif marque.lower() in ["volkswagen","toyota"]:
-        base *= 1.15
-    elif marque.lower() in ["peugeot","renault","hyundai","kia"]:
-        base *= 1.05
-    elif marque.lower() in ["dacia","fiat","citroen"]:
-        base *= 0.9
-
-    if any(x in modele.lower() for x in ["q3","q5","x1","x3","3008","5008","tiguan","ix35","qashqai"]):
-        base *= 1.30
-    elif any(x in modele.lower() for x in ["208","clio","c3","yaris","polo"]):
-        base *= 0.80
-
-    base *= (0.94 ** age)
-
-    if km < 50000:
-        base *= 1.2
-    elif km < 100000:
-        base *= 1.05
-    elif km < 150000:
-        base *= 0.95
-    elif km < 200000:
-        base *= 0.85
-    else:
-        base *= 0.70
-
-    if carburant == "Diesel":
-        base *= 1.05
-    elif carburant == "Hybride":
-        base *= 1.15
-    elif carburant == "Électrique":
-        base *= 1.20
-
-    if boite == "Automatique":
-        base *= 1.08
-
-    if any(x in finition.lower() for x in ["gt","amg","rs","m","sport"]):
-        base *= 1.15
-    if any(x in finition.lower() for x in ["business","access","trend"]):
-        base *= 0.92
-
-    if any(x in motorisation.lower() for x in ["150","180","200","220"]):
-        base *= 1.1
-
-    return int(base)
-
-# ================= EXECUTION =================
+# ================= CALCUL =================
 
 if st.button("Calculer l'estimation"):
 
-    prix_calcul = calcul_cotation_realiste(
-        marque, modele, annee, km, carburant, boite, finition, motorisation
-    )
+    base = 13500
+    age = datetime.now().year - annee
+
+    if marque.lower() in ["bmw","audi","mercedes"]:
+        base += 4000
+    elif marque.lower() in ["renault","peugeot","citroen"]:
+        base += 1800
+
+    if boite == "Automatique":
+        base += 1500
+
+    if carburant == "Hybride":
+        base += 1800
+    elif carburant == "Électrique":
+        base += 3500
+
+    base -= age * 400
+
+    if km > 80000:
+        base -= 600
+    if km > 120000:
+        base -= 900
+    if km > 160000:
+        base -= 1200
+
+    base += len(options) * 120
+
+    if "captur" in modele.lower():
+        base += 1200
+
+    if marque.lower() in ["bmw","audi","mercedes"]:
+        base *= 1.10
+    elif marque.lower() in ["volkswagen","toyota"]:
+        base *= 1.05
+    elif marque.lower() in ["dacia","fiat"]:
+        base *= 0.92
+
+    if any(x in finition.lower() for x in ["line","sport","gt","amg","m","rs"]):
+        base += 1500
+
+    if any(x in finition.lower() for x in ["business","trend","access"]):
+        base -= 800
+
+    if "hybride" in motorisation.lower():
+        base += 1200
+
+    if "electrique" in motorisation.lower() or "électrique" in motorisation.lower():
+        base += 2500
+
+    if any(x in motorisation.lower() for x in ["150","180","200"]):
+        base += 1200
+
+    if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
+        base += 800
+
+    if techno in ["BVM","-"]:
+        base -= 300
+
+    if any(x in modele.lower() for x in ["3008","2008","captur","clio","208","qashqai"]):
+        base += 1200
+
+    if any(x in modele.lower() for x in ["laguna","c5","407"]):
+        base -= 1200
+
+    prix_calcul = int(base)
 
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
-            prix_calcul = int((prix_calcul * 0.6) + (prix_ia * 0.4))
+            prix_calcul = int((prix_calcul * 0.55) + (prix_ia * 0.45))
         except:
             pass
 
     prix_annonces = [
+        prix_calcul * 0.85,
         prix_calcul * 0.9,
         prix_calcul * 0.95,
-        prix_calcul,
         prix_calcul * 1.05,
-        prix_calcul * 1.1
+        prix_calcul * 1.1,
+        prix_calcul * 1.15,
+        prix_calcul * 1.2
     ]
 
-    prix_marche = int(statistics.median(prix_annonces))
+    prix_annonces.sort()
+    n = len(prix_annonces)
+    trim = int(n * 0.2)
+    prix_nettoyes = prix_annonces[trim : n - trim]
+
+    prix_marche = int(statistics.median(prix_nettoyes))
 
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
@@ -306,6 +320,7 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
+    # ===== DESIGN PRO (FIABLE) =====
     st.markdown("---")
     st.markdown("## 📊 Résultat de l'estimation")
 
@@ -315,30 +330,8 @@ if st.button("Calculer l'estimation"):
         st.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
 
     with col2:
-        st.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
+        st.metric("📊 Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
 
     with col3:
         st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
 
-    annonce = f"""
-🚗 {marque} {modele}
-📅 {annee} | {km} km
-⚙️ {motorisation} | {finition}
-
-💰 Prix conseillé : {prix_marche} €
-"""
-    st.text_area("📋 Annonce prête à copier", annonce)
-
-    contenu = f"""
-ESTIMATION VELIORA
-
-{marque} {modele}
-{annee} - {km} km
-
-Prix marché : {prix_marche} €
-Net vendeur : {net_marche} €
-"""
-
-    b64 = base64.b64encode(contenu.encode()).decode()
-    href = f'<a href="data:file/txt;base64,{b64}" download="estimation_veliora.txt">📄 Télécharger estimation</a>'
-    st.markdown(href, unsafe_allow_html=True)
