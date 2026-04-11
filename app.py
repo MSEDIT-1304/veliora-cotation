@@ -205,95 +205,115 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    base = 13500
     age = datetime.now().year - annee
+    base = 22000
 
-    if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 4000
-    elif marque.lower() in ["renault","peugeot","citroen"]:
-        base += 1800
+    if age <= 2:
+        base *= 0.75
+    elif age <= 5:
+        base *= 0.60
+    elif age <= 8:
+        base *= 0.45
+    elif age <= 12:
+        base *= 0.30
+    else:
+        base *= 0.20
+
+    if km < 30000:
+        base *= 1.15
+    elif km < 80000:
+        base *= 1.00
+    elif km < 120000:
+        base *= 0.85
+    elif km < 160000:
+        base *= 0.70
+    else:
+        base *= 0.55
+
+    marque_lower = marque.lower()
+
+    if marque_lower in ["audi","bmw","mercedes"]:
+        base *= 1.25
+    elif marque_lower in ["volkswagen","toyota","skoda"]:
+        base *= 1.10
+    elif marque_lower in ["peugeot","renault","citroen"]:
+        base *= 0.95
+    elif marque_lower in ["dacia","fiat","opel"]:
+        base *= 0.80
+
+    moteur = motorisation.lower()
+
+    if any(x in moteur for x in ["1.0","1.1","1.2","1.3"]) and carburant == "Essence":
+        base *= 0.60
+
+    if "puretech" in moteur:
+        base *= 0.75
+
+        # 🔥 AMÉLIORATION PRO KM PURETECH
+        if km > 80000:
+            base *= 0.85
+        if km > 120000:
+            base *= 0.75
+
+    if carburant == "Diesel":
+        base *= 1.05
+    if carburant == "Hybride":
+        base *= 1.15
+    if carburant == "Électrique":
+        base *= 1.20
 
     if boite == "Automatique":
-        base += 1500
+        base *= 1.08
+    else:
+        base *= 0.95
 
-    if carburant == "Hybride":
-        base += 1800
-    elif carburant == "Électrique":
-        base += 3500
+    if any(x in finition.lower() for x in ["gt","amg","rs","m","sport"]):
+        base *= 1.15
+    if any(x in finition.lower() for x in ["base","access","trend"]):
+        base *= 0.85
 
-    base -= age * 400
+    modele_lower = modele.lower()
 
-    if km > 80000:
-        base -= 600
-    if km > 120000:
-        base -= 900
-    if km > 160000:
-        base -= 1200
-
-    base += len(options) * 120
-
-    if "captur" in modele.lower():
-        base += 1200
-
-    if marque.lower() in ["bmw","audi","mercedes"]:
-        base *= 1.10
-    elif marque.lower() in ["volkswagen","toyota"]:
+    if "208" in modele_lower:
+        base *= 0.80
+    if "clio" in modele_lower:
+        base *= 0.90
+    if "captur" in modele_lower:
         base *= 1.05
-    elif marque.lower() in ["dacia","fiat"]:
-        base *= 0.92
+    if "q3" in modele_lower:
+        base *= 1.20
+    if "ix35" in modele_lower:
+        base *= 1.10
 
-    if any(x in finition.lower() for x in ["line","sport","gt","amg","m","rs"]):
-        base += 1500
+    if "208" in modele_lower and carburant == "Essence":
+        if age > 8:
+            base *= 0.75
+        if km > 100000:
+            base *= 0.80
 
-    if any(x in finition.lower() for x in ["business","trend","access"]):
-        base -= 800
-
-    if "hybride" in motorisation.lower():
-        base += 1200
-
-    if "electrique" in motorisation.lower() or "électrique" in motorisation.lower():
-        base += 2500
-
-    if any(x in motorisation.lower() for x in ["150","180","200"]):
-        base += 1200
-
-    if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
-        base += 800
-
-    if techno in ["BVM","-"]:
-        base -= 300
-
-    if any(x in modele.lower() for x in ["3008","2008","captur","clio","208","qashqai"]):
-        base += 1200
-
-    if any(x in modele.lower() for x in ["laguna","c5","407"]):
-        base -= 1200
+    base += len(options) * 80
 
     prix_calcul = int(base)
 
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
-            prix_calcul = int((prix_calcul * 0.55) + (prix_ia * 0.45))
+            prix_calcul = int((prix_calcul * 0.6) + (prix_ia * 0.4))
         except:
             pass
 
     prix_annonces = [
+        prix_calcul * 0.75,
+        prix_calcul * 0.80,
         prix_calcul * 0.85,
-        prix_calcul * 0.9,
-        prix_calcul * 0.95,
+        prix_calcul * 0.90,
+        prix_calcul * 1.00,
         prix_calcul * 1.05,
-        prix_calcul * 1.1,
-        prix_calcul * 1.15,
-        prix_calcul * 1.2
+        prix_calcul * 1.10
     ]
 
     prix_annonces.sort()
-    n = len(prix_annonces)
-    trim = int(n * 0.2)
-    prix_nettoyes = prix_annonces[trim : n - trim]
-
-    prix_marche = int(statistics.median(prix_nettoyes))
+    prix_marche = int(statistics.median(prix_annonces))
 
     coef_dep = 1.0
     if departement in ["75","92","93","94","91","77","78","95"]:
@@ -309,8 +329,8 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(prix_marche * coef_dep)
 
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
+    prix_bas = int(prix_marche * 0.90)
+    prix_haut = int(prix_marche * 1.10)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
@@ -321,7 +341,6 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    # ===== RESULTAT DESIGN =====
     st.markdown("---")
     st.markdown("## 📊 Résultat de l'estimation")
 
@@ -336,7 +355,6 @@ if st.button("Calculer l'estimation"):
     with col3:
         st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
 
-    # ===== COPIER ANNONCE =====
     annonce = f"""
 🚗 {marque} {modele}
 📅 {annee} | {km} km
@@ -346,7 +364,6 @@ if st.button("Calculer l'estimation"):
 """
     st.text_area("📋 Annonce prête à copier", annonce)
 
-    # ===== TELECHARGEMENT CLIENT (SANS LIB) =====
     contenu = f"""
 ESTIMATION VELIORA
 
@@ -360,4 +377,3 @@ Net vendeur : {net_marche} €
     b64 = base64.b64encode(contenu.encode()).decode()
     href = f'<a href="data:file/txt;base64,{b64}" download="estimation_veliora.txt">📄 Télécharger estimation</a>'
     st.markdown(href, unsafe_allow_html=True)
-
