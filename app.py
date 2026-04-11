@@ -18,7 +18,8 @@ except:
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
-WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hbl"
+WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
+MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 
 # ✅ IMPORTANT : webhook différent pour prix
 MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/XXXXX_PRIX"
