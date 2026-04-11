@@ -205,7 +205,7 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    # ===== NOUVEAU CALCUL RÉALISTE =====
+    # 🔥 NOUVEAU CALCUL CORRIGÉ (SEULE MODIF)
     base = 9000
     age = datetime.now().year - annee
 
@@ -232,7 +232,7 @@ if st.button("Calculer l'estimation"):
     else:
         base -= 300
 
-    base -= age * 600
+    base -= age * 350
 
     if km > 60000:
         base -= 800
@@ -254,7 +254,7 @@ if st.button("Calculer l'estimation"):
     motor = motorisation.lower()
 
     if "puretech" in motor:
-        base *= 0.55
+        base *= 0.75
 
     if any(x in motor for x in ["70","75","82","90"]):
         base *= 0.85
@@ -271,8 +271,8 @@ if st.button("Calculer l'estimation"):
     if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
         base += 500
 
-    if base < 1500:
-        base = 1500
+    if base < 4000:
+        base = 4000
 
     prix_calcul = int(base)
 
@@ -284,7 +284,6 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    # ===== LOGIQUE MARCHÉ (INCHANGÉE) =====
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
