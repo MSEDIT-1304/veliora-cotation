@@ -76,7 +76,7 @@ if "logged" not in st.session_state:
 if "admin_logged" not in st.session_state:
     st.session_state.admin_logged = False
 
-# 🔥 RESET ID (clé dynamique)
+# 🔥 RESET ID (clé dynamique indispensable)
 if "reset_id" not in st.session_state:
     st.session_state.reset_id = 0
 
@@ -135,7 +135,7 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-# 🔥 RESET FIX
+# 🔥 RESET QUI FONCTIONNE VRAIMENT
 if st.button("🔄 Nouvelle cotation (reset)"):
     st.session_state.reset_id += 1
     st.rerun()
@@ -168,21 +168,13 @@ with col2:
 
     techno = st.selectbox(
         "Technologie de boîte",
-        [
-            "-","DSG","EDC","CVT","BVA","BVM",
-            "BVA6","BVA8","BVA9",
-            "BVM6","BVM7",
-            "7G-Tronic","9G-Tronic"
-        ],
+        ["-","DSG","EDC","CVT","BVA","BVM","BVA6","BVA8","BVA9","BVM6","BVM7","7G-Tronic","9G-Tronic"],
         key=f"tech_{rid}"
     )
 
     traction = st.selectbox(
         "Transmission",
-        [
-            "-","Traction","Propulsion","4x4",
-            "4WD","4x4 permanent","4x4 enclenchable"
-        ],
+        ["-","Traction","Propulsion","4x4","4WD","4x4 permanent","4x4 enclenchable"],
         key=f"traction_{rid}"
     )
 
@@ -238,7 +230,7 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # ===== API MAKE =====
+    # ===== API MAKE (PRIORITAIRE) =====
     prix_marche_api = None
     try:
         response = requests.post(
@@ -269,7 +261,7 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = int(statistics.median(prix_annonces))
 
-    # ===== CORRECTION PURETECH =====
+    # ===== CORRECTION PURETECH PRO =====
     moteur = motorisation.lower()
 
     if "puretech" in moteur:
