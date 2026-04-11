@@ -205,72 +205,78 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    base = 13500
+    # ===== NOUVEAU CALCUL RÉALISTE =====
+    base = 9000
     age = datetime.now().year - annee
 
     if marque.lower() in ["bmw","audi","mercedes"]:
-        base += 4000
+        base += 3000
+    elif marque.lower() in ["volkswagen","toyota"]:
+        base += 1500
     elif marque.lower() in ["renault","peugeot","citroen"]:
-        base += 1800
+        base += 800
+    elif marque.lower() in ["dacia","fiat","kia","hyundai"]:
+        base += 400
 
     if boite == "Automatique":
-        base += 1500
-
-    if carburant == "Hybride":
-        base += 1800
-    elif carburant == "Électrique":
-        base += 3500
-
-    base -= age * 400
-
-    if km > 80000:
-        base -= 600
-    if km > 120000:
-        base -= 900
-    if km > 160000:
-        base -= 1200
-
-    base += len(options) * 120
-
-    if "captur" in modele.lower():
-        base += 1200
-
-    if marque.lower() in ["bmw","audi","mercedes"]:
-        base *= 1.10
-    elif marque.lower() in ["volkswagen","toyota"]:
-        base *= 1.05
-    elif marque.lower() in ["dacia","fiat"]:
-        base *= 0.92
-
-    if any(x in finition.lower() for x in ["line","sport","gt","amg","m","rs"]):
-        base += 1500
-
-    if any(x in finition.lower() for x in ["business","trend","access"]):
-        base -= 800
-
-    if "hybride" in motorisation.lower():
-        base += 1200
-
-    if "electrique" in motorisation.lower() or "électrique" in motorisation.lower():
-        base += 2500
-
-    if any(x in motorisation.lower() for x in ["150","180","200"]):
-        base += 1200
-
-    if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
-        base += 800
-
-    if techno in ["BVM","-"]:
+        base += 1000
+    else:
         base -= 300
 
-    if any(x in modele.lower() for x in ["3008","2008","captur","clio","208","qashqai"]):
+    if carburant == "Diesel":
+        base += 500
+    elif carburant == "Hybride":
+        base += 1200
+    elif carburant == "Électrique":
+        base += 2500
+    else:
+        base -= 300
+
+    base -= age * 600
+
+    if km > 60000:
+        base -= 800
+    if km > 100000:
+        base -= 1200
+    if km > 150000:
+        base -= 1800
+    if km > 200000:
+        base -= 2500
+
+    base += len(options) * 80
+
+    if any(x in modele.lower() for x in ["208","clio","c3"]):
+        base -= 1000
+
+    if any(x in modele.lower() for x in ["3008","tucson","qashqai"]):
+        base += 800
+
+    motor = motorisation.lower()
+
+    if "puretech" in motor:
+        base *= 0.55
+
+    if any(x in motor for x in ["70","75","82","90"]):
+        base *= 0.85
+
+    if any(x in motor for x in ["130","150","180","200"]):
+        base *= 1.10
+
+    if any(x in finition.lower() for x in ["gt","rs","amg","m","sport"]):
         base += 1200
 
-    if any(x in modele.lower() for x in ["laguna","c5","407"]):
-        base -= 1200
+    if any(x in finition.lower() for x in ["access","trend","business"]):
+        base -= 700
+
+    if techno in ["DSG","EDC","BVA8","BVA9","9G-Tronic"]:
+        base += 500
+
+    if base < 1500:
+        base = 1500
 
     prix_calcul = int(base)
 
+    # ===== IA =====
     if model:
         try:
             prix_ia = int(model.predict([[annee, km]])[0])
@@ -278,6 +284,7 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
+    # ===== LOGIQUE MARCHÉ (INCHANGÉE) =====
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
@@ -321,7 +328,6 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    # ===== RESULTAT DESIGN =====
     st.markdown("---")
     st.markdown("## 📊 Résultat de l'estimation")
 
@@ -336,7 +342,6 @@ if st.button("Calculer l'estimation"):
     with col3:
         st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
 
-    # ===== COPIER ANNONCE =====
     annonce = f"""
 🚗 {marque} {modele}
 📅 {annee} | {km} km
@@ -346,7 +351,6 @@ if st.button("Calculer l'estimation"):
 """
     st.text_area("📋 Annonce prête à copier", annonce)
 
-    # ===== TELECHARGEMENT CLIENT (SANS LIB) =====
     contenu = f"""
 ESTIMATION VELIORA
 
