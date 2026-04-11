@@ -20,8 +20,8 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 # ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 
-# ✅ CORRECTION ICI
-MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
+# ✅ IMPORTANT : webhook différent pour prix
+MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/XXXXX_PRIX"
 
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -233,23 +233,29 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # ===== API MAKE (PRIORITAIRE) =====
+    # ===== API MAKE CORRIGÉE =====
     prix_marche_api = None
+
     try:
+        query = f"{marque} {modele} {annee} {km} km"
+
         response = requests.post(
             MAKE_PRICE_WEBHOOK,
-            json={
-                "marque": marque,
-                "modele": modele,
-                "annee": annee,
-                "km": km
-            }
+            json={"query": query},
+            timeout=15
         )
-        data = response.json()
-        if "prix_marche" in data:
-            prix_marche_api = int(data["prix_marche"])
-    except:
-        pass
+
+        st.write("DEBUG STATUS:", response.status_code)
+        st.write("DEBUG TEXT:", response.text)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if "prix_marche" in data and data["prix_marche"] > 3000:
+                prix_marche_api = int(data["prix_marche"])
+
+    except Exception as e:
+        st.error(f"Erreur API : {e}")
 
     prix_annonces = [
         prix_calcul * 0.85,
@@ -264,7 +270,6 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = int(statistics.median(prix_annonces))
 
-    # ===== CORRECTION PURETECH PRO =====
     moteur = motorisation.lower()
 
     if "puretech" in moteur:
