@@ -227,9 +227,8 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # ===== API MAKE GOOGLE PRO =====
-    prix_marche_api = None
     prix_comparables = []
+    prix_marche_api = None
 
     try:
         query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {finition} {motorisation}"
@@ -255,21 +254,24 @@ if st.button("Calculer l'estimation"):
     except:
         pass
 
-    # ===== FALLBACK =====
-    prix_annonces = [
-        prix_calcul * 0.85,
-        prix_calcul * 0.9,
-        prix_calcul * 0.95,
-        prix_calcul * 1.05,
-        prix_calcul * 1.1
-    ]
+    prix_marche = prix_marche_api if prix_marche_api else int(statistics.median([
+        prix_calcul*0.9, prix_calcul, prix_calcul*1.1
+    ]))
 
-    if prix_marche_api:
-        prix_marche = prix_marche_api
+    # 🔥 NET VENDEUR
+    if commission_pct > 0:
+        commission_calc = prix_marche * (commission_pct / 100)
     else:
-        prix_marche = int(statistics.median(prix_annonces))
+        commission_calc = commission
 
-    # ===== SCORE =====
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
+
+    net_bas = int(prix_bas - commission_calc)
+    net_marche = int(prix_marche - commission_calc)
+    net_haut = int(prix_haut - commission_calc)
+
+    # 🔥 SCORE
     score = "⚠️ Correct"
 
     if prix_calcul < prix_marche * 0.85:
@@ -289,11 +291,6 @@ if st.button("Calculer l'estimation"):
 
     col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.metric("🔻 Vente rapide", f"{int(prix_marche*0.92)} €")
-
-    with col2:
-        st.metric("⭐ Prix marché", f"{prix_marche} €")
-
-    with col3:
-        st.metric("🔺 Prix haut", f"{int(prix_marche*1.08)} €")
+    col1.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
+    col2.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
+    col3.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
