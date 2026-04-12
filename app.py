@@ -58,12 +58,14 @@ def check_login(username, password):
     return "error"
 
 # ---------------- WEBHOOK ----------------
-def send_to_webhook(username, password):
+def send_to_webhook(username, password, societe, siret):
     expire = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     data = {
         "username": username,
         "password": password,
+        "societe": societe,
+        "siret": siret,
         "expire": expire,
         "trial": True
     }
@@ -89,16 +91,30 @@ if not st.session_state.logged:
     st.title("🚗 Veliora Pro")
     st.subheader("🎁 Essai gratuit 3 jours")
 
+    st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
+
     st.info("Après 3 jours d'essai, accès complet : 99€/an.")
     st.markdown(f"[💳 S'abonner maintenant]({STRIPE_LINK})")
+
+    type_client = st.selectbox(
+        "Type d'utilisateur",
+        ["Professionnel auto", "Particulier"]
+    )
 
     new_user = st.text_input("Créer un identifiant")
     new_pass = st.text_input("Créer un mot de passe", type="password")
 
+    societe = st.text_input("Nom de la société")
+    siret = st.text_input("Numéro SIRET")
+
     if st.button("Créer compte"):
-        if new_user and new_pass:
-            send_to_webhook(new_user, new_pass)
-            st.success("Compte créé")
+        if type_client != "Professionnel auto":
+            st.error("Accès réservé aux professionnels")
+        elif not societe or not siret:
+            st.error("SIRET obligatoire pour créer un compte")
+        elif new_user and new_pass:
+            send_to_webhook(new_user, new_pass, societe, siret)
+            st.success("Compte professionnel créé")
         else:
             st.error("Remplir tous les champs")
 
@@ -146,7 +162,7 @@ if st.button("Se déconnecter"):
 
 rid = st.session_state.reset_id
 
-# ================= INPUTS =================
+# ================= INPUTS COMPLETS =================
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
@@ -269,6 +285,7 @@ if st.button("Calculer l'estimation"):
 
     if prix_comparables:
         st.write(prix_comparables[:10])
+        st.caption(f"Basé sur {len(prix_comparables)} annonces")
 
     col1, col2, col3 = st.columns(3)
 
