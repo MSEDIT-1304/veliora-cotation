@@ -146,7 +146,7 @@ if st.button("Se déconnecter"):
 
 rid = st.session_state.reset_id
 
-# ================= INPUTS COMPLETS =================
+# ================= INPUTS =================
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
@@ -176,10 +176,14 @@ with col2:
         key=f"traction_{rid}"
     )
 
+etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"], key=f"etat_{rid}")
+places = st.selectbox("Nombre de places", [2,3,4,5,6,7], key=f"places_{rid}")
+portes = st.selectbox("Nombre de portes", [1,2,3,4,5], key=f"portes_{rid}")
+
 km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
 
 options = st.multiselect(
-    "Options",
+    "Options du véhicule",
     ["Climatisation automatique","Accès sans clé","Hayon électrique",
      "Sellerie cuir","Sièges chauffants","GPS","Bluetooth","Caméra",
      "Radar","Toit ouvrant","LED","Attelage"],
@@ -207,8 +211,9 @@ if st.button("Calculer l'estimation"):
 
     prix_calcul = int(base)
 
-    # 🔥 API GOOGLE VIA MAKE (AMÉLIORÉE)
+    # ===== API MAKE GOOGLE PRO =====
     prix_marche_api = None
+    prix_comparables = []
 
     try:
         query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {finition} {motorisation}"
@@ -222,13 +227,19 @@ if st.button("Calculer l'estimation"):
         if response.status_code == 200:
             data = response.json()
 
-            if "result" in data:
+            if "prices" in data:
+                prix_comparables = [int(p) for p in data["prices"] if p > 1000]
+
+                if len(prix_comparables) >= 3:
+                    prix_marche_api = int(statistics.median(prix_comparables))
+
+            elif "result" in data:
                 prix_marche_api = int(data["result"])
 
     except:
         pass
 
-    # fallback
+    # ===== FALLBACK =====
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
@@ -242,35 +253,30 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = int(statistics.median(prix_annonces))
 
-    moteur = motorisation.lower()
+    # ===== SCORE =====
+    score = "⚠️ Correct"
 
-    if "puretech" in moteur:
-        prix_marche *= 0.80
-
-    prix_marche = int(prix_marche)
-
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
-
-    if commission_pct > 0:
-        commission_calc = prix_marche * (commission_pct / 100)
-    else:
-        commission_calc = commission
-
-    net_bas = int(prix_bas - commission_calc)
-    net_marche = int(prix_marche - commission_calc)
-    net_haut = int(prix_haut - commission_calc)
+    if prix_calcul < prix_marche * 0.85:
+        score = "🔥 Très bonne affaire"
+    elif prix_calcul < prix_marche * 0.95:
+        score = "👍 Bonne affaire"
+    elif prix_calcul > prix_marche * 1.10:
+        score = "❌ Mauvaise affaire"
 
     st.markdown("---")
-    st.markdown("## 📊 Résultat")
+    st.markdown("## 📊 Résultat de l'estimation")
+    st.markdown(f"### {score}")
+
+    if prix_comparables:
+        st.write(prix_comparables[:10])
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net : {net_bas} €")
+        st.metric("🔻 Vente rapide", f"{int(prix_marche*0.92)} €")
 
     with col2:
-        st.metric("⭐ Prix marché", f"{prix_marche} €", f"Net : {net_marche} €")
+        st.metric("⭐ Prix marché", f"{prix_marche} €")
 
     with col3:
-        st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net : {net_haut} €")
+        st.metric("🔺 Prix haut", f"{int(prix_marche*1.08)} €")
