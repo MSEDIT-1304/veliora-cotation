@@ -71,7 +71,10 @@ def send_to_webhook(username, password, societe, siret):
         "trial": True
     }
 
-    requests.post(WEBHOOK_URL, json=data)
+    try:
+        requests.post(WEBHOOK_URL, json=data, timeout=10)
+    except:
+        pass
 
 # ---------------- SESSION ----------------
 if "logged" not in st.session_state:
@@ -236,7 +239,6 @@ if st.button("Calculer l'estimation"):
     except:
         pass
 
-    # 🔥 DATA PURE
     if len(prix_comparables) < 3:
         st.error("❌ Données insuffisantes (annonces PRO non trouvées)")
         st.stop()
@@ -271,10 +273,9 @@ if st.button("Calculer l'estimation"):
     col2.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
     col3.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
 
-    # ===== DOWNLOAD =====
     buffer = io.StringIO()
     buffer.write(f"{marque} {modele}\n")
     buffer.write(f"Prix marché: {prix_marche} €\n")
     buffer.write(f"Net vendeur: {net_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")n.txt")
