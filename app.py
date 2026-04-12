@@ -19,8 +19,6 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 # ---------------- CONFIG ----------------
 WEBHOOK_URL = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
-
-# ✅ MAKE → GOOGLE PRIX
 MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/21t4wtf82gxg97h4mxwqm987hblds6n3"
 
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
@@ -148,12 +146,45 @@ if st.button("Se déconnecter"):
 
 rid = st.session_state.reset_id
 
+# ================= INPUTS COMPLETS =================
+
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
+sous_version = st.text_input("Sous-version", key=f"sous_{rid}")
+finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"moteur_{rid}")
 
-annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+col1, col2 = st.columns(2)
+
+with col1:
+    mois = st.selectbox("Mois", list(range(1,13)), key=f"mois_{rid}")
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carb_{rid}")
+
+with col2:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
+
+    techno = st.selectbox(
+        "Technologie de boîte",
+        ["-","DSG","EDC","CVT","BVA","BVM","BVA6","BVA8","BVA9","BVM6","BVM7"],
+        key=f"tech_{rid}"
+    )
+
+    traction = st.selectbox(
+        "Transmission",
+        ["-","Traction","Propulsion","4x4","4WD"],
+        key=f"traction_{rid}"
+    )
+
 km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
+
+options = st.multiselect(
+    "Options",
+    ["Climatisation automatique","Accès sans clé","Hayon électrique",
+     "Sellerie cuir","Sièges chauffants","GPS","Bluetooth","Caméra",
+     "Radar","Toit ouvrant","LED","Attelage"],
+    key=f"options_{rid}"
+)
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"com_{rid}")
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comp_{rid}")
@@ -172,13 +203,15 @@ if st.button("Calculer l'estimation"):
     if km > 120000:
         base -= 900
 
+    base += len(options) * 120
+
     prix_calcul = int(base)
 
-    # ================= API MAKE (GOOGLE) =================
+    # 🔥 API GOOGLE VIA MAKE (AMÉLIORÉE)
     prix_marche_api = None
 
     try:
-        query = f"{marque} {modele} {annee} {km} km"
+        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {finition} {motorisation}"
 
         response = requests.post(
             MAKE_PRICE_WEBHOOK,
@@ -195,7 +228,7 @@ if st.button("Calculer l'estimation"):
     except:
         pass
 
-    # ================= FALLBACK =================
+    # fallback
     prix_annonces = [
         prix_calcul * 0.85,
         prix_calcul * 0.9,
@@ -209,18 +242,10 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = int(statistics.median(prix_annonces))
 
-    # ================= CORRECTION =================
     moteur = motorisation.lower()
 
     if "puretech" in moteur:
         prix_marche *= 0.80
-
-        if km > 80000:
-            prix_marche *= 0.85
-        if km > 120000:
-            prix_marche *= 0.75
-        if annee < 2016:
-            prix_marche *= 0.85
 
     prix_marche = int(prix_marche)
 
@@ -237,15 +262,15 @@ if st.button("Calculer l'estimation"):
     net_haut = int(prix_haut - commission_calc)
 
     st.markdown("---")
-    st.markdown("## 📊 Résultat de l'estimation")
+    st.markdown("## 📊 Résultat")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
+        st.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net : {net_bas} €")
 
     with col2:
-        st.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
+        st.metric("⭐ Prix marché", f"{prix_marche} €", f"Net : {net_marche} €")
 
     with col3:
-        st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
+        st.metric("🔺 Prix haut", f"{prix_haut} €", f"Net : {net_haut} €")
