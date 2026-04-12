@@ -152,92 +152,36 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-if st.button("🔄 Nouvelle cotation (reset)"):
-    st.session_state.reset_id += 1
-    st.rerun()
-
-if st.button("Se déconnecter"):
-    st.session_state.logged = False
-    st.session_state.admin_logged = False
-    st.rerun()
-
 rid = st.session_state.reset_id
-
-# ================= INPUTS COMPLETS =================
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
-sous_version = st.text_input("Sous-version", key=f"sous_{rid}")
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"moteur_{rid}")
 
-col1, col2 = st.columns(2)
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+km = st.number_input("Kilométrage", 0, 400000, 90000)
 
-with col1:
-    mois = st.selectbox("Mois", list(range(1,13)), key=f"mois_{rid}")
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carb_{rid}")
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-with col2:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
+departement = st.text_input("Département (ex: 08)")
 
-    techno = st.selectbox(
-        "Technologie de boîte",
-        ["-","DSG","EDC","CVT","BVA","BVM","BVA6","BVA8","BVA9","BVM6","BVM7"],
-        key=f"tech_{rid}"
-    )
-
-    traction = st.selectbox(
-        "Transmission",
-        ["-","Traction","Propulsion","4x4","4WD"],
-        key=f"traction_{rid}"
-    )
-
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"], key=f"etat_{rid}")
-places = st.selectbox("Nombre de places", [2,3,4,5,6,7], key=f"places_{rid}")
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5], key=f"portes_{rid}")
-
-km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
-
-options = st.multiselect(
-    "Options du véhicule",
-    ["Climatisation automatique","Accès sans clé","Hayon électrique",
-     "Sellerie cuir","Sièges chauffants","GPS","Bluetooth","Caméra",
-     "Radar","Toit ouvrant","LED","Attelage"],
-    key=f"options_{rid}"
-)
-
-commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"com_{rid}")
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comp_{rid}")
+commission = st.number_input("Commission (€)", 0, 10000, 1000)
 
 # ================= CALCUL =================
 
 if st.button("Calculer l'estimation"):
 
-    base = 13500
-    age = datetime.now().year - annee
-
-    base -= age * 400
-
-    if km > 80000:
-        base -= 600
-    if km > 120000:
-        base -= 900
-
-    base += len(options) * 120
-
-    prix_calcul = int(base)
-
     prix_comparables = []
-    prix_marche_api = None
 
     try:
-        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {finition} {motorisation}"
+        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement} garage"
 
         response = requests.post(
             MAKE_PRICE_WEBHOOK,
             json={"query": query},
-            timeout=10
+            timeout=15
         )
 
         if response.status_code == 200:
@@ -246,47 +190,37 @@ if st.button("Calculer l'estimation"):
             if "prices" in data:
                 prix_comparables = [int(p) for p in data["prices"] if p > 1000]
 
-                if len(prix_comparables) >= 3:
-                    prix_marche_api = int(statistics.median(prix_comparables))
-
     except:
         pass
 
-    prix_marche = prix_marche_api if prix_marche_api else prix_calcul
+    # 🚨 DATA PURE
+    if len(prix_comparables) < 3:
+        st.error("❌ Données insuffisantes (annonces PRO non trouvées)")
+        st.stop()
 
-    # ===== TABLEAU MODIFIABLE =====
-    if prix_comparables:
-        st.markdown("### 📊 Comparables (modifiable)")
-        df = pd.DataFrame({"Prix (€)": prix_comparables[:10]})
-        edited = st.data_editor(df)
+    prix_marche = int(statistics.median(prix_comparables))
 
-        if not edited.empty:
-            prix_marche = int(edited["Prix (€)"].median())
+    # ===== TABLEAU =====
+    st.markdown("### 📊 Comparables (modifiable)")
+    df = pd.DataFrame({"Prix (€)": prix_comparables[:10]})
+    edited = st.data_editor(df)
+
+    if not edited.empty:
+        prix_marche = int(edited["Prix (€)"].median())
 
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
 
-    if commission_pct > 0:
-        commission_calc = prix_marche * (commission_pct / 100)
-    else:
-        commission_calc = commission
-
-    net_bas = int(prix_bas - commission_calc)
-    net_marche = int(prix_marche - commission_calc)
-    net_haut = int(prix_haut - commission_calc)
-
-    st.markdown("---")
+    net = prix_marche - commission
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
-    col2.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
-    col3.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
+    col1.metric("Bas", prix_bas)
+    col2.metric("Marché", prix_marche, f"Net vendeur : {net} €")
+    col3.metric("Haut", prix_haut)
 
-    # ===== DOWNLOAD =====
+    # DOWNLOAD
     buffer = io.StringIO()
-    buffer.write(f"{marque} {modele}\n")
-    buffer.write(f"Prix marché: {prix_marche} €\n")
-    buffer.write(f"Net vendeur: {net_marche} €\n")
+    buffer.write(f"{marque} {modele}\nPrix marché: {prix_marche} €\nNet: {net} €")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
