@@ -32,15 +32,14 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 # ---------------- LOAD USERS ----------------
 
 def load_users():
-url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-df = pd.read_csv(url)
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+    df = pd.read_csv(url)
 
-```
-df["username"] = df["username"].astype(str).str.strip()
-df["password"] = df["password"].astype(str).str.strip()
-df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
+    df["username"] = df["username"].astype(str).str.strip()
+    df["password"] = df["password"].astype(str).str.strip()
+    df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
-return df
+    return df
 ```
 
 # ---------------- LOGIN ----------------
