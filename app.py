@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timedelta
 import statistics
 import base64
+import io
 
 # 🔥 IA AJOUT SÉCURISÉ
 try:
@@ -248,49 +249,44 @@ if st.button("Calculer l'estimation"):
                 if len(prix_comparables) >= 3:
                     prix_marche_api = int(statistics.median(prix_comparables))
 
-            elif "result" in data:
-                prix_marche_api = int(data["result"])
-
     except:
         pass
 
-    prix_marche = prix_marche_api if prix_marche_api else int(statistics.median([
-        prix_calcul*0.9, prix_calcul, prix_calcul*1.1
-    ]))
+    prix_marche = prix_marche_api if prix_marche_api else prix_calcul
 
-    # 🔥 NET VENDEUR
+    # ===== TABLEAU MODIFIABLE =====
+    if prix_comparables:
+        st.markdown("### 📊 Comparables (modifiable)")
+        df = pd.DataFrame({"Prix (€)": prix_comparables[:10]})
+        edited = st.data_editor(df)
+
+        if not edited.empty:
+            prix_marche = int(edited["Prix (€)"].median())
+
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
+
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
     else:
         commission_calc = commission
 
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
-
     net_bas = int(prix_bas - commission_calc)
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    # 🔥 SCORE
-    score = "⚠️ Correct"
-
-    if prix_calcul < prix_marche * 0.85:
-        score = "🔥 Très bonne affaire"
-    elif prix_calcul < prix_marche * 0.95:
-        score = "👍 Bonne affaire"
-    elif prix_calcul > prix_marche * 1.10:
-        score = "❌ Mauvaise affaire"
-
     st.markdown("---")
-    st.markdown("## 📊 Résultat de l'estimation")
-    st.markdown(f"### {score}")
-
-    if prix_comparables:
-        st.write(prix_comparables[:10])
-        st.caption(f"Basé sur {len(prix_comparables)} annonces")
 
     col1, col2, col3 = st.columns(3)
 
     col1.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
     col2.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
     col3.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
+
+    # ===== DOWNLOAD =====
+    buffer = io.StringIO()
+    buffer.write(f"{marque} {modele}\n")
+    buffer.write(f"Prix marché: {prix_marche} €\n")
+    buffer.write(f"Net vendeur: {net_marche} €\n")
+
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
