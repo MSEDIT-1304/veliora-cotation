@@ -3,18 +3,18 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import statistics
-import base64
 import io
+import os
 
 # 🔥 IA AJOUT SÉCURISÉ
+
 try:
-    import joblib
-    import os
-    model = None
-    if os.path.exists("model.pkl"):
-        model = joblib.load("model.pkl")
+import joblib
+model = None
+if os.path.exists("model.pkl"):
+model = joblib.load("model.pkl")
 except:
-    model = None
+model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
@@ -32,14 +32,15 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 # ---------------- LOAD USERS ----------------
 
 def load_users():
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-    df = pd.read_csv(url)
+url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+df = pd.read_csv(url)
 
-    df["username"] = df["username"].astype(str).str.strip()
-    df["password"] = df["password"].astype(str).str.strip()
-    df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
+```
+df["username"] = df["username"].astype(str).str.strip()
+df["password"] = df["password"].astype(str).str.strip()
+df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
-    return df
+return df
 ```
 
 # ---------------- LOGIN ----------------
@@ -183,40 +184,21 @@ rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
-sous_version = st.text_input("Sous-version", key=f"sous_{rid}")
-finition = st.text_input("Finition", key=f"finition_{rid}")
-motorisation = st.text_input("Motorisation", key=f"moteur_{rid}")
 
 col1, col2 = st.columns(2)
 
 with col1:
-mois = st.selectbox("Mois", list(range(1,13)), key=f"mois_{rid}")
-annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carb_{rid}")
+annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 
 with col2:
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
-techno = st.selectbox("Technologie de boîte", ["-","DSG","EDC","CVT","BVA","BVM","BVA6","BVA8","BVA9","BVM6","BVM7"], key=f"tech_{rid}")
-traction = st.selectbox("Transmission", ["-","Traction","Propulsion","4x4","4WD"], key=f"traction_{rid}")
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-etat = st.selectbox("État du véhicule", ["Bon état", "Excellent état"], key=f"etat_{rid}")
-places = st.selectbox("Nombre de places", [2,3,4,5,6,7], key=f"places_{rid}")
-portes = st.selectbox("Nombre de portes", [1,2,3,4,5], key=f"portes_{rid}")
-
-km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
-
-options = st.multiselect(
-"Options du véhicule",
-["Climatisation automatique","Accès sans clé","Hayon électrique",
-"Sellerie cuir","Sièges chauffants","GPS","Bluetooth","Caméra",
-"Radar","Toit ouvrant","LED","Attelage"],
-key=f"options_{rid}"
-)
-
+km = st.number_input("Kilométrage", 0, 400000, 90000)
 departement = st.text_input("Département (ex: 08)")
 
-commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"com_{rid}")
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comp_{rid}")
+commission = st.number_input("Commission (€)", 0, 10000, 1000)
+commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 # ================= CALCUL =================
 
@@ -226,7 +208,6 @@ if st.button("Calculer l'estimation"):
 prix_comparables = []
 
 try:
-    # ✅ QUERY SIMPLIFIÉE (FIX ICI)
     query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement}"
 
     response = requests.post(
@@ -237,7 +218,6 @@ try:
 
     if response.status_code == 200:
         data = response.json()
-
         if "prices" in data:
             prix_comparables = [int(p) for p in data["prices"] if p > 1000]
 
@@ -245,17 +225,10 @@ except:
     pass
 
 if len(prix_comparables) < 3:
-    st.error("❌ Données insuffisantes (annonces PRO non trouvées)")
+    st.error("❌ Données insuffisantes")
     st.stop()
 
 prix_marche = int(statistics.median(prix_comparables))
-
-st.markdown("### 📊 Comparables (modifiable)")
-df = pd.DataFrame({"Prix (€)": prix_comparables[:10]})
-edited = st.data_editor(df)
-
-if not edited.empty:
-    prix_marche = int(edited["Prix (€)"].median())
 
 prix_bas = int(prix_marche * 0.92)
 prix_haut = int(prix_marche * 1.08)
@@ -265,22 +238,14 @@ if commission_pct > 0:
 else:
     commission_calc = commission
 
-net_bas = int(prix_bas - commission_calc)
 net_marche = int(prix_marche - commission_calc)
-net_haut = int(prix_haut - commission_calc)
 
-st.markdown("---")
-
-col1, col2, col3 = st.columns(3)
-
-col1.metric("🔻 Vente rapide", f"{prix_bas} €", f"Net vendeur : {net_bas} €")
-col2.metric("⭐ Prix marché", f"{prix_marche} €", f"Net vendeur : {net_marche} €")
-col3.metric("🔺 Prix haut", f"{prix_haut} €", f"Net vendeur : {net_haut} €")
+st.success(f"💰 Prix estimé : {prix_marche} €")
+st.info(f"Net vendeur : {net_marche} €")
 
 buffer = io.StringIO()
 buffer.write(f"{marque} {modele}\n")
 buffer.write(f"Prix marché: {prix_marche} €\n")
-buffer.write(f"Net vendeur: {net_marche} €\n")
 
 st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
 ```
