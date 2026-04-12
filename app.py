@@ -245,7 +245,6 @@ if st.button("Calculer l'estimation"):
 
     prix_marche = int(statistics.median(prix_comparables))
 
-    # ===== TABLEAU MODIFIABLE =====
     st.markdown("### 📊 Comparables (modifiable)")
     df = pd.DataFrame({"Prix (€)": prix_comparables[:10]})
     edited = st.data_editor(df)
@@ -278,4 +277,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix marché: {prix_marche} €\n")
     buffer.write(f"Net vendeur: {net_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")n.txt")
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
