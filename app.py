@@ -7,15 +7,14 @@ import base64
 import io
 
 # 🔥 IA AJOUT SÉCURISÉ
-
 try:
-import joblib
-import os
-model = None
-if os.path.exists("model.pkl"):
-model = joblib.load("model.pkl")
+    import joblib
+    import os
+    model = None
+    if os.path.exists("model.pkl"):
+        model = joblib.load("model.pkl")
 except:
-model = None
+    model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
