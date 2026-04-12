@@ -199,7 +199,7 @@ if st.button("Calculer l'estimation"):
     prix_comparables = []
 
     try:
-        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement}"
+        query = f"{marque} {modele} {annee} {carburant}"
 
         response = requests.post(
             MAKE_PRICE_WEBHOOK,
