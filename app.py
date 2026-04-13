@@ -127,7 +127,6 @@ if not st.session_state.logged:
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
 
-    # ✅ PRIX CORRIGÉ
     st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / an")
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
@@ -205,12 +204,20 @@ annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
-boite_tech = st.text_input("Technologie boîte (ex: BVA8)")
-traction = st.text_input("Transmission (4x2, 4x4...)")
+
+# ✅ AJOUT MENU
+boite_tech = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8","BVM5","BVM6"])
+
+traction = st.selectbox("Transmission", ["4x2","4x4","4WD","Traction","Propulsion"])
+
+options = st.multiselect("Options", [
+    "Caméra recul","Bip avant","Bip arrière",
+    "Sièges chauffants avant","Sièges chauffants arrière",
+    "Hayon électrique","Attelage","Toit panoramique"
+])
 
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 departement = st.text_input("Département (ex: 08)")
-options = st.text_input("Options principales")
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
@@ -252,15 +259,16 @@ if st.button("Calculer l'estimation"):
     else:
         commission_calc = commission
 
+    net_bas = int(prix_bas - commission_calc)
     net_marche = int(prix_marche - commission_calc)
+    net_haut = int(prix_haut - commission_calc)
 
-    st.success(f"💰 Prix marché PRO : {prix_marche} €")
-    st.info(f"📉 Prix bas PRO : {prix_bas} €")
-    st.info(f"📈 Prix haut PRO : {prix_haut} €")
-    st.info(f"Net vendeur : {net_marche} €")
+    st.success(f"💰 Prix marché GARAGE : {prix_marche} €")
+    st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
+    st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
     buffer = io.StringIO()
-    buffer.write(f"{marque} {modele}\n")
-    buffer.write(f"Prix marché: {prix_marche} €\n")
+    buffer.write(f"{marque} {modele} {finition}\n")
+    buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
