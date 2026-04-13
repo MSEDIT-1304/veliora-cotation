@@ -1,36 +1,49 @@
 import requests
-import re
 import random
 import time
 
-SCRAPER_API_KEY = "b21ec21db42b3d67cdd1d58d6c21c9bc"
-
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
-    
-    search_url = f"https://www.leboncoin.fr/recherche?text={query.replace(' ', '+')}&category=2"
-    
+
+    url = "https://api.leboncoin.fr/finder/search"
+
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0"
+    }
+
     payload = {
-        "api_key": SCRAPER_API_KEY,
-        "url": search_url,
-        "country_code": "fr",
-        "render": "true"
+        "limit": 35,
+        "offset": 0,
+        "sort_by": "time",
+        "sort_order": "desc",
+        "filters": {
+            "category": {"id": "2"},
+            "enums": {},
+            "keywords": query
+        }
     }
 
     try:
-        response = requests.get("http://api.scraperapi.com", params=payload, timeout=60)
-        html = response.text
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        data = response.json()
     except:
         return []
 
-    prices = re.findall(r'(\d{4,6})\s?€', html)
+    prices = []
 
-    prices = [int(p) for p in prices if int(p) > 1000 and int(p) < 200000]
+    try:
+        ads = data.get("ads", [])
+        for ad in ads:
+            price = ad.get("price", [])
+            if price:
+                p = price[0]
+                if 1000 < p < 200000:
+                    prices.append(p)
+    except:
+        return []
 
     prices = list(set(prices))
 
-    if len(prices) < 5:
-        return prices
+    time.sleep(random.uniform(0.5, 1.5))
 
-    time.sleep(random.uniform(1, 2))
-
-    return prices[:30]
+    return prices
