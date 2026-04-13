@@ -22,7 +22,7 @@ def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
     except:
         return []
 
-    prices = re.findall(r'"price"\s*:\s*\[(\d+)\]', html)
+    prices = re.findall(r'(\d{4,6})\s?€', html)
 
     prices = [int(p) for p in prices if int(p) > 1000 and int(p) < 200000]
 
