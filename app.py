@@ -212,12 +212,16 @@ if st.button("Calculer l'estimation"):
 
     prix_comparables = []
 
-    # 🔥 QUERY ULTRA PRÉCISE
     query = f"{marque} {modele} {finition} {mois}/{annee} {km} km {carburant} {boite} {boite_tech} {traction} {options} {departement}"
 
     if get_leboncoin_prices:
         try:
-            prix_comparables = get_leboncoin_prices(query)
+            prix_comparables = get_leboncoin_prices(
+                query,
+                km=km,
+                carburant=carburant,
+                boite=boite
+            )
             st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
         except:
             prix_comparables = []
