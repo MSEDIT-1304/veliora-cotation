@@ -208,8 +208,9 @@ annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-boite_tech = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8","BVM5","BVM6"])
-traction = st.selectbox("Transmission", ["4x2","4x4","4WD","Traction","Propulsion"])
+# ✅ CORRECTION ICI
+boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"])
+traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"])
 
 options = st.multiselect("Options", [
     "Caméra recul","Bip avant","Bip arrière",
@@ -231,7 +232,17 @@ if st.button("Calculer l'estimation"):
         st.error("❌ Module Leboncoin non disponible")
         st.stop()
 
-    query = f"{marque} {modele} {finition} {mois}/{annee} {km} km {carburant} {boite} {boite_tech} {traction} {options} {departement}"
+    # ✅ QUERY PROPRE
+    query_parts = [
+        marque, modele, finition,
+        f"{mois}/{annee}",
+        f"{km} km",
+        carburant, boite,
+        boite_tech, traction,
+        departement
+    ]
+
+    query = " ".join([str(x) for x in query_parts if x])
 
     try:
         prix_comparables = get_leboncoin_prices(
