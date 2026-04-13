@@ -1,49 +1,27 @@
 import requests
-import random
-import time
+import re
 
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
-    url = "https://api.leboncoin.fr/finder/search"
+    url = "https://api.scraperapi.com"
 
-    headers = {
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    payload = {
-        "limit": 35,
-        "offset": 0,
-        "sort_by": "time",
-        "sort_order": "desc",
-        "filters": {
-            "category": {"id": "2"},
-            "enums": {},
-            "keywords": query
-        }
+    params = {
+        "api_key": "b21ec21db42b3d67cdd1d58d6c21c9bc",
+        "url": f"https://www.ebay.fr/sch/i.html?_nkw={query.replace(' ', '+')}+voiture",
+        "country_code": "fr"
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        data = response.json()
+        response = requests.get(url, params=params, timeout=30)
+        html = response.text
     except:
         return []
 
-    prices = []
+    # extraction prix
+    prices = re.findall(r'(\d{4,6})\s?€', html)
 
-    try:
-        ads = data.get("ads", [])
-        for ad in ads:
-            price = ad.get("price", [])
-            if price:
-                p = price[0]
-                if 1000 < p < 200000:
-                    prices.append(p)
-    except:
-        return []
+    prices = [int(p) for p in prices if 1000 < int(p) < 200000]
 
     prices = list(set(prices))
 
-    time.sleep(random.uniform(0.5, 1.5))
-
-    return prices
+    return prices[:30]
