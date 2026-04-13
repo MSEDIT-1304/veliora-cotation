@@ -1,37 +1,37 @@
 import requests
-from bs4 import BeautifulSoup
 
 def get_leboncoin_prices(brand, model, year, km, api_key):
 
     try:
-        # 🔥 Recherche volontairement large (clé du succès)
         query = f"{brand} {model}"
 
-        url = f"https://api.scraperapi.com/?api_key={api_key}&url=https://www.leboncoin.fr/recherche?text={query}"
+        url = "https://api.scraperapi.com/"
 
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
+        params = {
+            "api_key": api_key,
+            "url": f"https://www.leboncoin.fr/recherche?category=2&text={query}",
+            "render": "true"
+        }
+
+        response = requests.get(url, params=params)
+        html = response.text
 
         prices = []
 
-        # 🔎 Sélection des prix (Leboncoin HTML)
-        for span in soup.find_all("span"):
-            text = span.get_text()
+        # 🔥 Extraction simplifiée (fiable)
+        for part in html.split("€"):
+            try:
+                price_str = part.split(">")[-1].replace(" ", "").replace("\xa0", "")
+                price = int(price_str)
 
-            if "€" in text:
-                try:
-                    price = int(
-                        text.replace("€", "")
-                        .replace(" ", "")
-                        .replace("\xa0", "")
-                    )
-                    if 1000 < price < 100000:
-                        prices.append(price)
-                except:
-                    pass
+                if 1000 < price < 100000:
+                    prices.append(price)
 
-        # 🎯 Nettoyage (garde les valeurs cohérentes)
-        prices = prices[:20]
+            except:
+                continue
+
+        # nettoyage
+        prices = list(set(prices))[:20]
 
         return prices
 
