@@ -7,7 +7,7 @@ import io
 import os
 
 # ✅ AJOUT SCRAPER API
-SCRAPER_API_KEY = "b21ec21db42b3d67cdd1d58d6c21c9bc"
+SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
 # IMPORT SÉCURISÉ
 try:
