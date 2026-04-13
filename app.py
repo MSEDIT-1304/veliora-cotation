@@ -6,8 +6,11 @@ import statistics
 import io
 import os
 
-# ✅ AJOUT PLAYWRIGHT
-from leboncoin_scraper import get_leboncoin_prices
+# ✅ IMPORT SÉCURISÉ (corrige ton bug)
+try:
+    from leboncoin_scraper import get_leboncoin_prices
+except:
+    get_leboncoin_prices = None
 
 # 🔥 IA AJOUT SÉCURISÉ
 
