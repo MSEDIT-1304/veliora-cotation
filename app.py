@@ -275,7 +275,9 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    st.success(f"💰 Prix marché GARAGE : {prix_marche} €")
+   net_vendeur_marche = prix_marche - commission_euro - (prix_marche * commission_percent / 100)
+
+st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {int(net_vendeur_marche)} €")
     st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
