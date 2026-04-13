@@ -6,6 +6,9 @@ import statistics
 import io
 import os
 
+# ✅ AJOUT PLAYWRIGHT
+from leboncoin_scraper import get_leboncoin_prices
+
 # 🔥 IA AJOUT SÉCURISÉ
 
 try:
@@ -199,7 +202,7 @@ if st.button("Calculer l'estimation"):
     prix_comparables = []
 
     try:
-        query = f"{marque} {modele} {annee} {carburant}"
+        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement}"
 
         response = requests.post(
             MAKE_PRICE_WEBHOOK,
