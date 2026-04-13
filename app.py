@@ -6,6 +6,9 @@ import statistics
 import io
 import os
 
+# ✅ AJOUT SCRAPER API
+SCRAPER_API_KEY = "b21ec21db42b3d67cdd1d58d6c21c9bc"
+
 # IMPORT SÉCURISÉ
 try:
     from leboncoin_scraper import get_leboncoin_prices
@@ -205,9 +208,7 @@ annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-# ✅ AJOUT MENU
 boite_tech = st.selectbox("Technologie boîte", ["BVA6","BVA7","BVA8","BVM5","BVM6"])
-
 traction = st.selectbox("Transmission", ["4x2","4x4","4WD","Traction","Propulsion"])
 
 options = st.multiselect("Options", [
