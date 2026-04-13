@@ -6,14 +6,13 @@ import statistics
 import io
 import os
 
-# ✅ IMPORT SÉCURISÉ (corrige ton bug)
+# IMPORT SÉCURISÉ
 try:
     from leboncoin_scraper import get_leboncoin_prices
 except:
     get_leboncoin_prices = None
 
-# 🔥 IA AJOUT SÉCURISÉ
-
+# IA
 try:
     import joblib
     model = None
@@ -24,8 +23,6 @@ except:
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# ---------------- CONFIG ----------------
-
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 
@@ -34,8 +31,6 @@ STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
-
-# ---------------- LOAD USERS ----------------
 
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
@@ -46,8 +41,6 @@ def load_users():
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
 
     return df
-
-# ---------------- LOGIN ----------------
 
 def check_login(username, password):
     df = load_users()
@@ -67,8 +60,6 @@ def check_login(username, password):
 
     return "error"
 
-# ---------------- WEBHOOK ----------------
-
 def send_to_webhook(username, password, societe, siret):
     expire = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
@@ -86,8 +77,6 @@ def send_to_webhook(username, password, societe, siret):
     except:
         pass
 
-# ---------------- SESSION ----------------
-
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
@@ -100,22 +89,17 @@ if "reset_id" not in st.session_state:
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
-# ================= LOGIN =================
-
+# LOGIN
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
     st.subheader("🎁 Essai gratuit 3 jours")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
-
     st.info("Après 3 jours d'essai, accès complet : 99€/an.")
     st.markdown(f"[💳 S'abonner maintenant]({STRIPE_LINK})")
 
-    type_client = st.selectbox(
-        "Type d'utilisateur",
-        ["Professionnel auto", "Particulier"]
-    )
+    type_client = st.selectbox("Type d'utilisateur", ["Professionnel auto", "Particulier"])
 
     new_user = st.text_input("Créer un identifiant")
     new_pass = st.text_input("Créer un mot de passe", type="password")
@@ -163,8 +147,7 @@ if not st.session_state.logged:
 
     st.stop()
 
-# ================= APP =================
-
+# APP
 st.title("🚗 VELIORA COTATION PRO")
 
 if st.button("🔄 Nouvelle cotation (reset)"):
@@ -177,8 +160,6 @@ if st.button("Se déconnecter"):
     st.rerun()
 
 rid = st.session_state.reset_id
-
-# ================= INPUTS =================
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
@@ -198,37 +179,45 @@ departement = st.text_input("Département (ex: 08)")
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
-# ================= CALCUL =================
-
+# CALCUL
 if st.button("Calculer l'estimation"):
 
     prix_comparables = []
 
-    try:
-        query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement}"
+    query = f"{marque} {modele} {annee} {km} km {carburant} {boite} {departement}"
 
-        response = requests.post(
-            MAKE_PRICE_WEBHOOK,
-            json={"query": query},
-            timeout=10
-        )
+    # ✅ 1. ESSAI LEBONCOIN
+    if get_leboncoin_prices:
+        try:
+            prix_comparables = get_leboncoin_prices(query)
+            st.info(f"Leboncoin : {len(prix_comparables)} annonces trouvées")
+        except:
+            prix_comparables = []
 
-        if response.status_code == 200:
-            data = response.json()
-            if "prices" in data:
-                prix_comparables = [int(p) for p in data["prices"] if p > 1000]
+    # ✅ 2. FALLBACK MAKE
+    if len(prix_comparables) < 3:
+        try:
+            response = requests.post(
+                MAKE_PRICE_WEBHOOK,
+                json={"query": query},
+                timeout=10
+            )
 
-    except:
-        pass
+            if response.status_code == 200:
+                data = response.json()
+                if "prices" in data:
+                    prix_comparables = [int(p) for p in data["prices"] if p > 1000]
+
+                    st.warning("Fallback Make utilisé")
+
+        except:
+            pass
 
     if len(prix_comparables) < 3:
         st.error("❌ Données insuffisantes")
         st.stop()
 
     prix_marche = int(statistics.median(prix_comparables))
-
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
