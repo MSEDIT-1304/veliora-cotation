@@ -24,7 +24,6 @@ except:
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
-MAKE_PRICE_WEBHOOK = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 STRIPE_LINK = "https://buy.stripe.com/3cIcN64Eq0h72LNfio9fW04"
@@ -210,41 +209,26 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
 if st.button("Calculer l'estimation"):
 
-    prix_comparables = []
+    if not get_leboncoin_prices:
+        st.error("❌ Module Leboncoin non disponible")
+        st.stop()
 
     query = f"{marque} {modele} {finition} {mois}/{annee} {km} km {carburant} {boite} {boite_tech} {traction} {options} {departement}"
 
-    if get_leboncoin_prices:
-        try:
-            prix_comparables = get_leboncoin_prices(
-                query,
-                km=km,
-                carburant=carburant,
-                boite=boite
-            )
-            st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
-        except:
-            prix_comparables = []
+    try:
+        prix_comparables = get_leboncoin_prices(
+            query,
+            km=km,
+            carburant=carburant,
+            boite=boite
+        )
+        st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
+    except:
+        st.error("❌ Erreur Leboncoin")
+        st.stop()
 
     if len(prix_comparables) < 3:
-        try:
-            response = requests.post(
-                MAKE_PRICE_WEBHOOK,
-                json={"query": query},
-                timeout=10
-            )
-
-            if response.status_code == 200:
-                data = response.json()
-                if "prices" in data:
-                    prix_comparables = [int(p) for p in data["prices"] if p > 1000]
-                    st.warning("Fallback Make utilisé")
-
-        except:
-            pass
-
-    if len(prix_comparables) < 3:
-        st.error("❌ Données insuffisantes")
+        st.error("❌ Données insuffisantes (Leboncoin)")
         st.stop()
 
     prix_comparables = clean_prices(prix_comparables)
