@@ -6,16 +6,13 @@ import statistics
 import io
 import os
 
-# ✅ AJOUT SCRAPER API
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
-# IMPORT SÉCURISÉ
 try:
     from leboncoin_scraper import get_leboncoin_prices
 except:
     get_leboncoin_prices = None
 
-# IA
 try:
     import joblib
     model = None
@@ -27,21 +24,16 @@ except:
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
-
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
-# ✅ PRIX
 PRICE_HT = 99
 TVA = 0.20
 PRICE_TTC = 118.80
 
-# ✅ NOUVEAU LIEN STRIPE
 STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
-
-# ---------------- USERS ----------------
 
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
@@ -88,8 +80,6 @@ def send_to_webhook(username, password, societe, siret):
     except:
         pass
 
-# ---------------- CLEAN PRICES ----------------
-
 def clean_prices(prices):
     if len(prices) < 5:
         return prices
@@ -107,8 +97,6 @@ def clean_prices(prices):
 
     return cleaned if len(cleaned) >= 3 else prices
 
-# ---------------- SESSION ----------------
-
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
@@ -121,15 +109,12 @@ if "reset_id" not in st.session_state:
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
-# ---------------- LOGIN ----------------
-
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
     st.subheader("🎁 Essai gratuit 3 jours")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
-
     st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / an")
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
@@ -182,8 +167,6 @@ if not st.session_state.logged:
 
     st.stop()
 
-# ---------------- APP ----------------
-
 st.title("🚗 VELIORA COTATION PRO")
 
 if st.button("🔄 Nouvelle cotation (reset)"):
@@ -197,8 +180,6 @@ if st.button("Se déconnecter"):
 
 rid = st.session_state.reset_id
 
-# ---------------- INPUTS ----------------
-
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
 finition = st.text_input("Finition")
@@ -208,7 +189,6 @@ annee = st.number_input("Année", 1990, datetime.now().year, 2019)
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
 
-# ✅ CORRECTION ICI
 boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"])
 traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"])
 
@@ -224,15 +204,12 @@ departement = st.text_input("Département (ex: 08)")
 commission = st.number_input("Commission (€)", 0, 10000, 1000)
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
-# ---------------- CALCUL ----------------
-
 if st.button("Calculer l'estimation"):
 
     if not get_leboncoin_prices:
         st.error("❌ Module Leboncoin non disponible")
         st.stop()
 
-    # ✅ QUERY PROPRE
     query_parts = [
         marque, modele, finition,
         f"{mois}/{annee}",
@@ -275,9 +252,7 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-   net_vendeur_marche = prix_marche - commission_euro - (prix_marche * commission_percent / 100)
-
-st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {int(net_vendeur_marche)} €")
+    st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {net_marche} €")
     st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
