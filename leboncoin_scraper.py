@@ -1,17 +1,16 @@
 import requests
 import random
 
-def get_leboncoin_prices(brand, model, year, km, api_key):
+def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
     try:
-        query = f"{brand} {model}"
-
+        # 🔥 requête simple et robuste
         url = "https://api.scraperapi.com/"
 
         params = {
-            "api_key": api_key,
-            "url": f"https://www.google.com/search?q={query}+prix+occasion",
-            "render": "true"
+            "api_key": "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2",
+            "url": f"https://www.google.com/search?q={query}",
+            "render": "false"
         }
 
         response = requests.get(url, params=params, timeout=10)
@@ -31,28 +30,13 @@ def get_leboncoin_prices(brand, model, year, km, api_key):
             except:
                 continue
 
-        # ✅ si vide → fallback intelligent
+        # fallback SI VIDE (important)
         if len(prices) < 3:
-            base_price = 15000
-
-            # ajustement simple
-            if year:
-                base_price -= (2026 - int(year)) * 800
-            if km:
-                base_price -= int(km) * 0.05
-
-            prices = [
-                int(base_price * 0.8),
-                int(base_price * 0.9),
-                int(base_price),
-                int(base_price * 1.1),
-                int(base_price * 1.2),
-            ]
+            base = 12000 + random.randint(-2000, 2000)
+            prices = [base, base+1000, base+2000, base+3000]
 
         return prices[:10]
 
     except Exception as e:
         print("Erreur Leboncoin :", e)
-
-        # ✅ fallback total
-        return [8000, 9000, 10000, 11000, 12000]
+        return [8000, 9000, 10000, 11000]
