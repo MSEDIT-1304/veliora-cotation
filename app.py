@@ -286,4 +286,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt") buffer.getvalue(), "estimation.txt")
+    st.download_button("📄 Télécharger estimation", buffer.getvalue(), "estimation.txt")
