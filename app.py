@@ -8,22 +8,23 @@ import os
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
-# ✅ NOUVELLE FONCTION LEBONCOIN (INTÉGRÉE)
+# ✅ NOUVELLE FONCTION LEBONCOIN (fonctionne en local)
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
-    url = "http://api.scraperapi.com"
 
-    params = {
-        "api_key": SCRAPER_API_KEY,
-        "url": f"https://www.leboncoin.fr/recherche?text={query}&category=2"
+    import re
+
+    url = f"https://www.leboncoin.fr/recherche?category=2&text={query}"
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
     }
 
     try:
-        response = requests.get(url, params=params, timeout=30)
+        response = requests.get(url, headers=headers, timeout=10)
         html = response.text
 
-        import re
-        prices = re.findall(r'"price":[ ]?([0-9]+)', html)
-        prices = [int(p) for p in prices if int(p) > 1000]
+        prices = re.findall(r'(\d{3,6}) ?€', html)
+        prices = [int(p.replace(" ", "")) for p in prices if int(p) > 1000]
 
         return prices[:30]
 
@@ -240,12 +241,7 @@ if st.button("Calculer l'estimation"):
 
     query = " ".join([str(x) for x in query_parts if x])
 
-    prix_comparables = get_leboncoin_prices(
-        query,
-        km=km,
-        carburant=carburant,
-        boite=boite
-    )
+    prix_comparables = get_leboncoin_prices(query)
 
     st.info(f"Leboncoin : {len(prix_comparables)} annonces")
 
