@@ -200,6 +200,9 @@ options = st.multiselect("Options", [
     "Hayon électrique","Attelage","Toit panoramique"
 ])
 
+# ✅ AJOUT LIEN ARGUS (SANS RIEN CHANGER)
+st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
+
 km = st.number_input("Kilométrage", 0, 400000, 90000)
 departement = st.text_input("Département (ex: 08)")
 
@@ -263,5 +266,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"{marque} {modele} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
-    # ✅ FIX ICI
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
