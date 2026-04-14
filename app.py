@@ -8,10 +8,27 @@ import os
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
-try:
-    from leboncoin_pro import get_leboncoin_prices
-except:
-    get_leboncoin_prices = None
+# ✅ NOUVELLE FONCTION LEBONCOIN (INTÉGRÉE)
+def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
+    url = "http://api.scraperapi.com"
+
+    params = {
+        "api_key": SCRAPER_API_KEY,
+        "url": f"https://www.leboncoin.fr/recherche?text={query}&category=2"
+    }
+
+    try:
+        response = requests.get(url, params=params, timeout=30)
+        html = response.text
+
+        import re
+        prices = re.findall(r'"price":[ ]?([0-9]+)', html)
+        prices = [int(p) for p in prices if int(p) > 1000]
+
+        return prices[:30]
+
+    except:
+        return []
 
 try:
     import joblib
@@ -182,10 +199,7 @@ rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
-
-# ✅ AJOUT SOUS-VERSION
 sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
-
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
@@ -214,10 +228,6 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_p
 
 if st.button("Calculer l'estimation"):
 
-    if not get_leboncoin_prices:
-        st.error("❌ Module Leboncoin non disponible")
-        st.stop()
-
     query_parts = [
         marque, modele, sous_version, finition,
         motorisation,
@@ -230,17 +240,14 @@ if st.button("Calculer l'estimation"):
 
     query = " ".join([str(x) for x in query_parts if x])
 
-    try:
-        prix_comparables = get_leboncoin_prices(
-            query,
-            km=km,
-            carburant=carburant,
-            boite=boite
-        )
-        st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
-    except:
-        st.error("❌ Erreur Leboncoin")
-        st.stop()
+    prix_comparables = get_leboncoin_prices(
+        query,
+        km=km,
+        carburant=carburant,
+        boite=boite
+    )
+
+    st.info(f"Leboncoin : {len(prix_comparables)} annonces")
 
     if len(prix_comparables) < 3:
         st.error("❌ Données insuffisantes (Leboncoin)")
