@@ -182,32 +182,31 @@ rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
-finition = st.text_input("Finition")
-motorisation = st.text_input("Motorisation")
+finition = st.text_input("Finition", key=f"finition_{rid}")
+motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
-mois = st.text_input("Mois 1ère immatriculation (ex: 03)")
-annee = st.number_input("Année", 1990, datetime.now().year, 2019)
+mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
+annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"])
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"])
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carburant_{rid}")
+boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 
-boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"])
-traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"])
+boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
+traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
 
 options = st.multiselect("Options", [
     "Caméra recul","Bip avant","Bip arrière",
     "Sièges chauffants avant","Sièges chauffants arrière",
     "Hayon électrique","Attelage","Toit panoramique"
-])
+], key=f"options_{rid}")
 
-# ✅ AJOUT LIEN ARGUS (SANS RIEN CHANGER)
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
-km = st.number_input("Kilométrage", 0, 400000, 90000)
-departement = st.text_input("Département (ex: 08)")
+km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
+departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
-commission = st.number_input("Commission (€)", 0, 10000, 1000)
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
+commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"comm_{rid}")
+commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
 
