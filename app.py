@@ -9,7 +9,7 @@ import os
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
 try:
-    from leboncoin_scraper import get_leboncoin_prices
+    from leboncoin_pro import get_leboncoin_prices
 except:
     get_leboncoin_prices = None
 
