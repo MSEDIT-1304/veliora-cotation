@@ -182,6 +182,10 @@ rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
+
+# ✅ AJOUT SOUS-VERSION
+sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
+
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
@@ -215,7 +219,7 @@ if st.button("Calculer l'estimation"):
         st.stop()
 
     query_parts = [
-        marque, modele, finition,
+        marque, modele, sous_version, finition,
         motorisation,
         f"{mois}/{annee}",
         f"{km} km",
@@ -262,7 +266,7 @@ if st.button("Calculer l'estimation"):
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
     buffer = io.StringIO()
-    buffer.write(f"{marque} {modele} {finition} {motorisation}\n")
+    buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
