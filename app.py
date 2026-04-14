@@ -6,25 +6,39 @@ import statistics
 import io
 import os
 
-SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
-
-# ✅ NOUVELLE FONCTION LEBONCOIN (fonctionne en local)
+# ✅ LEBONCOIN PLAYWRIGHT (FIABLE)
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
+    from playwright.sync_api import sync_playwright
     import re
+    import time
 
-    url = f"https://www.leboncoin.fr/recherche?category=2&text={query}"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    prices = []
 
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        html = response.text
+        with sync_playwright() as p:
 
-        prices = re.findall(r'(\d{3,6}) ?€', html)
-        prices = [int(p.replace(" ", "")) for p in prices if int(p) > 1000]
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+
+            url = f"https://www.leboncoin.fr/recherche?category=2&text={query}"
+            page.goto(url, timeout=60000)
+
+            time.sleep(3)
+
+            content = page.content()
+
+            matches = re.findall(r'(\d{3,6}) ?€', content)
+
+            for m in matches:
+                try:
+                    price = int(m.replace(" ", ""))
+                    if 2000 < price < 100000:
+                        prices.append(price)
+                except:
+                    continue
+
+            browser.close()
 
         return prices[:30]
 
@@ -272,4 +286,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt") buffer.getvalue(), "estimation.txt")
