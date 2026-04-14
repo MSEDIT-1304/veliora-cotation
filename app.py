@@ -8,13 +8,9 @@ import os
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
-# ✅ VERSION STABLE STREAMLIT (PAS DE CRASH)
+# ✅ SAFE (évite crash)
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
-    try:
-        # simulation stable (évite crash cloud)
-        return []
-    except:
-        return []
+    return []
 
 try:
     import joblib
@@ -41,29 +37,20 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
-
     df["username"] = df["username"].astype(str).str.strip()
     df["password"] = df["password"].astype(str).str.strip()
     df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
-
     return df
 
 def check_login(username, password):
     df = load_users()
-
-    user = df[
-        (df["username"] == username.strip()) &
-        (df["password"] == password.strip())
-    ]
+    user = df[(df["username"] == username.strip()) & (df["password"] == password.strip())]
 
     if not user.empty:
         expire = user.iloc[0]["expire"]
-
         if datetime.now() > expire:
             return "expired"
-
         return "ok"
-
     return "error"
 
 def send_to_webhook(username, password, societe, siret):
@@ -82,23 +69,6 @@ def send_to_webhook(username, password, societe, siret):
         requests.post(WEBHOOK_URL, json=data, timeout=10)
     except:
         pass
-
-def clean_prices(prices):
-    if len(prices) < 5:
-        return prices
-
-    prices = sorted(prices)
-    q1 = prices[len(prices)//4]
-    q3 = prices[(len(prices)*3)//4]
-
-    iqr = q3 - q1
-
-    min_val = q1 - 1.5 * iqr
-    max_val = q3 + 1.5 * iqr
-
-    cleaned = [p for p in prices if min_val <= p <= max_val]
-
-    return cleaned if len(cleaned) >= 3 else prices
 
 if "logged" not in st.session_state:
     st.session_state.logged = False
@@ -189,54 +159,61 @@ sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
-# ✅ AJOUT DEMANDÉ
 portes = st.selectbox("Nombre de portes", [2, 3, 5], key=f"portes_{rid}")
 places = st.selectbox("Nombre de places", [2, 5, 7], key=f"places_{rid}")
 
-mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
+mois = st.text_input("Mois 1ère immatriculation", key=f"mois_{rid}")
 annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carburant_{rid}")
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 
-boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
-traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
-
-options = st.multiselect("Options", [
-    "Caméra recul","Bip avant","Bip arrière",
-    "Sièges chauffants avant","Sièges chauffants arrière",
-    "Hayon électrique","Attelage","Toit panoramique"
-], key=f"options_{rid}")
-
-st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
-
 km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
-departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
+departement = st.text_input("Département", key=f"dep_{rid}")
 
 commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"comm_{rid}")
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
 
-    prix_comparables = get_leboncoin_prices("test")
+    prix_base = 15000
 
-    if len(prix_comparables) < 3:
-        st.error("❌ Données insuffisantes (Leboncoin)")
-        st.stop()
+    prix_base += (annee - 2015) * 500
+    prix_base -= km * 0.02
 
-    prix_comparables = clean_prices(prix_comparables)
+    if carburant == "Diesel":
+        prix_base *= 0.95
 
-    prix_marche = int(statistics.median(prix_comparables))
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
+    if boite == "Automatique":
+        prix_base *= 1.05
 
-    if commission_pct > 0:
-        commission_calc = prix_marche * (commission_pct / 100)
-    else:
-        commission_calc = commission
+    if places == 7:
+        prix_base *= 1.08
 
-    net_bas = int(prix_bas - commission_calc)
-    net_marche = int(prix_marche - commission_calc)
-    net_haut = int(prix_haut - commission_calc)
+    if portes == 3:
+        prix_base *= 0.95
 
-    st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {net_marche} €")
+    if departement.startswith("75") or departement.startswith("92"):
+        prix_base *= 1.1
+
+    prix_bas = prix_base * 0.9
+    prix_haut = prix_base * 1.1
+
+    marge = 0.15
+
+    net_bas = prix_bas / (1 + marge)
+    net_moyen = prix_base / (1 + marge)
+    net_haut = prix_haut / (1 + marge)
+
+    st.success(f"""
+💰 PRIX MARCHÉ GARAGE
+
+➡️ Prix marché : {int(prix_base)} €
+➡️ Prix bas : {int(prix_bas)} €
+➡️ Prix haut : {int(prix_haut)} €
+
+💵 NET VENDEUR
+
+➡️ Net vendeur marché : {int(net_moyen)} €
+➡️ Net vendeur bas : {int(net_bas)} €
+➡️ Net vendeur haut : {int(net_haut)} €
+""")
