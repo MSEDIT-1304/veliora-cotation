@@ -13,22 +13,24 @@ def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
             url = f"https://www.leboncoin.fr/recherche?category=2&text={query}"
             page.goto(url, timeout=60000)
 
-            page.wait_for_timeout(3000)
+            # ⏳ attendre chargement annonces
+            page.wait_for_selector("a[data-qa-id='aditem_container']", timeout=15000)
 
-            elements = page.query_selector_all("span")
+            annonces = page.query_selector_all("a[data-qa-id='aditem_container']")
 
-            for el in elements:
-                text = el.inner_text()
+            for annonce in annonces:
+                try:
+                    text = annonce.inner_text()
 
-                if "€" in text:
-                    try:
-                        price = int(re.sub(r"[^\d]", "", text))
+                    match = re.search(r"(\d{3,6})\s?€", text)
+                    if match:
+                        price = int(match.group(1))
 
                         if 2000 < price < 100000:
                             prices.append(price)
 
-                    except:
-                        continue
+                except:
+                    continue
 
             browser.close()
 
