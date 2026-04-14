@@ -1,40 +1,38 @@
-import requests
-import random
+from playwright.sync_api import sync_playwright
+import re
 
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
+    prices = []
+
     try:
-        url = "https://api.scraperapi.com/"
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
 
-        params = {
-            "api_key": "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2",
-            "url": f"https://www.google.com/search?q={query}+prix+voiture",
-            "render": "false"
-        }
+            url = f"https://www.leboncoin.fr/recherche?category=2&text={query}"
+            page.goto(url, timeout=60000)
 
-        response = requests.get(url, params=params, timeout=10)
-        html = response.text
+            page.wait_for_timeout(3000)
 
-        prices = []
+            elements = page.query_selector_all("span")
 
-        for part in html.split("€"):
-            try:
-                price_str = part.split(">")[-1]
-                price_str = price_str.replace(" ", "").replace("\xa0", "")
-                price = int(price_str)
+            for el in elements:
+                text = el.inner_text()
 
-                if 2000 < price < 100000:
-                    prices.append(price)
+                if "€" in text:
+                    try:
+                        price = int(re.sub(r"[^\d]", "", text))
 
-            except:
-                continue
+                        if 2000 < price < 100000:
+                            prices.append(price)
 
-        # 🔥 fallback intelligent (PLUS JAMAIS 0)
-        if len(prices) < 3:
-            base = 12000 + random.randint(-2000, 2000)
-            prices = [base, base+1000, base+2000, base+3000]
+                    except:
+                        continue
 
-        return prices[:20]
+            browser.close()
+
+        return prices[:30]
 
     except:
-        return [8000, 9000, 10000, 11000]
+        return []
