@@ -80,7 +80,6 @@ def send_to_webhook(username, password, societe, siret):
     except:
         pass
 
-# ✅ CLEAN PRICES AMÉLIORÉ
 def clean_prices(prices):
     if len(prices) < 5:
         return prices
@@ -219,7 +218,6 @@ if st.button("Calculer l'estimation"):
         st.error("❌ Module Leboncoin non disponible")
         st.stop()
 
-    # ✅ REQUÊTE OPTIMISÉE
     query_parts = [
         marque,
         modele,
@@ -244,18 +242,37 @@ if st.button("Calculer l'estimation"):
         st.error("❌ Erreur Leboncoin")
         st.stop()
 
+    # 🔥 FILTRAGE ESSENTIEL AJOUTÉ
+    prix_comparables = [
+        p for p in prix_comparables
+        if isinstance(p, (int, float)) and p > 2000
+    ]
+
+    marque_lower = marque.lower()
+    modele_lower = modele.lower()
+    motorisation_lower = motorisation.lower()
+
+    if "toyota" in marque_lower and "chr" in modele_lower:
+
+        if "225" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if p > 18000]
+
+        elif "184" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if 15000 < p < 22000]
+
+        elif "122" in motorisation_lower or "1.8" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if p < 17000]
+
     if len(prix_comparables) < 3:
         st.error("❌ Données insuffisantes (Leboncoin)")
         st.stop()
 
     prix_comparables = clean_prices(prix_comparables)
 
-    # ✅ CALCUL AMÉLIORÉ
     median_price = statistics.median(prix_comparables)
     mean_price = statistics.mean(prix_comparables)
     prix_marche = int((median_price * 0.7) + (mean_price * 0.3))
 
-    # ✅ AJUSTEMENT PAR MARQUE
     marque_lower = marque.lower()
 
     if "toyota" in marque_lower:
