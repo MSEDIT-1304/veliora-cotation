@@ -120,6 +120,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if annee >= 2023 and km < 60000:
         score += 0.15
 
+    # 🔥 DÉCOTE FORTE (AJOUT)
+    if age >= 5:
+        score -= 0.25
+    if age >= 8:
+        score -= 0.35
+
+    if km > 80000:
+        score -= 0.20
+    if km > 120000:
+        score -= 0.30
+
+    if "dacia" in key_base:
+        score -= 0.15
+
     # 🔥 CALIBRAGE FINAL
     score *= 0.92
 
