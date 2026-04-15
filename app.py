@@ -195,12 +195,10 @@ if st.button("Calculer l'estimation"):
     except:
         prix_comparables = []
 
-    # 🔥 CORRECTION ESTIMATION
     if len(prix_comparables) < 3:
 
         base = 30000 if "c-hr" in modele.lower() else 20000
 
-        # décote km réaliste
         if km < 10000:
             base *= 0.95
         elif km < 30000:
@@ -210,11 +208,9 @@ if st.button("Calculer l'estimation"):
         else:
             base *= 0.75
 
-        # décote année
         age = datetime.now().year - annee
         base *= (1 - age * 0.05)
 
-        # moteur
         if "2.0" in motorisation:
             base *= 1.05
         if "1.8" in motorisation:
@@ -242,7 +238,6 @@ if st.button("Calculer l'estimation"):
     st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
-    # ✅ TABLEAU
     df = pd.DataFrame({
         "Type": ["Bas", "Marché", "Haut"],
         "Prix Garage (€)": [prix_bas, prix_marche, prix_haut],
@@ -251,12 +246,39 @@ if st.button("Calculer l'estimation"):
 
     df_editable = st.data_editor(df, num_rows="fixed")
 
-    # ✅ DOWNLOAD
-    buffer = io.StringIO()
-    df.to_csv(buffer, index=False)
+    # ✅ EXPORT TXT UNIQUEMENT
+    texte = f"""
+VELIORA COTATION PRO
+
+Véhicule :
+{marque} {modele} {sous_version}
+Finition : {finition}
+Motorisation : {motorisation}
+
+Année : {annee}
+Kilométrage : {km} km
+
+----------------------------
+
+PRIX MARCHÉ GARAGE
+
+Prix bas : {prix_bas} €
+Prix marché : {prix_marche} €
+Prix haut : {prix_haut} €
+
+----------------------------
+
+NET VENDEUR
+
+Net bas : {net_bas} €
+Net marché : {net_marche} €
+Net haut : {net_haut} €
+
+----------------------------
+"""
 
     st.download_button(
-        "📥 Télécharger estimation",
-        buffer.getvalue(),
-        "estimation.csv"
+        "📥 Télécharger estimation (.txt)",
+        texte,
+        "estimation.txt"
     )
