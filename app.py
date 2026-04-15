@@ -249,7 +249,7 @@ if st.button("Calculer l'estimation"):
         "Net Vendeur (€)": [net_bas, net_marche, net_haut]
     })
 
-    st.dataframe(df)
+    df_editable = st.data_editor(df, num_rows="fixed")
 
     # ✅ DOWNLOAD
     buffer = io.StringIO()
