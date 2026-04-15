@@ -80,22 +80,23 @@ def send_to_webhook(username, password, societe, siret):
     except:
         pass
 
+# ✅ CLEAN PRICES AMÉLIORÉ
 def clean_prices(prices):
     if len(prices) < 5:
         return prices
 
     prices = sorted(prices)
-    q1 = prices[len(prices)//4]
-    q3 = prices[(len(prices)*3)//4]
+    median = statistics.median(prices)
 
-    iqr = q3 - q1
+    filtered = [
+        p for p in prices
+        if (median * 0.6) <= p <= (median * 1.4)
+    ]
 
-    min_val = q1 - 1.5 * iqr
-    max_val = q3 + 1.5 * iqr
+    if len(filtered) < 3:
+        return prices
 
-    cleaned = [p for p in prices if min_val <= p <= max_val]
-
-    return cleaned if len(cleaned) >= 3 else prices
+    return filtered
 
 if "logged" not in st.session_state:
     st.session_state.logged = False
@@ -182,10 +183,7 @@ rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
 modele = st.text_input("Modèle", key=f"modele_{rid}")
-
-# ✅ AJOUT SOUS-VERSION
 sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
-
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
@@ -198,10 +196,7 @@ boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
 traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
 
-# ✅ AJOUT PORTES
 portes = st.selectbox("Nombre de portes", [2,3,4,5], key=f"portes_{rid}")
-
-# ✅ AJOUT PLACES
 places = st.selectbox("Nombre de places", [2,3,5,7], key=f"places_{rid}")
 
 options = st.multiselect("Options", [
@@ -224,14 +219,15 @@ if st.button("Calculer l'estimation"):
         st.error("❌ Module Leboncoin non disponible")
         st.stop()
 
+    # ✅ REQUÊTE OPTIMISÉE
     query_parts = [
-        marque, modele, sous_version, finition,
-        motorisation,
-        f"{mois}/{annee}",
-        f"{km} km",
-        carburant, boite,
-        boite_tech, traction,
-        departement
+        marque,
+        modele,
+        sous_version if sous_version else "",
+        motorisation if motorisation else "",
+        carburant,
+        boite,
+        f"{annee}",
     ]
 
     query = " ".join([str(x) for x in query_parts if x])
@@ -254,7 +250,23 @@ if st.button("Calculer l'estimation"):
 
     prix_comparables = clean_prices(prix_comparables)
 
-    prix_marche = int(statistics.median(prix_comparables))
+    # ✅ CALCUL AMÉLIORÉ
+    median_price = statistics.median(prix_comparables)
+    mean_price = statistics.mean(prix_comparables)
+    prix_marche = int((median_price * 0.7) + (mean_price * 0.3))
+
+    # ✅ AJUSTEMENT PAR MARQUE
+    marque_lower = marque.lower()
+
+    if "toyota" in marque_lower:
+        prix_marche *= 1.05
+    elif "bmw" in marque_lower or "mercedes" in marque_lower:
+        prix_marche *= 1.03
+    elif "dacia" in marque_lower:
+        prix_marche *= 0.97
+
+    prix_marche = int(prix_marche)
+
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
 
