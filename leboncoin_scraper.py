@@ -1,42 +1,52 @@
 import requests
-import random
+from bs4 import BeautifulSoup
+import re
+
+def extract_price(text):
+    try:
+        text = text.replace("\xa0", "").replace(" ", "")
+        match = re.search(r"(\d{4,6})", text)
+        if match:
+            return int(match.group(1))
+    except:
+        return None
+    return None
+
 
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
     try:
-        # 🔥 requête simple et robuste
-        url = "https://api.scraperapi.com/"
-
-        params = {
-            "api_key": "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2",
-            "url": f"https://www.google.com/search?q={query}",
-            "render": "false"
+        headers = {
+            "User-Agent": "Mozilla/5.0"
         }
 
-        response = requests.get(url, params=params, timeout=10)
-        html = response.text
+        url = f"https://www.google.com/search?q={query} prix voiture occasion"
+
+        response = requests.get(url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
 
         prices = []
 
-        for part in html.split("€"):
-            try:
-                price_str = part.split(">")[-1]
-                price_str = price_str.replace(" ", "").replace("\xa0", "")
-                price = int(price_str)
+        # 🔥 récupération intelligente des prix
+        for element in soup.find_all(text=re.compile("€")):
+            price = extract_price(element)
 
-                if 2000 < price < 100000:
-                    prices.append(price)
+            if price and 2000 < price < 100000:
+                prices.append(price)
 
-            except:
-                continue
+        # 🔥 suppression doublons
+        prices = list(set(prices))
 
-        # fallback SI VIDE (important)
+        # 🔥 tri
+        prices = sorted(prices)
+
+        # 🔥 sécurité : minimum data sinon rejet
         if len(prices) < 3:
-            base = 12000 + random.randint(-2000, 2000)
-            prices = [base, base+1000, base+2000, base+3000]
+            return []
 
-        return prices[:10]
+        # 🔥 limiter à 15 valeurs max
+        return prices[:15]
 
     except Exception as e:
-        print("Erreur Leboncoin :", e)
-        return [8000, 9000, 10000, 11000]
+        print("Erreur scraper :", e)
+        return []
