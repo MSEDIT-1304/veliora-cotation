@@ -35,27 +35,38 @@ STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
-# 🔥 BASE IA
+# 🔥 DATASET INTELLIGENT (prix récents marché)
 BASE_PRICES = {
-    "toyota chr": 26000,
+    "toyota chr": 30000,
+    "toyota chr 2024": 32000,
+    "toyota chr 2025": 33000,
+
     "peugeot 208": 18000,
+    "peugeot 208 2023": 20000,
+
     "renault clio": 17000,
+    "renault clio 2023": 19000,
+
     "dacia sandero": 14000,
     "bmw serie 1": 30000,
     "audi a3": 32000
 }
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite):
-    key = f"{marque} {modele}".lower()
-    base = BASE_PRICES.get(key, 20000)
+
+    key_exact = f"{marque} {modele} {annee}".lower()
+    key_base = f"{marque} {modele}".lower()
+
+    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 22000))
 
     score = 1.0
 
     age = datetime.now().year - annee
+
     if age <= 1:
-        score += 0.25
+        score += 0.30
     elif age <= 3:
-        score += 0.15
+        score += 0.18
     elif age >= 7:
         score -= 0.20
 
@@ -89,6 +100,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             score += 0.10
         elif "180" in m:
             score += 0.05
+
+    # 🔥 BOOST VEHICULE RECENT + KM COHERENT
+    if annee >= 2023 and km < 60000:
+        score += 0.15
 
     return int(base * score)
 
@@ -271,18 +286,13 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_p
 
 if st.button("Calculer l'estimation"):
 
-    # 🔥 IA PRINCIPALE
     prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite)
 
     prix_comparables = []
 
     if get_leboncoin_prices:
         try:
-            query_parts = [
-                marque, modele, motorisation, carburant, boite, f"{annee}"
-            ]
-            query = " ".join([str(x) for x in query_parts if x])
-
+            query = f"{marque} {modele} {motorisation} {annee}"
             prix_comparables = get_leboncoin_prices(query)
             st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
         except:
@@ -295,7 +305,7 @@ if st.button("Calculer l'estimation"):
         mean_price = statistics.mean(prix_comparables)
         prix_scrap = int((median_price * 0.7) + (mean_price * 0.3))
 
-        prix_marche = int((prix_ai * 0.7) + (prix_scrap * 0.3))
+        prix_marche = int((prix_ai * 0.85) + (prix_scrap * 0.15))
     else:
         prix_marche = prix_ai
 
