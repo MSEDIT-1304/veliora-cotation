@@ -97,45 +97,6 @@ def clean_prices(prices):
 
     return filtered
 
-# 🔥 IA AJUSTEMENT
-def adjust_price_ai(prix, marque, annee, km, carburant):
-
-    score = 1.0
-
-    age = datetime.now().year - annee
-
-    if age <= 1:
-        score += 0.20
-    elif age <= 3:
-        score += 0.10
-    elif age >= 7:
-        score -= 0.15
-
-    if km < 30000:
-        score += 0.15
-    elif km < 60000:
-        score += 0.05
-    elif km > 120000:
-        score -= 0.20
-
-    if carburant == "Hybride":
-        score += 0.10
-    elif carburant == "Électrique":
-        score += 0.15
-    elif carburant == "Diesel":
-        score -= 0.05
-
-    m = marque.lower()
-
-    if "toyota" in m:
-        score += 0.10
-    elif "bmw" in m or "mercedes" in m or "audi" in m:
-        score += 0.15
-    elif "dacia" in m:
-        score -= 0.10
-
-    return int(prix * score)
-
 if "logged" not in st.session_state:
     st.session_state.logged = False
 
@@ -149,6 +110,7 @@ if st.session_state.admin_logged:
     st.session_state.logged = True
 
 if not st.session_state.logged:
+
     st.title("🚗 Veliora Pro")
     st.subheader("🎁 Essai gratuit 3 jours")
 
@@ -184,6 +146,7 @@ if not st.session_state.logged:
     pwd = st.text_input("Mot de passe", type="password")
 
     if st.button("Se connecter"):
+
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin_logged = True
@@ -194,15 +157,26 @@ if not st.session_state.logged:
         if result == "ok":
             st.session_state.logged = True
             st.rerun()
+
         elif result == "expired":
             st.error("⛔ Abonnement expiré")
             st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+
         else:
             st.error("Identifiant incorrect")
 
     st.stop()
 
 st.title("🚗 VELIORA COTATION PRO")
+
+if st.button("🔄 Nouvelle cotation (reset)"):
+    st.session_state.reset_id += 1
+    st.rerun()
+
+if st.button("Se déconnecter"):
+    st.session_state.logged = False
+    st.session_state.admin_logged = False
+    st.rerun()
 
 rid = st.session_state.reset_id
 
@@ -212,32 +186,123 @@ sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
-mois = st.text_input("Mois", key=f"mois_{rid}")
+mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
 carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carburant_{rid}")
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 
+boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
+traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
+
+portes = st.selectbox("Nombre de portes", [2,3,4,5], key=f"portes_{rid}")
+places = st.selectbox("Nombre de places", [2,3,5,7], key=f"places_{rid}")
+
+options = st.multiselect("Options", [
+    "Caméra recul","Bip avant","Bip arrière",
+    "Sièges chauffants avant","Sièges chauffants arrière",
+    "Hayon électrique","Attelage","Toit panoramique"
+], key=f"options_{rid}")
+
+st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
+
 km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
+departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
+
+commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"comm_{rid}")
+commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
 
-    prix_comparables = get_leboncoin_prices(" ".join([marque, modele, str(annee)]))
+    if not get_leboncoin_prices:
+        st.error("❌ Module Leboncoin non disponible")
+        st.stop()
 
-    prix_comparables = [p for p in prix_comparables if p > 2000]
+    query_parts = [
+        marque,
+        modele,
+        sous_version if sous_version else "",
+        motorisation if motorisation else "",
+        carburant,
+        boite,
+        f"{annee}",
+    ]
 
-    if annee >= 2023:
-        prix_comparables = [p for p in prix_comparables if p > 25000]
-    elif annee >= 2021:
-        prix_comparables = [p for p in prix_comparables if p > 20000]
+    query = " ".join([str(x) for x in query_parts if x])
 
-    if km < 30000:
-        prix_comparables = [p for p in prix_comparables if p > 25000]
+    try:
+        prix_comparables = get_leboncoin_prices(
+            query,
+            km=km,
+            carburant=carburant,
+            boite=boite
+        )
+        st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
+    except:
+        st.error("❌ Erreur Leboncoin")
+        st.stop()
+
+    # 🔥 FILTRAGE ESSENTIEL AJOUTÉ
+    prix_comparables = [
+        p for p in prix_comparables
+        if isinstance(p, (int, float)) and p > 2000
+    ]
+
+    marque_lower = marque.lower()
+    modele_lower = modele.lower()
+    motorisation_lower = motorisation.lower()
+
+    if "toyota" in marque_lower and "chr" in modele_lower:
+
+        if "225" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if p > 18000]
+
+        elif "184" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if 15000 < p < 22000]
+
+        elif "122" in motorisation_lower or "1.8" in motorisation_lower:
+            prix_comparables = [p for p in prix_comparables if p < 17000]
+
+    if len(prix_comparables) < 3:
+        st.error("❌ Données insuffisantes (Leboncoin)")
+        st.stop()
 
     prix_comparables = clean_prices(prix_comparables)
 
-    prix_marche = int((statistics.median(prix_comparables) * 0.7) + (statistics.mean(prix_comparables) * 0.3))
+    median_price = statistics.median(prix_comparables)
+    mean_price = statistics.mean(prix_comparables)
+    prix_marche = int((median_price * 0.7) + (mean_price * 0.3))
 
-    prix_marche = adjust_price_ai(prix_marche, marque, annee, km, carburant)
+    marque_lower = marque.lower()
 
-    st.success(f"💰 Prix marché estimé : {prix_marche} €")
+    if "toyota" in marque_lower:
+        prix_marche *= 1.05
+    elif "bmw" in marque_lower or "mercedes" in marque_lower:
+        prix_marche *= 1.03
+    elif "dacia" in marque_lower:
+        prix_marche *= 0.97
+
+    prix_marche = int(prix_marche)
+
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
+
+    if commission_pct > 0:
+        commission_calc = prix_marche * (commission_pct / 100)
+    else:
+        commission_calc = commission
+
+    net_bas = int(prix_bas - commission_calc)
+    net_marche = int(prix_marche - commission_calc)
+    net_haut = int(prix_haut - commission_calc)
+
+    st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {net_marche} €")
+    st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
+    st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
+
+    buffer = io.StringIO()
+    buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
+    buffer.write(f"Prix marché garage: {prix_marche} €\n")
+
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+
