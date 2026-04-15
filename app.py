@@ -139,9 +139,9 @@ if score < 0.35:
     score = 0.35
 
 # 🔥 CALIBRAGE FINAL
-score *= 0.92
+    score *= 0.92
 
-    return int(base * score)
+return int(base * score)
 
 
 def load_users():
