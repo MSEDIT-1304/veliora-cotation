@@ -95,6 +95,14 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
+    if st.button("🔄 Nouvelle cotation (reset)"):
+    st.session_state.reset_id += 1
+    st.rerun()
+
+if st.button("Se déconnecter"):
+    st.session_state.logged = False
+    st.session_state.admin_logged = False
+    st.rerun()
     st.subheader("🎁 Essai gratuit 3 jours")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
