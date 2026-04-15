@@ -242,12 +242,27 @@ if st.button("Calculer l'estimation"):
         st.error("❌ Erreur Leboncoin")
         st.stop()
 
-    # 🔥 FILTRAGE ESSENTIEL AJOUTÉ
+    # 🔥 FILTRE BASIQUE
     prix_comparables = [
         p for p in prix_comparables
         if isinstance(p, (int, float)) and p > 2000
     ]
 
+    # 🔥 FILTRE ANNÉE (CRITIQUE)
+    if annee >= 2023:
+        prix_comparables = [p for p in prix_comparables if p > 25000]
+    elif annee >= 2021:
+        prix_comparables = [p for p in prix_comparables if p > 20000]
+    elif annee <= 2020:
+        prix_comparables = [p for p in prix_comparables if p < 20000]
+
+    # 🔥 FILTRE KM (CRITIQUE)
+    if km < 30000:
+        prix_comparables = [p for p in prix_comparables if p > 25000]
+    elif km > 120000:
+        prix_comparables = [p for p in prix_comparables if p < 20000]
+
+    # 🔥 FILTRE TOYOTA C-HR
     marque_lower = marque.lower()
     modele_lower = modele.lower()
     motorisation_lower = motorisation.lower()
@@ -255,13 +270,13 @@ if st.button("Calculer l'estimation"):
     if "toyota" in marque_lower and "chr" in modele_lower:
 
         if "225" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if p > 18000]
+            prix_comparables = [p for p in prix_comparables if p > 19500]
 
         elif "184" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if 15000 < p < 22000]
+            prix_comparables = [p for p in prix_comparables if 15000 < p < 25000]
 
         elif "122" in motorisation_lower or "1.8" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if p < 17000]
+            prix_comparables = [p for p in prix_comparables if p < 18000]
 
     if len(prix_comparables) < 3:
         st.error("❌ Données insuffisantes (Leboncoin)")
@@ -272,8 +287,6 @@ if st.button("Calculer l'estimation"):
     median_price = statistics.median(prix_comparables)
     mean_price = statistics.mean(prix_comparables)
     prix_marche = int((median_price * 0.7) + (mean_price * 0.3))
-
-    marque_lower = marque.lower()
 
     if "toyota" in marque_lower:
         prix_marche *= 1.05
