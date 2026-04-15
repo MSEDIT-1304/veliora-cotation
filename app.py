@@ -35,6 +35,63 @@ STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
+# 🔥 BASE IA
+BASE_PRICES = {
+    "toyota chr": 26000,
+    "peugeot 208": 18000,
+    "renault clio": 17000,
+    "dacia sandero": 14000,
+    "bmw serie 1": 30000,
+    "audi a3": 32000
+}
+
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite):
+    key = f"{marque} {modele}".lower()
+    base = BASE_PRICES.get(key, 20000)
+
+    score = 1.0
+
+    age = datetime.now().year - annee
+    if age <= 1:
+        score += 0.25
+    elif age <= 3:
+        score += 0.15
+    elif age >= 7:
+        score -= 0.20
+
+    if km < 30000:
+        score += 0.20
+    elif km < 60000:
+        score += 0.10
+    elif km > 120000:
+        score -= 0.25
+
+    if carburant == "Hybride":
+        score += 0.12
+    elif carburant == "Électrique":
+        score += 0.18
+    elif carburant == "Diesel":
+        score -= 0.05
+
+    if boite == "Automatique":
+        score += 0.05
+
+    if finition:
+        f = finition.lower()
+        if "design" in f:
+            score += 0.05
+        elif "premium" in f:
+            score += 0.08
+
+    if motorisation:
+        m = motorisation.lower()
+        if "225" in m:
+            score += 0.10
+        elif "180" in m:
+            score += 0.05
+
+    return int(base * score)
+
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
@@ -214,75 +271,33 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_p
 
 if st.button("Calculer l'estimation"):
 
-    if not get_leboncoin_prices:
-        st.error("❌ Module Leboncoin non disponible")
-        st.stop()
+    # 🔥 IA PRINCIPALE
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite)
 
-    query_parts = [
-        marque,
-        modele,
-        sous_version if sous_version else "",
-        motorisation if motorisation else "",
-        carburant,
-        boite,
-        f"{annee}",
-    ]
+    prix_comparables = []
 
-    query = " ".join([str(x) for x in query_parts if x])
+    if get_leboncoin_prices:
+        try:
+            query_parts = [
+                marque, modele, motorisation, carburant, boite, f"{annee}"
+            ]
+            query = " ".join([str(x) for x in query_parts if x])
 
-    try:
-        prix_comparables = get_leboncoin_prices(
-            query,
-            km=km,
-            carburant=carburant,
-            boite=boite
-        )
-        st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
-    except:
-        st.error("❌ Erreur Leboncoin")
-        st.stop()
+            prix_comparables = get_leboncoin_prices(query)
+            st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
+        except:
+            pass
 
-    # 🔥 FILTRAGE ESSENTIEL AJOUTÉ
-    prix_comparables = [
-        p for p in prix_comparables
-        if isinstance(p, (int, float)) and p > 2000
-    ]
+    if len(prix_comparables) >= 3:
+        prix_comparables = clean_prices(prix_comparables)
 
-    marque_lower = marque.lower()
-    modele_lower = modele.lower()
-    motorisation_lower = motorisation.lower()
+        median_price = statistics.median(prix_comparables)
+        mean_price = statistics.mean(prix_comparables)
+        prix_scrap = int((median_price * 0.7) + (mean_price * 0.3))
 
-    if "toyota" in marque_lower and "chr" in modele_lower:
-
-        if "225" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if p > 18000]
-
-        elif "184" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if 15000 < p < 22000]
-
-        elif "122" in motorisation_lower or "1.8" in motorisation_lower:
-            prix_comparables = [p for p in prix_comparables if p < 17000]
-
-    if len(prix_comparables) < 3:
-        st.error("❌ Données insuffisantes (Leboncoin)")
-        st.stop()
-
-    prix_comparables = clean_prices(prix_comparables)
-
-    median_price = statistics.median(prix_comparables)
-    mean_price = statistics.mean(prix_comparables)
-    prix_marche = int((median_price * 0.7) + (mean_price * 0.3))
-
-    marque_lower = marque.lower()
-
-    if "toyota" in marque_lower:
-        prix_marche *= 1.05
-    elif "bmw" in marque_lower or "mercedes" in marque_lower:
-        prix_marche *= 1.03
-    elif "dacia" in marque_lower:
-        prix_marche *= 0.97
-
-    prix_marche = int(prix_marche)
+        prix_marche = int((prix_ai * 0.7) + (prix_scrap * 0.3))
+    else:
+        prix_marche = prix_ai
 
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
@@ -305,4 +320,3 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
-
