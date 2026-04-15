@@ -47,6 +47,10 @@ BASE_PRICES = {
     "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
     "renault captur": 23000, "renault megane": 26000,
 
+    # ✅ AJOUT IMPORTANT POUR ÉVITER LES PRIX FAUX
+    "renault twingo": 11000,
+    "renault twingo 2017": 10500,
+
     "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
 
     "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
