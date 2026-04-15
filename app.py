@@ -134,8 +134,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if "dacia" in key_base:
         score -= 0.15
 
-    # 🔥 CALIBRAGE FINAL
-    score *= 0.92
+    # 🔥 SÉCURITÉ (FIX BUG)
+if score < 0.35:
+    score = 0.35
+
+# 🔥 CALIBRAGE FINAL
+score *= 0.92
 
     return int(base * score)
 
