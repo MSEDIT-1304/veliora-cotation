@@ -35,54 +35,66 @@ STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
-# 🔥 DATASET INTELLIGENT (prix récents marché)
+# 🔥 DATASET PREMIUM COMPLET
 BASE_PRICES = {
-    "toyota chr": 30000,
-    "toyota chr 2024": 32000,
-    "toyota chr 2025": 33000,
 
-    "peugeot 208": 18000,
-    "peugeot 208 2023": 20000,
+    "toyota chr": 30000, "toyota chr 2023": 31000, "toyota chr 2024": 32000, "toyota chr 2025": 33000,
+    "toyota yaris": 20000, "toyota yaris 2023": 22000, "toyota corolla": 28000,
 
-    "renault clio": 17000,
-    "renault clio 2023": 19000,
+    "peugeot 208": 18000, "peugeot 208 2022": 19000, "peugeot 208 2023": 20000,
+    "peugeot 2008": 24000, "peugeot 3008": 32000,
 
-    "dacia sandero": 14000,
-    "bmw serie 1": 30000,
-    "audi a3": 32000
+    "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
+    "renault captur": 23000, "renault megane": 26000,
+
+    "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
+
+    "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
+    "bmw x1": 38000,
+
+    "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
+    "audi q3": 40000,
+
+    "mercedes classe a": 33000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
+    "mercedes gla": 42000,
+
+    "volkswagen golf": 28000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
+    "volkswagen tiguan": 38000
 }
+
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite):
 
     key_exact = f"{marque} {modele} {annee}".lower()
     key_base = f"{marque} {modele}".lower()
 
-    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 22000))
+    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 23000))
 
     score = 1.0
-
     age = datetime.now().year - annee
 
     if age <= 1:
         score += 0.30
     elif age <= 3:
-        score += 0.18
-    elif age >= 7:
-        score -= 0.20
+        score += 0.20
+    elif age <= 5:
+        score += 0.05
+    elif age >= 8:
+        score -= 0.25
 
-    if km < 30000:
+    if km < 20000:
         score += 0.20
     elif km < 60000:
-        score += 0.10
+        score += 0.12
     elif km > 120000:
-        score -= 0.25
+        score -= 0.30
 
     if carburant == "Hybride":
         score += 0.12
     elif carburant == "Électrique":
         score += 0.18
     elif carburant == "Diesel":
-        score -= 0.05
+        score -= 0.08
 
     if boite == "Automatique":
         score += 0.05
@@ -91,6 +103,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         f = finition.lower()
         if "design" in f:
             score += 0.05
+        elif "gt" in f or "rs" in f:
+            score += 0.10
         elif "premium" in f:
             score += 0.08
 
@@ -98,14 +112,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         m = motorisation.lower()
         if "225" in m:
             score += 0.10
-        elif "180" in m:
-            score += 0.05
+        elif "200" in m:
+            score += 0.08
+        elif "130" in m:
+            score += 0.03
 
-    # 🔥 BOOST VEHICULE RECENT + KM COHERENT
     if annee >= 2023 and km < 60000:
         score += 0.15
 
     return int(base * score)
+
 
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
