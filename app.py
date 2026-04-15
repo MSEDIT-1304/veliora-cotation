@@ -95,7 +95,7 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
-    if st.button("🔄 Nouvelle cotation (reset)"):
+if st.button("🔄 Nouvelle cotation (reset)"):
     st.session_state.reset_id += 1
     st.rerun()
 
