@@ -120,6 +120,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if annee >= 2023 and km < 60000:
         score += 0.15
 
+    # 🔥 CALIBRAGE FINAL
+    score *= 0.92
+
     return int(base * score)
 
 
