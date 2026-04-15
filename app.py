@@ -152,15 +152,6 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-if st.button("🔄 Nouvelle cotation (reset)"):
-    st.session_state.reset_id += 1
-    st.rerun()
-
-if st.button("Se déconnecter"):
-    st.session_state.logged = False
-    st.session_state.admin_logged = False
-    st.rerun()
-
 rid = st.session_state.reset_id
 
 marque = st.text_input("Marque", key=f"marque_{rid}")
@@ -169,7 +160,6 @@ sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 finition = st.text_input("Finition", key=f"finition_{rid}")
 motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
-# ✅ AJOUT DEMANDÉ
 portes = st.selectbox("Nombre de portes", [2,3,5], key=f"portes_{rid}")
 places = st.selectbox("Nombre de places", [2,5,7], key=f"places_{rid}")
 
@@ -205,26 +195,29 @@ if st.button("Calculer l'estimation"):
     except:
         prix_comparables = []
 
-    # 🔥 FALLBACK INTELLIGENT
+    # 🔥 CORRECTION ESTIMATION
     if len(prix_comparables) < 3:
 
-        base = 20000
+        base = 30000 if "c-hr" in modele.lower() else 20000
 
-        if "toyota" in marque.lower():
-            base = 26000
-        if "c-hr" in modele.lower():
-            base = 30000
-
-        base += (annee - 2020) * 800
-        base -= km * 0.03
-
-        if carburant == "Diesel":
+        # décote km réaliste
+        if km < 10000:
             base *= 0.95
-        if boite == "Automatique":
+        elif km < 30000:
+            base *= 0.90
+        elif km < 60000:
+            base *= 0.82
+        else:
+            base *= 0.75
+
+        # décote année
+        age = datetime.now().year - annee
+        base *= (1 - age * 0.05)
+
+        # moteur
+        if "2.0" in motorisation:
             base *= 1.05
-        if places == 7:
-            base *= 1.08
-        if portes == 3:
+        if "1.8" in motorisation:
             base *= 0.95
 
         prix_marche = int(base)
@@ -248,3 +241,22 @@ if st.button("Calculer l'estimation"):
     st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {net_marche} €")
     st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
+
+    # ✅ TABLEAU
+    df = pd.DataFrame({
+        "Type": ["Bas", "Marché", "Haut"],
+        "Prix Garage (€)": [prix_bas, prix_marche, prix_haut],
+        "Net Vendeur (€)": [net_bas, net_marche, net_haut]
+    })
+
+    st.dataframe(df)
+
+    # ✅ DOWNLOAD
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False)
+
+    st.download_button(
+        "📥 Télécharger estimation",
+        buffer.getvalue(),
+        "estimation.csv"
+    )
