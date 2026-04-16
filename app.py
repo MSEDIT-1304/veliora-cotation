@@ -26,11 +26,11 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
-PRICE_HT = 99
+PRICE_HT = 29
 TVA = 0.20
-PRICE_TTC = 118.80
+PRICE_TTC = 34.80
 
-STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
+STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
@@ -72,41 +72,76 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     key_exact = f"{marque} {modele} {annee}".lower()
     key_base = f"{marque} {modele}".lower()
 
-    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 20000))
+    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 23000))
 
+    score = 1.0
     age = datetime.now().year - annee
 
-    price = base
+    if age <= 1:
+        score += 0.30
+    elif age <= 3:
+        score += 0.20
+    elif age <= 5:
+        score += 0.05
+    elif age >= 8:
+        score -= 0.25
 
-    # Dépréciation année (stable)
-    price -= age * 700
+    if km < 20000:
+        score += 0.20
+    elif km < 60000:
+        score += 0.12
+    elif km > 120000:
+        score -= 0.30
 
-    # Ajustement kilométrage
-    price -= (km - 60000) * 0.02
-
-    # Bornes sécurité
-    if price < base * 0.4:
-        price = base * 0.4
-
-    # Carburant
     if carburant == "Hybride":
-        price *= 1.05
+        score += 0.12
     elif carburant == "Électrique":
-        price *= 1.10
+        score += 0.18
     elif carburant == "Diesel":
-        price *= 0.95
+        score -= 0.08
 
-    # Boite
     if boite == "Automatique":
-        price *= 1.03
+        score += 0.05
 
-    # Marque premium
-    premium = ["bmw", "audi", "mercedes"]
-    if any(p in key_base for p in premium):
-        price *= 1.08
+    if finition:
+        f = finition.lower()
+        if "design" in f:
+            score += 0.05
+        elif "gt" in f or "rs" in f:
+            score += 0.10
+        elif "premium" in f:
+            score += 0.08
 
-    return int(price)
+    if motorisation:
+        m = motorisation.lower()
+        if "225" in m:
+            score += 0.10
+        elif "200" in m:
+            score += 0.08
+        elif "130" in m:
+            score += 0.03
 
+    if annee >= 2023 and km < 60000:
+        score += 0.15
+
+    # 🔥 DÉCOTE FORTE (AJOUT)
+    if age >= 5:
+        score -= 0.25
+    if age >= 8:
+        score -= 0.35
+
+    if km > 80000:
+        score -= 0.20
+    if km > 120000:
+        score -= 0.30
+
+    if "dacia" in key_base:
+        score -= 0.15
+
+    # 🔥 CALIBRAGE FINAL
+    score *= 0.92
+
+    return int(base * score)
 
 
 def load_users():
@@ -189,9 +224,9 @@ if not st.session_state.logged:
     st.subheader("🎁 Essai gratuit 3 jours")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
-    st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / an")
+    st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
 
-    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC / mois)]({STRIPE_LINK})")
 
     type_client = st.selectbox("Type d'utilisateur", ["Professionnel auto", "Particulier"])
 
@@ -234,7 +269,7 @@ if not st.session_state.logged:
 
         elif result == "expired":
             st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC / mois)]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
@@ -307,7 +342,7 @@ if st.button("Calculer l'estimation"):
         mean_price = statistics.mean(prix_comparables)
         prix_scrap = int((median_price * 0.7) + (mean_price * 0.3))
 
-        prix_marche = prix_ai
+        prix_marche = int((prix_ai * 0.85) + (prix_scrap * 0.15))
     else:
         prix_marche = prix_ai
 
