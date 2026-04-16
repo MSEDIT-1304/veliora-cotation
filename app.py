@@ -26,11 +26,11 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
-PRICE_HT = 99
+PRICE_HT = 29
 TVA = 0.20
-PRICE_TTC = 118.80
+PRICE_TTC = 34.80
 
-STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
+STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
@@ -224,9 +224,9 @@ if not st.session_state.logged:
     st.subheader("🎁 Essai gratuit 3 jours")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
-    st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / an")
+    st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
 
-    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC / mois)]({STRIPE_LINK})")
 
     type_client = st.selectbox("Type d'utilisateur", ["Professionnel auto", "Particulier"])
 
@@ -269,7 +269,7 @@ if not st.session_state.logged:
 
         elif result == "expired":
             st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC / mois)]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
