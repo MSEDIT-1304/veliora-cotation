@@ -26,11 +26,11 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
-PRICE_HT = 99
+PRICE_HT = 29
 TVA = 0.20
-PRICE_TTC = 118.80
+PRICE_TTC = 34.80
 
-STRIPE_LINK = "https://buy.stripe.com/00w8wQ9YK8NDcmn9Y49fW05"
+STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
@@ -67,61 +67,62 @@ BASE_PRICES = {
 }
 
 
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite):
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    key_exact = f"{marque} {modele} {annee}".lower()
-    key_base = f"{marque} {modele}".lower()
-
-    base = BASE_PRICES.get(key_exact, BASE_PRICES.get(key_base, 20000))
+    key = f"{marque} {modele}".lower()
+    base = BASE_PRICES.get(f"{marque} {modele} {annee}".lower(), BASE_PRICES.get(key, 20000))
 
     age = max(0, datetime.now().year - annee)
+    price = base
 
-    # Base depreciation (year)
-    price = base - (age * 800)
+    # 🔥 SEGMENT AUTO
+    if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
+        segment = "SUV"
+        price *= 1.05
+    elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
+        segment = "citadine"
+        price *= 0.95
+    else:
+        segment = "standard"
 
-    # Mileage adjustment around a 60k reference
-    price -= max(0, (km - 60000)) * 0.025
-    price += max(0, (60000 - km)) * 0.01
+    # 🔥 DECOTE ANNEE
+    price -= age * 900
 
-    # Fuel adjustments
+    # 🔥 KM
+    price -= max(0, (km - 60000)) * 0.03
+    price += max(0, (60000 - km)) * 0.015
+
+    # 🔥 CARBURANT
     if carburant == "Hybride":
-        price *= 1.04
+        price *= 1.05
     elif carburant == "Électrique":
-        price *= 1.08
+        price *= 1.10
     elif carburant == "Diesel":
-        price *= 0.96
+        price *= 0.95
 
-    # Gearbox
+    # 🔥 BOITE
     if boite == "Automatique":
         price *= 1.03
 
-    # Trim / engine hints
-    if finition:
-        f = finition.lower()
-        if any(x in f for x in ["gt", "rs", "sport"]):
-            price *= 1.06
-        elif "premium" in f:
-            price *= 1.04
+    # 🔥 REGION (simple mais efficace)
+    if departement:
+        try:
+            dep = int(departement)
+            if dep in range(75, 96):  # Ile-de-France
+                price *= 1.05
+            elif dep in range(1, 20):  # zones plus faibles
+                price *= 0.95
+        except:
+            pass
 
-    if motorisation:
-        m = motorisation.lower()
-        if any(x in m for x in ["hybrid", "phev"]):
-            price *= 1.03
-        if any(x in m for x in ["150", "180", "200", "220", "250"]):
-            price *= 1.03
+    # 🔥 PREMIUM / LOW COST
+    if any(x in key for x in ["bmw", "audi", "mercedes"]):
+        price *= 1.08
+    if "dacia" in key:
+        price *= 0.90
 
-    # Brand tiers
-    premium = ["bmw", "audi", "mercedes"]
-    budget = ["dacia"]
-    if any(p in key_base for p in premium):
-        price *= 1.06
-    if any(b in key_base for b in budget):
-        price *= 0.92
-
-    # Safety bounds
-    min_floor = base * 0.35
-    max_cap = base * 1.15
-    price = max(min_floor, min(price, max_cap))
+    # 🔥 BORNES
+    price = max(base * 0.35, min(price, base * 1.20))
 
     return int(price)
 
@@ -179,8 +180,10 @@ def clean_prices(prices):
     prices = sorted(prices)
     median = statistics.median(prices)
 
-    # tighter band to remove outliers
-    filtered = [p for p in prices if (median * 0.75) <= p <= (median * 1.25)]
+    filtered = [
+        p for p in prices
+        if (median * 0.6) <= p <= (median * 1.4)
+    ]
 
     if len(filtered) < 3:
         return prices
@@ -304,7 +307,7 @@ commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_p
 
 if st.button("Calculer l'estimation"):
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite)
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement)
 
     prix_comparables = []
 
@@ -316,14 +319,14 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    if len(prix_comparables) >= 5:
+    if len(prix_comparables) >= 3:
         prix_comparables = clean_prices(prix_comparables)
 
         median_price = statistics.median(prix_comparables)
         mean_price = statistics.mean(prix_comparables)
-        prix_scrap = int((median_price * 0.8) + (mean_price * 0.2))
+        prix_scrap = int((median_price * 0.7) + (mean_price * 0.3))
 
-        prix_marche = int((prix_ai * 0.80) + (prix_scrap * 0.20))
+        prix_marche = int((prix_ai * 0.85) + (prix_scrap * 0.15))
     else:
         prix_marche = prix_ai
 
