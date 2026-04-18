@@ -75,56 +75,59 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     age = max(0, datetime.now().year - annee)
     price = base
 
-    # 🔥 SEGMENT AUTO
     if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
         segment = "SUV"
         price *= 1.05
     elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
         segment = "citadine"
-        price *= 0.95
+        price *= 0.92
     else:
         segment = "standard"
 
-    # 🔥 DECOTE ANNEE
-    price -= age * 900
+    price -= age * 850
 
-    # 🔥 KM
-    price -= max(0, (km - 60000)) * 0.03
-    price += max(0, (60000 - km)) * 0.015
+    price -= max(0, (km - 60000)) * 0.028
+    price += max(0, (60000 - km)) * 0.012
 
-    # 🔥 CARBURANT
     if carburant == "Hybride":
-        price *= 1.05
-    elif carburant == "Électrique":
         price *= 1.10
+    elif carburant == "Électrique":
+        price *= 1.12
     elif carburant == "Diesel":
-        price *= 0.95
+        price *= 0.96
 
-    # 🔥 BOITE
     if boite == "Automatique":
         price *= 1.03
 
-    # 🔥 REGION (simple mais efficace)
     if departement:
         try:
             dep = int(departement)
-            if dep in range(75, 96):  # Ile-de-France
+            if dep in range(75, 96):
                 price *= 1.05
-            elif dep in range(1, 20):  # zones plus faibles
+            elif dep in range(1, 20):
                 price *= 0.95
         except:
             pass
 
-    # 🔥 PREMIUM / LOW COST
     if any(x in key for x in ["bmw", "audi", "mercedes"]):
-        price *= 1.08
-    if "dacia" in key:
+        if age <= 3:
+            price *= 1.15
+        else:
+            price *= 1.08
+
+    if segment == "SUV" and age > 8:
+        price *= 0.85
+
+    if segment == "SUV" and km > 100000:
         price *= 0.90
 
-    # 🔥 BORNES
-    price = max(base * 0.35, min(price, base * 1.20))
+    if "dacia" in key:
+        price *= 0.88
+
+    price = max(base * 0.40, min(price, base * 1.35))
 
     return int(price)
+
 
 
 
@@ -299,10 +302,10 @@ options = st.multiselect("Options", [
 
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
-km = st.number_input("Kilométrage", 0, 400000, 90000, key=f"km_{rid}")
+km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
-commission = st.number_input("Commission (€)", 0, 10000, 1000, key=f"comm_{rid}")
+commission = st.number_input("Commission (€)", 0, 10000, 0, key=f"comm_{rid}")
 commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
@@ -350,4 +353,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
