@@ -322,14 +322,18 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    if len(prix_comparables) >= 3:
+    if len(prix_comparables) >= 5:
+
         prix_comparables = clean_prices(prix_comparables)
 
         median_price = statistics.median(prix_comparables)
-        mean_price = statistics.mean(prix_comparables)
-        prix_scrap = int((median_price * 0.7) + (mean_price * 0.3))
 
-        prix_marche = int((prix_ai * 0.85) + (prix_scrap * 0.15))
+        # 🔥 HYBRIDE PRO : on vérifie si le scraper est cohérent
+        if (prix_ai * 0.75) < median_price < (prix_ai * 1.25):
+            prix_marche = int((prix_ai * 0.75) + (median_price * 0.25))
+        else:
+            prix_marche = prix_ai
+
     else:
         prix_marche = prix_ai
 
@@ -353,4 +357,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")    
+    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")er estimation", buffer.getvalue(), "estimation.txt")    
