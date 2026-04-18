@@ -317,7 +317,7 @@ if st.button("Calculer l'estimation"):
     if get_leboncoin_prices:
         try:
             query = f"{marque} {modele} {motorisation} {annee}"
-            prix_comparables = get_leboncoin_prices(query)
+            prix_comparables = get_leboncoin_prices(query, km, carburant, boite)
             st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
         except:
             pass
