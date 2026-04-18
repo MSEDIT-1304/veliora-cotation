@@ -1,6 +1,9 @@
 import requests
 import re
 
+# 🔥 TA CLÉ SCRAPERAPI
+SCRAPER_API_KEY = "TA_CLE_ICI"
+
 
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
@@ -11,10 +14,20 @@ def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
 
         url = f"https://www.google.com/search?q={query} prix voiture occasion france"
 
-        response = requests.get(url, headers=headers, timeout=10)
+        # 🔥 UTILISATION SCRAPERAPI
+        response = requests.get(
+            "http://api.scraperapi.com",
+            params={
+                "api_key": SCRAPER_API_KEY,
+                "url": url,
+                "country_code": "fr"
+            },
+            timeout=15
+        )
+
         text = response.text
 
-        # 🔥 extraction des prix (plus propre)
+        # 🔥 extraction des prix
         raw_prices = re.findall(r'(\d{4,6})', text)
 
         prices = []
@@ -22,31 +35,29 @@ def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
         for p in raw_prices:
             price = int(p)
 
-            # filtre réaliste
             if 3000 < price < 80000:
                 prices.append(price)
 
-        # 🔥 nettoyage
+        # nettoyage
         prices = list(set(prices))
         prices.sort()
 
-        # 🔥 suppression extrêmes
+        # suppression extrêmes
         if len(prices) > 10:
             prices = prices[2:-2]
 
-        # 🔥 fallback intelligent basé sur ton app
+        # 🔥 fallback si pas assez de données
         if len(prices) < 3:
 
             base = 18000
-
             q = query.lower()
 
             if "toyota" in q:
                 base = 20000
             elif "bmw" in q or "mercedes" in q:
-                base = 28000
+                base = 32000
             elif "audi" in q:
-                base = 27000
+                base = 30000
             elif "peugeot" in q:
                 base = 18000
             elif "renault" in q:
