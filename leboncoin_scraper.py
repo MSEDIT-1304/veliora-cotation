@@ -2,7 +2,7 @@ import requests
 import re
 import statistics
 
-SCRAPER_API_KEY = "TA_CLE_ICI"
+SCRAPER_API_KEY = "b21ec21db42b3d67cdd1d58d6c21c9bc"
 
 
 def get_leboncoin_prices(query, km=None, carburant=None, boite=None):
