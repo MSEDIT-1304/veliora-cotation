@@ -65,7 +65,8 @@ BASE_PRICES = {
     "audi q5 2022": 36000,
 
 
-    "mercedes classe a": 33000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
+    "mercedes classe a": 33000,
+    "mercedes classe a 2020": 36000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
     "mercedes gla": 42000,
 
     "volkswagen golf": 28000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
@@ -83,7 +84,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
         segment = "SUV"
-        price *= 1.05
+        price *= 1.02
     elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
         segment = "citadine"
         price *= 0.92
@@ -111,7 +112,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         try:
             dep = int(departement)
             if dep in range(75, 96):
-                price *= 1.05
+                price *= 1.02
             elif dep in range(1, 20):
                 price *= 0.95
         except:
@@ -119,9 +120,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if any(x in key for x in ["bmw", "audi", "mercedes"]):
         if age <= 3:
-            price *= 1.15
+            price *= 1.08
         else:
             price *= 1.08
+
+    # 🔥 BOOST PUISSANCE
+    if motorisation:
+        if "150" in motorisation:
+            price *= 1.06
+        elif "180" in motorisation:
+            price *= 1.08
+
+    # 🔥 BOOST FINITION AMG
+    if finition and "amg" in finition.lower():
+        price *= 1.08
 
     if segment == "SUV" and age > 8:
         price *= 0.85
