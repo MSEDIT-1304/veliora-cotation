@@ -101,6 +101,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 1.12
     elif carburant == "Diesel":
         price *= 0.96
+    elif carburant == "GPL":
+        price *= 1.02
 
     if boite == "Automatique":
         price *= 1.03
@@ -291,7 +293,7 @@ motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique"], key=f"carburant_{rid}")
+carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 
 boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
