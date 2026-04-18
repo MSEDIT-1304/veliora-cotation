@@ -54,7 +54,7 @@ BASE_PRICES = {
     "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
 
     "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
-    "bmw x1": 38000,
+    "bmw x1": 30000,
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
@@ -66,7 +66,7 @@ BASE_PRICES = {
 
 
     "mercedes classe a": 33000,
-    "mercedes classe a 2020": 36000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
+    "mercedes classe a 2020": 39000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
     "mercedes gla": 42000,
 
     "volkswagen golf": 28000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
@@ -120,20 +120,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if any(x in key for x in ["bmw", "audi", "mercedes"]):
         if age <= 3:
-            price *= 1.08
+            price *= 1.05
         else:
-            price *= 1.08
+            price *= 1.05
 
     # 🔥 BOOST PUISSANCE
     if motorisation:
         if "150" in motorisation:
-            price *= 1.06
+            price *= 1.10
         elif "180" in motorisation:
-            price *= 1.08
+            price *= 1.05
 
     # 🔥 BOOST FINITION AMG
     if finition and "amg" in finition.lower():
-        price *= 1.08
+        price *= 1.05
 
     if segment == "SUV" and age > 8:
         price *= 0.85
