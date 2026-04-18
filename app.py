@@ -54,7 +54,8 @@ BASE_PRICES = {
     "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
 
     "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
-    "bmw x1": 30000,
+    "bmw x1": 32000,
+    "bmw x1 2020": 33000,
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
@@ -378,3 +379,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix marché garage: {prix_marche} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+
