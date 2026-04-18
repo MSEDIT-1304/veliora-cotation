@@ -58,6 +58,12 @@ BASE_PRICES = {
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
+    # ✅ CORRECTION AJOUTÉE
+    "audi q5": 45000,
+    "audi q5 2020": 48000,
+    "audi q5 2021": 52000,
+    "audi q5 2022": 55000,
+
 
     "mercedes classe a": 33000, "mercedes classe a 2022": 35000, "mercedes classe a 2023": 37000,
     "mercedes gla": 42000,
