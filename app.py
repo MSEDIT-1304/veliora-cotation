@@ -47,9 +47,6 @@ BASE_PRICES = {
     "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
     "renault captur": 23000, "renault megane": 26000,
 
-    "ford focus": 16000,
-    "ford focus 2020": 15000,
-
     # ✅ AJOUT IMPORTANT POUR ÉVITER LES PRIX FAUX
     "renault twingo": 11000,
     "renault twingo 2017": 10500,
@@ -57,11 +54,8 @@ BASE_PRICES = {
     "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
 
     "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
-    "bmw x1": 30000,
-    "bmw x1 2020": 31000,
-
-    "mini countryman": 22000,
-    "mini countryman 2019": 21000,
+    "bmw x1": 31000,
+    "bmw x1 2020": 32000,
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
@@ -76,7 +70,7 @@ BASE_PRICES = {
     "mercedes classe a 2020": 31000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
-    "volkswagen golf": 29000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
+    "volkswagen golf": 28000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
     "volkswagen tiguan": 38000
 }
 
@@ -381,9 +375,20 @@ if st.button("Calculer l'estimation"):
     st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
 
     buffer = io.StringIO()
-    buffer.write(f"{marque} {modele} {sous_version} {finition} {motorisation}\n")
-    buffer.write(f"Prix marché garage: {prix_marche} €\n")
+    buffer.write("===== ESTIMATION VÉHICULE =====\n")
+    buffer.write(f"Marque : {marque}\n")
+    buffer.write(f"Modèle : {modele}\n")
+    buffer.write(f"Sous-version : {sous_version}\n")
+    buffer.write(f"Finition : {finition}\n")
+    buffer.write(f"Motorisation : {motorisation}\n")
+    buffer.write(f"Année : {annee}\n")
+    buffer.write(f"Kilométrage : {km} km\n")
+    buffer.write(f"Carburant : {carburant}\n")
+    buffer.write(f"Boîte : {boite}\n")
+    buffer.write(f"\n===== PRIX =====\n")
+    buffer.write(f"Prix marché garage : {prix_marche} €\n")
+    buffer.write(f"Prix bas : {prix_bas} €\n")
+    buffer.write(f"Prix haut : {prix_haut} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
-
 
