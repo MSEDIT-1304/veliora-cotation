@@ -76,7 +76,7 @@ BASE_PRICES = {
     "mercedes classe a 2020": 31000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
-    "volkswagen golf": 22000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
+    "volkswagen golf": 30000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
     "volkswagen tiguan": 38000
 }
 
@@ -376,9 +376,14 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
     net_haut = int(prix_haut - commission_calc)
 
-    st.success(f"💰 Prix marché GARAGE : {prix_marche} € | Net vendeur : {net_marche} €")
-    st.info(f"📉 Prix bas GARAGE : {prix_bas} € | Net vendeur : {net_bas} €")
-    st.info(f"📈 Prix haut GARAGE : {prix_haut} € | Net vendeur : {net_haut} €")
+    st.markdown("━━━━━━━━━━━━━━━━━━")
+    st.markdown("### 💰 PRIX MARCHÉ GARAGE")
+    st.markdown(f"# {prix_marche} €")
+    st.markdown("━━━━━━━━━━━━━━━━━━")
+    st.markdown(f"📉 BAS : {prix_bas} €")
+    st.markdown(f"📈 HAUT : {prix_haut} €")
+    st.markdown("---")
+    st.caption(f"Net vendeur : {net_marche} €")
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
