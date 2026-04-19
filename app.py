@@ -47,8 +47,8 @@ BASE_PRICES = {
     "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
     "renault captur": 23000, "renault megane": 26000,
 
-    "ford focus": 16000,
-    "ford focus 2020": 15000,
+    "ford focus": 14000,
+    "ford focus 2020": 13500,
 
     # ✅ AJOUT IMPORTANT POUR ÉVITER LES PRIX FAUX
     "renault twingo": 11000,
@@ -60,8 +60,8 @@ BASE_PRICES = {
     "bmw x1": 31000,
     "bmw x1 2020": 32000,
 
-    "mini countryman": 22000,
-    "mini countryman 2019": 21000,
+    "mini countryman": 27000,
+    "mini countryman 2019": 26000,
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
@@ -76,7 +76,7 @@ BASE_PRICES = {
     "mercedes classe a 2020": 31000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
-    "volkswagen golf": 29000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
+    "volkswagen golf": 30000, "volkswagen golf 2022": 30000, "volkswagen golf 2023": 32000,
     "volkswagen tiguan": 38000
 }
 
