@@ -77,7 +77,7 @@ BASE_PRICES = {
     "mercedes gla": 42000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
-    "volkswagen tiguan 2020": 30000, "volkswagen tiguan 2022": 32000, "volkswagen tiguan 2023": 33000,
+    "volkswagen tiguan 2020": 32000, "volkswagen tiguan 2022": 34500, "volkswagen tiguan 2023": 35700,
 }
 
 
