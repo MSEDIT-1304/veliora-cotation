@@ -305,8 +305,22 @@ with col1:
         st.session_state.reset_id += 1
         st.rerun()
 
-with col2:
+col2a, col2b = st.columns(2)
+
+with col2a:
     st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
+
+with col2b:
+    buffer_hist = io.StringIO()
+    buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
+    for item in st.session_state.historique:
+        buffer_hist.write(f"{item['marque']} {item['modele']} {item['finition']}\n")
+        buffer_hist.write(f"{item['motorisation']}\n")
+        buffer_hist.write(f"{item['annee']} • {item['km']} km\n")
+        buffer_hist.write(f"Prix : {item['prix']} €\n")
+        buffer_hist.write(f"Date : {item['date']}\n")
+        buffer_hist.write("-----------------------------\n")
+    st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
 
 
 
@@ -448,9 +462,7 @@ if st.button("Calculer l'estimation"):
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
 
 
-# HISTORY MOVED
-#
-    st.subheader("📊 Historique des estimations")
+# REMOVED DUPLICATE HISTORY
 
     if len(st.session_state.historique) == 0:
         st.info("Aucune estimation pour le moment")
