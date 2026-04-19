@@ -78,6 +78,8 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
+    "hyundai ix35": 11000,
+    "hyundai ix35 2016": 11000,
 }
 
 
@@ -305,22 +307,8 @@ with col1:
         st.session_state.reset_id += 1
         st.rerun()
 
-col2a, col2b = st.columns(2)
-
-with col2a:
+with col2:
     st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
-
-with col2b:
-    buffer_hist = io.StringIO()
-    buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
-    for item in st.session_state.historique:
-        buffer_hist.write(f"{item['marque']} {item['modele']} {item['finition']}\n")
-        buffer_hist.write(f"{item['motorisation']}\n")
-        buffer_hist.write(f"{item['annee']} • {item['km']} km\n")
-        buffer_hist.write(f"Prix : {item['prix']} €\n")
-        buffer_hist.write(f"Date : {item['date']}\n")
-        buffer_hist.write("-----------------------------\n")
-    st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
 
 
 
@@ -459,10 +447,11 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix bas : {prix_bas} €\n")
     buffer.write(f"Prix haut : {prix_haut} €\n")
 
-    st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
 
 
-# REMOVED DUPLICATE HISTORY
+# HISTORY MOVED
+#
+    st.subheader("📊 Historique des estimations")
 
     if len(st.session_state.historique) == 0:
         st.info("Aucune estimation pour le moment")
