@@ -144,16 +144,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if finition and "amg" in finition.lower():
         price *= 1.02
 
-    if segment == "SUV" and age > 8:
-        price *= 0.85
-
-    if segment == "SUV" and km > 100000:
-        price *= 0.90
+    if segment == "SUV" and (age > 8 or km > 100000):
+        price *= 0.92
 
     if "dacia" in key:
         price *= 0.88
 
-    price = max(base * 0.40, min(price, base * 1.35))
+    # 🔥 PLANCHER INTELLIGENT GLOBAL
+    if age > 8 and km > 100000:
+        price = max(price, base * 0.65)
+    elif age > 10:
+        price = max(price, base * 0.60)
+
+    price = max(base * 0.50, min(price, base * 1.35))
 
     return int(price)
 
@@ -397,10 +400,6 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = prix_ai
 
-    # FIX HYUNDAI ULTRA ROBUSTE
-    modele_clean = modele.lower().replace(" ", "").replace("-", "")
-    if "hyundai" in marque.lower() and "ix35" in modele_clean:
-        prix_marche = max(prix_marche, 9000)
 
 
     st.session_state.historique.insert(0, {
