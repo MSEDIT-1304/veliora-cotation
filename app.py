@@ -47,8 +47,8 @@ BASE_PRICES = {
     "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
     "renault captur": 23000, "renault megane": 26000,
 
-    "ford focus": 14000,
-    "ford focus 2020": 13500,
+    "ford focus": 18000,
+    "ford focus 2020": 17500,
 
     # ✅ AJOUT IMPORTANT POUR ÉVITER LES PRIX FAUX
     "renault twingo": 11000,
