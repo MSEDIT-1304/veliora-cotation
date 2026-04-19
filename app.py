@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -447,4 +448,22 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix haut : {prix_haut} €\n")
 
 
+
+# HISTORY MOVED
+#
+    st.subheader("📊 Historique des estimations")
+
+    if len(st.session_state.historique) == 0:
+        st.info("Aucune estimation pour le moment")
+    else:
+        for item in st.session_state.historique:
+            st.markdown(f"""
+**{item['marque']} {item['modele']} {item['finition']}**  
+{item['motorisation']}  
+{item['annee']} • {item['km']} km  
+➡️ **{item['prix']} €**  
+🕒 {item['date']}  
+
+---
+""")
 
