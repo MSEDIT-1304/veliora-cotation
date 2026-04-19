@@ -229,6 +229,9 @@ if "admin_logged" not in st.session_state:
 if "reset_id" not in st.session_state:
     st.session_state.reset_id = 0
 
+if "historique" not in st.session_state:
+    st.session_state.historique = []
+
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
@@ -292,9 +295,15 @@ if not st.session_state.logged:
 
 st.title("🚗 VELIORA COTATION PRO")
 
-if st.button("🔄 Nouvelle cotation (reset)"):
-    st.session_state.reset_id += 1
-    st.rerun()
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("🔄 Nouvelle cotation (reset)"):
+        st.session_state.reset_id += 1
+        st.rerun()
+
+with col2:
+    show_history = st.button("📊 Historique")
 
 if st.button("Se déconnecter"):
     st.session_state.logged = False
@@ -364,6 +373,19 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = prix_ai
 
+    st.session_state.historique.insert(0, {
+        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "marque": marque,
+        "modele": modele,
+        "finition": finition,
+        "motorisation": motorisation,
+        "annee": annee,
+        "km": km,
+        "prix": prix_marche
+    })
+
+    st.session_state.historique = st.session_state.historique[:20]
+
     prix_bas = int(prix_marche * 0.92)
     prix_haut = int(prix_marche * 1.08)
 
@@ -402,4 +424,20 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix haut : {prix_haut} €\n")
 
     st.download_button("📥 Télécharger estimation", buffer.getvalue(), "estimation.txt")
+
+
+
+if 'show_history' in locals() and show_history:
+    st.subheader("📊 Historique des estimations")
+
+    for item in st.session_state.historique:
+        st.markdown(f"""
+**{item['marque']} {item['modele']} {item['finition']}**  
+{item['motorisation']}  
+{item['annee']} • {item['km']} km  
+➡️ **{item['prix']} €**  
+🕒 {item['date']}  
+
+---
+""")
 
