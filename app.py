@@ -397,9 +397,9 @@ if st.button("Calculer l'estimation"):
     else:
         prix_marche = prix_ai
 
-    # FIX HYUNDAI FLOOR (bug SUV over-penalty)
-    if "hyundai ix35" in f"{marque} {modele}".lower():
-        prix_marche = max(prix_marche, 9000)
+    # FIX HYUNDAI ROBUSTE (corrige toutes saisies)
+if "hyundai" in marque.lower() and "ix35" in modele.lower():
+    prix_marche = max(prix_marche, 9000)
 
 
     st.session_state.historique.insert(0, {
