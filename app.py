@@ -78,8 +78,8 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
-    "hyundai ix35": 12500,
-    "hyundai ix35 2016": 11500,
+    "hyundai ix35": 13500,
+    "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
 }
 
 
