@@ -232,6 +232,9 @@ if "reset_id" not in st.session_state:
 if "historique" not in st.session_state:
     st.session_state.historique = []
 
+if "show_history" not in st.session_state:
+    st.session_state.show_history = False
+
 if st.session_state.admin_logged:
     st.session_state.logged = True
 
@@ -303,7 +306,9 @@ with col1:
         st.rerun()
 
 with col2:
-    show_history = st.button("📊 Historique")
+    if st.button("📊 Historique"):
+        st.session_state.show_history = not st.session_state.show_history
+        st.rerun()
 
 if st.button("Se déconnecter"):
     st.session_state.logged = False
@@ -427,11 +432,14 @@ if st.button("Calculer l'estimation"):
 
 
 
-if 'show_history' in locals() and show_history:
+if st.session_state.show_history:
     st.subheader("📊 Historique des estimations")
 
-    for item in st.session_state.historique:
-        st.markdown(f"""
+    if len(st.session_state.historique) == 0:
+        st.info("Aucune estimation pour le moment")
+    else:
+        for item in st.session_state.historique:
+            st.markdown(f"""
 **{item['marque']} {item['modele']} {item['finition']}**  
 {item['motorisation']}  
 {item['annee']} • {item['km']} km  
