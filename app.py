@@ -398,8 +398,8 @@ if st.button("Calculer l'estimation"):
         prix_marche = prix_ai
 
     # FIX HYUNDAI ROBUSTE (corrige toutes saisies)
-if "hyundai" in marque.lower() and "ix35" in modele.lower():
-    prix_marche = max(prix_marche, 9000)
+    if "hyundai" in marque.lower() and "ix35" in modele.lower():
+        prix_marche = max(prix_marche, 9000)
 
 
     st.session_state.historique.insert(0, {
