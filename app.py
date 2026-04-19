@@ -72,7 +72,7 @@ BASE_PRICES = {
     "audi q5 2022": 36000,
 
 
-    "mercedes classe a": 33000,
+    "mercedes classe a": 34000,
     "mercedes classe a 2020": 31000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
