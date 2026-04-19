@@ -60,8 +60,8 @@ BASE_PRICES = {
     "bmw x1": 31000,
     "bmw x1 2020": 32000,
 
-    "mini countryman": 27000,
-    "mini countryman 2019": 26000,
+    "mini countryman": 26000,
+    "mini countryman 2019": 25000,
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
