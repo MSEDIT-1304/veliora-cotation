@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -78,8 +77,8 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
-    "hyundai ix35": 11000,
-    "hyundai ix35 2016": 13000,
+    "hyundai ix35": 11500,
+    "hyundai ix35 2016": 11500,
 }
 
 
@@ -448,22 +447,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix haut : {prix_haut} €\n")
 
 
-
-# HISTORY MOVED
-#
-    st.subheader("📊 Historique des estimations")
-
-    if len(st.session_state.historique) == 0:
-        st.info("Aucune estimation pour le moment")
-    else:
-        for item in st.session_state.historique:
-            st.markdown(f"""
-**{item['marque']} {item['modele']} {item['finition']}**  
-{item['motorisation']}  
-{item['annee']} • {item['km']} km  
-➡️ **{item['prix']} €**  
-🕒 {item['date']}  
-
----
-""")
 
