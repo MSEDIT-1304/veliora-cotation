@@ -84,7 +84,7 @@ BASE_PRICES = {
 
     "citroen c4": 18000,
     "citroen c4 2019": 10000,
-    "citroen c4 cactus 2019": 26000,
+    "citroen c4 cactus 2019": 20000,
 
     "kia rio": 16000,
     "kia rio 2020": 18000,
