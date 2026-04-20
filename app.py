@@ -78,6 +78,22 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
+    
+    "renault zoe": 22000,
+    "renault zoe 2021": 20000,
+
+    "citroen c4": 18000,
+    "citroen c4 2019": 17000,
+
+    "kia rio": 16000,
+    "kia rio 2020": 15000,
+
+    "renault kadjar": 22000,
+    "renault kadjar 2016": 20000,
+
+    "fiat panda": 14000,
+    "fiat panda 2018": 13000,
+
     "hyundai ix35": 13500,
     "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
 }
@@ -485,5 +501,4 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
