@@ -73,7 +73,7 @@ BASE_PRICES = {
 
 
     "mercedes classe a": 36000,
-    "mercedes classe a 2020": 31000, "mercedes classe a 2015": 28000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
+    "mercedes classe a 2020": 31000, "mercedes classe a 2015": 25000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
@@ -83,7 +83,7 @@ BASE_PRICES = {
     "renault zoe 2021": 20000,
 
     "citroen c4": 18000,
-    "citroen c4 2019": 14000,
+    "citroen c4 2019": 12500,
 
     "kia rio": 16000,
     "kia rio 2020": 18000,
@@ -95,7 +95,7 @@ BASE_PRICES = {
     "fiat panda 2018": 17500,
 
     "nissan qashqai": 24000,
-    "nissan qashqai 2021": 25000,
+    "nissan qashqai 2021": 22000,
 
     "hyundai ix35": 13500,
     "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
