@@ -72,8 +72,8 @@ BASE_PRICES = {
     "audi q5 2022": 36000,
 
 
-    "mercedes classe a": 34000,
-    "mercedes classe a 2020": 31000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
+    "mercedes classe a": 36000,
+    "mercedes classe a 2020": 31000, "mercedes classe a 2015": 28000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
@@ -83,16 +83,19 @@ BASE_PRICES = {
     "renault zoe 2021": 20000,
 
     "citroen c4": 18000,
-    "citroen c4 2019": 15000,
+    "citroen c4 2019": 14000,
 
     "kia rio": 16000,
     "kia rio 2020": 18000,
 
     "renault kadjar": 22000,
-    "renault kadjar 2016": 18500,
+    "renault kadjar 2016": 17800,
 
     "fiat panda": 14000,
-    "fiat panda 2018": 16000,
+    "fiat panda 2018": 17500,
+
+    "nissan qashqai": 24000,
+    "nissan qashqai 2021": 25000,
 
     "hyundai ix35": 13500,
     "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
@@ -501,5 +504,4 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
