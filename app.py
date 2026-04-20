@@ -387,8 +387,8 @@ boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
 boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
 traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
 
-portes = st.selectbox("Nombre de portes", [2,3,4,5], key=f"portes_{rid}")
-places = st.selectbox("Nombre de places", [2,3,5,7], key=f"places_{rid}")
+portes = st.number_input("Nombre de portes", min_value=2, max_value=5, value=5, key=f"portes_{rid}")
+places = st.number_input("Nombre de places", min_value=2, max_value=9, value=5, key=f"places_{rid}")
 
 options = st.multiselect("Options", [
     "Caméra recul","Bip avant","Bip arrière",
