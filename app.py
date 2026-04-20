@@ -83,16 +83,16 @@ BASE_PRICES = {
     "renault zoe 2021": 20000,
 
     "citroen c4": 18000,
-    "citroen c4 2019": 17000,
+    "citroen c4 2019": 15000,
 
     "kia rio": 16000,
-    "kia rio 2020": 15000,
+    "kia rio 2020": 18000,
 
     "renault kadjar": 22000,
-    "renault kadjar 2016": 20000,
+    "renault kadjar 2016": 18500,
 
     "fiat panda": 14000,
-    "fiat panda 2018": 13000,
+    "fiat panda 2018": 16000,
 
     "hyundai ix35": 13500,
     "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
@@ -501,4 +501,5 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
+
 
