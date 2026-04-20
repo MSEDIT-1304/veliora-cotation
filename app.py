@@ -83,8 +83,8 @@ BASE_PRICES = {
     "renault zoe 2021": 20000,
 
     "citroen c4": 18000,
-    "citroen c4 2019": 17000,
-    "citroen c4 cactus 2019": 18000,
+    "citroen c4 2019": 16000,
+    "citroen c4 cactus 2019": 17000,
 
     "kia rio": 16000,
     "kia rio 2020": 18000,
