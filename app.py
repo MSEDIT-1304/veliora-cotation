@@ -109,7 +109,7 @@ BASE_PRICES = {
     "peugeot 5008 2020": 19000,
 
     "renault megane 2020": 17000,
-    "renault grand scenic 2020": 19000,
+    "renault grand scenic 2020": 22000,
 
     "volvo xc40 2020": 26000,
     "volvo xc60 2020": 30000,
