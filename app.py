@@ -182,9 +182,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         elif any(x in m for x in ["180", "190"]):
             price *= 1.08
 
-    # 🔥 BOOST FINITION AMG
-    if finition and "amg" in finition.lower():
-        price *= 1.02
+    # 🔥 BOOST FINITIONS AMÉLIORÉ
+    if finition:
+        f = finition.lower()
+
+        if any(x in f for x in ["business", "trend", "active", "access", "life"]):
+            price *= 0.97
+        elif any(x in f for x in ["style", "allure", "comfort", "design"]):
+            price *= 1.00
+        elif any(x in f for x in ["gt", "gt line", "sport", "rs", "st"]):
+            price *= 1.04
+        elif any(x in f for x in ["amg", "m sport", "s line"]):
+            price *= 1.06
 
     if segment == "SUV" and (age > 8 or km > 100000):
         price *= 0.92
@@ -527,4 +536,5 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
+
 
