@@ -65,8 +65,8 @@ BASE_PRICES = {
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
-    "audi a4 2020": 34000,
-    "audi a4": 34000,
+    "audi a4 2020": 33500,
+    "audi a4": 33500,
     # ✅ CORRECTION AJOUTÉE
     "audi q5": 32000,
     "audi q5 2020": 30000,
