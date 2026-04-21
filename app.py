@@ -167,12 +167,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         else:
             price *= 1.03
 
-    # 🔥 BOOST PUISSANCE
+    # 🔥 BOOST PUISSANCE AMÉLIORÉ
     if motorisation:
-        if "150" in motorisation:
+        m = motorisation.lower()
+
+        if any(x in m for x in ["90", "95", "100"]):
+            price *= 0.97
+        elif any(x in m for x in ["110", "115", "120"]):
+            price *= 1.00
+        elif any(x in m for x in ["130", "136"]):
+            price *= 1.03
+        elif "150" in m:
             price *= 1.06
-        elif "180" in motorisation:
-            price *= 1.05
+        elif any(x in m for x in ["180", "190"]):
+            price *= 1.08
 
     # 🔥 BOOST FINITION AMG
     if finition and "amg" in finition.lower():
