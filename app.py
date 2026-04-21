@@ -9,7 +9,7 @@ import os
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
 try:
-    from leboncoin_scraper import get_leboncoin_prices
+    get_leboncoin_prices = None  # scraper désactivé
 except:
     get_leboncoin_prices = None
 
