@@ -80,6 +80,8 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
+    "volkswagen t cross 2020": 20000,
+    "volkswagen t cross": 20000,
     
     "renault zoe": 22000,
     "renault zoe 2021": 20000,
@@ -539,4 +541,5 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
+
 
