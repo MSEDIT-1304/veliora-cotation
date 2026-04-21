@@ -105,7 +105,7 @@ BASE_PRICES = {
     "toyota corolla 2020": 20000,
 
     "peugeot 2008 2020": 15000,
-    "peugeot 3008 2020": 19500,
+    "peugeot 3008 2020": 20200,
     "peugeot 5008 2020": 19000,
 
     "renault megane 2020": 17000,
