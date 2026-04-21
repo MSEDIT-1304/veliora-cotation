@@ -125,7 +125,26 @@ BASE_PRICES = {
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque.strip()} {modele.strip()}".lower()
-    base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, 20000))
+    
+base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, None))
+
+# 🔥 FALLBACK INTELLIGENT
+if base is None:
+    if any(x in key for x in ["x", "q", "tiguan", "3008", "2008", "suv"]):
+        base = 28000
+    elif any(x in key for x in ["clio", "208", "yaris", "twingo", "rio"]):
+        base = 18000
+    else:
+        base = 22000
+
+    if any(x in key for x in ["audi", "bmw", "mercedes"]):
+        base *= 1.3
+
+    if annee >= 2020:
+        base *= 1.1
+    elif annee <= 2016:
+        base *= 0.9
+
 
     age = max(0, datetime.now().year - annee)
     price = base
