@@ -112,7 +112,7 @@ BASE_PRICES = {
     "renault grand scenic 2020": 21000,
 
     "volvo xc40 2020": 26000,
-    "volvo xc60 2020": 34500,
+    "volvo xc60 2020": 35000,
     "volvo v60 2020": 26000,
 
 }
