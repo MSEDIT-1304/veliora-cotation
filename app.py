@@ -147,126 +147,126 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    key = f"{marque.strip()} {modele.strip()}".lower()
+        key = f"{marque.strip()} {modele.strip()}".lower()
 
-    base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, None))
+        base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, None))
 
-# 🔥 FALLBACK INTELLIGENT
-if base is None:
-    if any(x in key for x in ["x", "q", "tiguan", "3008", "2008", "suv"]):
-        base = 28000
-    elif any(x in key for x in ["clio", "208", "yaris", "twingo", "rio"]):
-        base = 18000
-    else:
-        base = 22000
-
-    if any(x in key for x in ["audi", "bmw", "mercedes"]):
-        base *= 1.3
-
-    if annee >= 2020:
-        base *= 1.1
-    elif annee <= 2016:
-        base *= 0.9
-
-
-    age = max(0, datetime.now().year - annee)
-    
-    # 🔥 LEARNING CONTEXTUEL
-    key_full = f"{key}|{motorisation.lower()}|{finition.lower()}|{carburant}|{int(km/10000)}|{annee}"
-    key_mid = f"{key}|{motorisation.lower()}|{finition.lower()}"
-
-    factor = LEARNING.get(key_full)
-    if not factor:
-        factor = LEARNING.get(key_mid, LEARNING.get(key, 1))
-
-    price = base * factor
-
-
-    if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
-        segment = "SUV"
-        price *= 1.02
-    elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
-        segment = "citadine"
-        price *= 0.92
-    else:
-        segment = "standard"
-
-    price -= age * 850
-
-    price -= max(0, (km - 60000)) * 0.028
-    price += max(0, (60000 - km)) * 0.012
-
-    if carburant == "Hybride":
-        price *= 1.10
-    elif carburant == "Électrique":
-        price *= 1.12
-    elif carburant == "Diesel":
-        price *= 0.96
-    elif carburant == "GPL":
-        price *= 1.02
-
-    if boite == "Automatique":
-        price *= 1.02
-
-    if departement:
-        try:
-            dep = int(departement)
-            if dep in range(75, 96):
-                price *= 1.02
-            elif dep in range(1, 20):
-                price *= 0.95
-        except:
-            pass
-
-    if any(x in key for x in ["bmw", "audi", "mercedes"]):
-        if age <= 3:
-            price *= 1.03
+    # 🔥 FALLBACK INTELLIGENT
+    if base is None:
+        if any(x in key for x in ["x", "q", "tiguan", "3008", "2008", "suv"]):
+            base = 28000
+        elif any(x in key for x in ["clio", "208", "yaris", "twingo", "rio"]):
+            base = 18000
         else:
-            price *= 1.03
+            base = 22000
 
-    # 🔥 BOOST PUISSANCE AMÉLIORÉ
-    if motorisation:
-        m = motorisation.lower()
+        if any(x in key for x in ["audi", "bmw", "mercedes"]):
+            base *= 1.3
 
-        if any(x in m for x in ["90", "95", "100"]):
-            price *= 0.97
-        elif any(x in m for x in ["110", "115", "120"]):
-            price *= 1.00
-        elif any(x in m for x in ["130", "136"]):
-            price *= 1.03
-        elif "150" in m:
-            price *= 1.06
-        elif any(x in m for x in ["180", "190"]):
-            price *= 1.08
+        if annee >= 2020:
+            base *= 1.1
+        elif annee <= 2016:
+            base *= 0.9
 
-    # 🔥 BOOST FINITIONS AMÉLIORÉ
-    if finition:
-        f = finition.lower()
 
-        if any(x in f for x in ["business", "trend", "active", "access", "life"]):
-            price *= 0.97
-        elif any(x in f for x in ["style", "allure", "comfort", "design"]):
-            price *= 1.00
-        elif any(x in f for x in ["gt", "gt line", "sport", "rs", "st"]):
-            price *= 1.04
-        elif any(x in f for x in ["amg", "m sport", "s line"]):
-            price *= 1.06
+        age = max(0, datetime.now().year - annee)
+    
+        # 🔥 LEARNING CONTEXTUEL
+        key_full = f"{key}|{motorisation.lower()}|{finition.lower()}|{carburant}|{int(km/10000)}|{annee}"
+        key_mid = f"{key}|{motorisation.lower()}|{finition.lower()}"
 
-    if segment == "SUV" and (age > 8 or km > 100000):
-        price *= 0.92
+        factor = LEARNING.get(key_full)
+        if not factor:
+            factor = LEARNING.get(key_mid, LEARNING.get(key, 1))
 
-    if "dacia" in key:
-        price *= 0.88
+        price = base * factor
 
-    # 🔥 PLANCHER INTELLIGENT GLOBAL
-    if age > 8 and km > 100000:
-        price = max(price, base * 0.65)
-    elif age > 10:
-        price = max(price, base * 0.60)
 
-    price = max(base * 0.50, min(price, base * 1.35))
+        if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
+            segment = "SUV"
+            price *= 1.02
+        elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
+            segment = "citadine"
+            price *= 0.92
+        else:
+            segment = "standard"
 
-    return int(price)
+        price -= age * 850
+
+        price -= max(0, (km - 60000)) * 0.028
+        price += max(0, (60000 - km)) * 0.012
+
+        if carburant == "Hybride":
+            price *= 1.10
+        elif carburant == "Électrique":
+            price *= 1.12
+        elif carburant == "Diesel":
+            price *= 0.96
+        elif carburant == "GPL":
+            price *= 1.02
+
+        if boite == "Automatique":
+            price *= 1.02
+
+        if departement:
+            try:
+                dep = int(departement)
+                if dep in range(75, 96):
+                    price *= 1.02
+                elif dep in range(1, 20):
+                    price *= 0.95
+            except:
+                pass
+
+        if any(x in key for x in ["bmw", "audi", "mercedes"]):
+            if age <= 3:
+                price *= 1.03
+            else:
+                price *= 1.03
+
+        # 🔥 BOOST PUISSANCE AMÉLIORÉ
+        if motorisation:
+            m = motorisation.lower()
+
+            if any(x in m for x in ["90", "95", "100"]):
+                price *= 0.97
+            elif any(x in m for x in ["110", "115", "120"]):
+                price *= 1.00
+            elif any(x in m for x in ["130", "136"]):
+                price *= 1.03
+            elif "150" in m:
+                price *= 1.06
+            elif any(x in m for x in ["180", "190"]):
+                price *= 1.08
+
+        # 🔥 BOOST FINITIONS AMÉLIORÉ
+        if finition:
+            f = finition.lower()
+
+            if any(x in f for x in ["business", "trend", "active", "access", "life"]):
+                price *= 0.97
+            elif any(x in f for x in ["style", "allure", "comfort", "design"]):
+                price *= 1.00
+            elif any(x in f for x in ["gt", "gt line", "sport", "rs", "st"]):
+                price *= 1.04
+            elif any(x in f for x in ["amg", "m sport", "s line"]):
+                price *= 1.06
+
+        if segment == "SUV" and (age > 8 or km > 100000):
+            price *= 0.92
+
+        if "dacia" in key:
+            price *= 0.88
+
+        # 🔥 PLANCHER INTELLIGENT GLOBAL
+        if age > 8 and km > 100000:
+            price = max(price, base * 0.65)
+        elif age > 10:
+            price = max(price, base * 0.60)
+
+        price = max(base * 0.50, min(price, base * 1.35))
+
+        return int(price)
 
 
 
