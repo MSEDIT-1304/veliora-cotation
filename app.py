@@ -23,6 +23,29 @@ except:
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# 🔥 AUTO LEARNING AVANCÉ
+import json
+LEARNING_FILE = "learning.json"
+
+def load_learning():
+    if os.path.exists(LEARNING_FILE):
+        try:
+            with open(LEARNING_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_learning(data):
+    try:
+        with open(LEARNING_FILE, "w") as f:
+            json.dump(data, f)
+    except:
+        pass
+
+LEARNING = load_learning()
+
+
 WEBHOOK_URL = "https://hook.eu1.make.com/dhb2yglq1eta549enf7zaw83iltcdkrw"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
@@ -125,8 +148,8 @@ BASE_PRICES = {
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque.strip()} {modele.strip()}".lower()
-    
-base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, None))
+
+    base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, None))
 
 # 🔥 FALLBACK INTELLIGENT
 if base is None:
@@ -147,7 +170,17 @@ if base is None:
 
 
     age = max(0, datetime.now().year - annee)
-    price = base
+    
+    # 🔥 LEARNING CONTEXTUEL
+    key_full = f"{key}|{motorisation.lower()}|{finition.lower()}|{carburant}|{int(km/10000)}|{annee}"
+    key_mid = f"{key}|{motorisation.lower()}|{finition.lower()}"
+
+    factor = LEARNING.get(key_full)
+    if not factor:
+        factor = LEARNING.get(key_mid, LEARNING.get(key, 1))
+
+    price = base * factor
+
 
     if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
         segment = "SUV"
@@ -524,6 +557,24 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"📈 HAUT : {prix_haut} €")
     st.markdown("---")
     st.caption(f"Net vendeur : {net_marche} €")
+
+    st.markdown("---")
+    st.subheader("🧠 Auto-correction intelligente")
+    prix_reel = st.number_input("Prix réel marché", 0, 100000, 0, key=f"real_{rid}")
+
+    if prix_reel > 0 and prix_marche > 0:
+        key = f"{marque.strip()} {modele.strip()}".lower()
+        key_full = f"{key}|{motorisation.lower()}|{finition.lower()}|{carburant}|{int(km/10000)}|{annee}"
+
+        ratio = prix_reel / prix_marche
+        old = LEARNING.get(key_full, 1)
+        new = (old * 0.7) + (ratio * 0.3)
+
+        LEARNING[key_full] = round(new, 3)
+        save_learning(LEARNING)
+
+        st.success(f"Apprentissage enregistré : x{LEARNING[key_full]}")
+
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
