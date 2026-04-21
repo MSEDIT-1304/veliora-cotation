@@ -122,8 +122,8 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    key = f"{marque} {modele}".lower()
-    base = BASE_PRICES.get(f"{marque} {modele} {annee}".lower(), BASE_PRICES.get(key, 20000))
+    key = f"{marque.strip()} {modele.strip()}".lower()
+    base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, 20000))
 
     age = max(0, datetime.now().year - annee)
     price = base
@@ -539,5 +539,4 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
