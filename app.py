@@ -499,12 +499,11 @@ if st.button("Calculer l'estimation"):
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("### 💰 PRIX MARCHÉ GARAGE")
-    st.markdown(f"# {prix_marche} €")
+    st.markdown(f"# {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown(f"📉 BAS : {prix_bas} €")
-    st.markdown(f"📈 HAUT : {prix_haut} €")
+    st.markdown(f"📉 BAS : {prix_bas} €  |  Net vendeur : {net_bas} €")
+    st.markdown(f"📈 HAUT : {prix_haut} €  |  Net vendeur : {net_haut} €")
     st.markdown("---")
-    st.caption(f"Net vendeur : {net_marche} €")
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
