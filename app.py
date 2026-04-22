@@ -131,14 +131,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if key_full in BASE_PRICES:
         return BASE_PRICES[key_full]
 
-    if key in BASE_PRICES:
+    elif key in BASE_PRICES:
         base = BASE_PRICES[key]
     else:
         base = 20000
 
-
-    key = f"{marque.strip()} {modele.strip()}".lower()
-    base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, 20000))
 
     age = max(0, datetime.now().year - annee)
     price = base
