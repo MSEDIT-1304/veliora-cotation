@@ -124,6 +124,19 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
+    key_full = f"{marque.strip()} {modele.strip()} {annee}".lower()
+    key = f"{marque.strip()} {modele.strip()}".lower()
+
+    # 🔒 PRIORITÉ ABSOLUE
+    if key_full in BASE_PRICES:
+        return BASE_PRICES[key_full]
+
+    if key in BASE_PRICES:
+        base = BASE_PRICES[key]
+    else:
+        base = 20000
+
+
     key = f"{marque.strip()} {modele.strip()}".lower()
     base = BASE_PRICES.get(f"{marque.strip()} {modele.strip()} {annee}".lower(), BASE_PRICES.get(key, 20000))
 
@@ -139,9 +152,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     else:
         segment = "standard"
 
-    price -= age * 850
+    price -= age * 500
 
-    price -= max(0, (km - 60000)) * 0.028
+    price -= max(0, (km - 60000)) * 0.015
     price += max(0, (60000 - km)) * 0.012
 
     if carburant == "Hybride":
