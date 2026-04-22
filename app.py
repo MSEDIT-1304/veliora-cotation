@@ -154,6 +154,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         BASE_PRICES.get(key, None)
     )
 
+    # 🔒 PROTECTIONS MARCHÉ
+    if "fiat 500" in key:
+        base = 14000
+    if "hyundai i20" in key:
+        base = 17000
+    if "mercedes classe b" in key:
+        base = 30000
+
+
     # 🔥 FALLBACK INTELLIGENT
     if base is None:
         if any(x in key for x in ["x", "q", "tiguan", "3008", "2008", "suv"]):
@@ -181,6 +190,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if not factor:
         factor = LEARNING.get(key_mid, LEARNING.get(key, 1))
 
+    factor = max(0.85, min(factor, 1.15))
     price = base * factor
 
     if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
@@ -189,7 +199,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 0.92
 
     price -= age * 850
-    price -= max(0, (km - 60000)) * 0.028
+    price -= max(0, (km - 60000)) * 0.018
     price += max(0, (60000 - km)) * 0.012
 
     if carburant == "Hybride":
@@ -573,5 +583,6 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
+
 
 
