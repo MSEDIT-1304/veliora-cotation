@@ -103,7 +103,7 @@ BASE_PRICES = {
     "nissan qashqai 2021": 22000,
 
     "hyundai ix35": 11500,
-    "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
+    "hyundai ix35 2016": 10500, "hyundai ix35 2018": 11900, "hyundai ix35 2020": 13700,
     # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
     "toyota yaris 2020": 13000,
     "toyota corolla 2020": 20000,
