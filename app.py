@@ -186,11 +186,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     key_full = f"{key}|{motorisation.lower()}|{finition.lower()}|{carburant}|{int(km/10000)}|{annee}"
     key_mid = f"{key}|{motorisation.lower()}|{finition.lower()}"
 
-    factor = LEARNING.get(key_full)
-    if not factor:
-        factor = LEARNING.get(key_mid, LEARNING.get(key, 1))
-
-    factor = max(0.85, min(factor, 1.15))
+    factor = 1  # 🔒 learning désactivé
     price = base * factor
 
     if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
@@ -531,7 +527,7 @@ if st.button("Calculer l'estimation"):
     st.caption(f"Net vendeur : {net_marche} €")
 
     st.markdown("---")
-    st.subheader("🧠 Auto-correction intelligente")
+    st.subheader("🧠 Auto-correction (désactivée temporairement)")
     prix_reel = st.number_input("Prix réel marché", 0, 100000, 0, key=f"real_{rid}")
 
     if prix_reel > 0 and prix_marche > 0:
@@ -542,8 +538,8 @@ if st.button("Calculer l'estimation"):
         old = LEARNING.get(key_full, 1)
         new = (old * 0.7) + (ratio * 0.3)
 
-        LEARNING[key_full] = round(new, 3)
-        save_learning(LEARNING)
+        # LEARNING désactivé
+        # save_learning désactivé
 
         st.success(f"Apprentissage enregistré : x{LEARNING[key_full]}")
 
@@ -583,6 +579,5 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
 
