@@ -194,8 +194,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
         price *= 0.92
 
-    price -= age * 850
-    price -= max(0, (km - 60000)) * 0.018
+    price -= age * 450
+    price -= max(0, (km - 60000)) * 0.010
     price += max(0, (60000 - km)) * 0.012
 
     if carburant == "Hybride":
@@ -206,6 +206,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 0.96
     elif carburant == "GPL":
         price *= 1.02
+
+    # 🔥 BONUS 4x4
+    if traction.lower() in ["4x4", "4wd"]:
+        price *= 1.08
 
     if boite == "Automatique":
         price *= 1.02
@@ -232,7 +236,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         elif any(x in f for x in ["amg","m sport","s line"]):
             price *= 1.06
 
-    price = max(base * 0.50, min(price, base * 1.35))
+    price = max(base * 0.70, min(price, base * 1.30))
 
     return int(price)
 
