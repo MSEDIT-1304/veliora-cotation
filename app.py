@@ -65,8 +65,8 @@ BASE_PRICES = {
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
-    "audi a4 2020": 33300,
-    "audi a4": 33300,
+    "audi a4 2020": 34000,
+    "audi a4": 34000,
     # ✅ CORRECTION AJOUTÉE
     "audi q5": 32000,
     "audi q5 2020": 30000,
@@ -80,8 +80,6 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
-    "volkswagen t cross 2020": 22600,
-    "volkswagen t cross": 22600,
     
     "renault zoe": 22000,
     "renault zoe 2021": 20000,
@@ -102,8 +100,8 @@ BASE_PRICES = {
     "nissan qashqai": 24000,
     "nissan qashqai 2021": 22000,
 
-    "hyundai ix35": 9500,
-    "hyundai ix35 2016": 9500, "hyundai ix35 2018": 10900, "hyundai ix35 2020": 12700,
+    "hyundai ix35": 13500,
+    "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
     # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
     "toyota yaris 2020": 13000,
     "toyota corolla 2020": 20000,
@@ -541,5 +539,4 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
