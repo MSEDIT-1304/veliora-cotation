@@ -65,8 +65,8 @@ BASE_PRICES = {
 
     "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
     "audi q3": 40000,
-    "audi a4 2020": 34000,
-    "audi a4": 34000,
+    "audi a4 2020": 33300,
+    "audi a4": 33300,
     # ✅ CORRECTION AJOUTÉE
     "audi q5": 32000,
     "audi q5 2020": 30000,
@@ -80,6 +80,8 @@ BASE_PRICES = {
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
+    "volkswagen t cross 2020": 19500,
+    "volkswagen t cross": 19500,
     
     "renault zoe": 22000,
     "renault zoe 2021": 20000,
