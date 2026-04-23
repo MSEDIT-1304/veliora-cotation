@@ -511,7 +511,7 @@ if st.button("Calculer l'estimation"):
 
     # MARCHÉ
     prix_marche_min = base
-    prix_marche_max = arrondi_10(base * 1.03)
+    prix_marche_max = arrondi_10(base * 1.08)
 
     # HAUT
     prix_haut_min = prix_marche_max + 1
