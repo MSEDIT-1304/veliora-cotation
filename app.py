@@ -119,8 +119,8 @@ BASE_PRICES = {
     "peugeot 5008 2020": 19000,
 
     # 🔥 AJOUT CORSA
-    "opel corsa": 14500,
-    "opel corsa 2020": 14500,
+    "opel corsa": 14200,
+    "opel corsa 2020": 14200,
 
     "renault megane 2020": 17000,
     "renault grand scenic 2020": 21000,
