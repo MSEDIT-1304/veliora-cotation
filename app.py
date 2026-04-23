@@ -360,20 +360,6 @@ with col2b:
 if st.session_state.show_history:
     st.subheader("📊 Historique des estimations")
 
-    if len(st.session_state.historique) == 0:
-        st.info("Aucune estimation pour le moment")
-    else:
-        for item in st.session_state.historique:
-            st.markdown(f"""
-**{item['marque']} {item['modele']} {item['finition']}**  
-{item['motorisation']}  
-{item['annee']} • {item['km']} km  
-➡️ **{item['prix']} €**  
-🕒 {item['date']}  
-
----
-""")
-
 if st.button("Se déconnecter"):
     st.session_state.logged = False
     st.session_state.admin_logged = False
@@ -526,20 +512,4 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
     buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
-
-
-
-    if len(st.session_state.historique) == 0:
-        st.info("Aucune estimation pour le moment")
-    else:
-        for item in st.session_state.historique:
-            st.markdown(f"""
-**{item['marque']} {item['modele']} {item['finition']}**  
-{item['motorisation']}  
-{item['annee']} • {item['km']} km  
-➡️ **{item['prix']} €**  
-🕒 {item['date']}  
-
----
-""")
 
