@@ -292,6 +292,9 @@ if not st.session_state.logged:
             st.error("Remplir tous les champs")
 
     st.markdown("---")
+    st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
+    st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
+    st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
 
     st.subheader("🔐 Connexion")
 
@@ -467,6 +470,9 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"# {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("---")
+    st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
+    st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
+    st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
