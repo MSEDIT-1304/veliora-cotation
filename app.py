@@ -431,7 +431,6 @@ with col1:
     commission = st.number_input("Commission (€)", 0, 10000, 0, key=f"comm_{rid}")
 with col2:
     commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
-", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
 
@@ -492,7 +491,7 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown("### 💰 PRIX MARCHÉ GARAGE")
+    st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
     st.markdown(f"### {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("---")
