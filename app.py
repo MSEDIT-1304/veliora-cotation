@@ -148,14 +148,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 0.92
     else:
         segment = "standard"
-    # 🔥 correction SUV anciens réaliste (Hyundai ix35 & équivalents)
-    if segment == "SUV" and age > 6:
-        price *= 0.90
-    if segment == "SUV" and age > 8:
-        price *= 0.85
-    if segment == "SUV" and km > 100000:
-        price *= 0.90
-
 
     price -= age * 500
 
@@ -230,7 +222,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif age > 10:
         price = max(price, base * 0.60)
 
+    
+    # 🔥 correction SUV anciens réaliste (POSITION FINALE)
+    if segment == "SUV":
+        if age > 8:
+            price *= 0.85
+        elif age > 6:
+            price *= 0.90
+
+        if km > 100000:
+            price *= 0.88
+
     price = max(base * 0.50, min(price, base * 1.35))
+
 
     return int(price)
 
