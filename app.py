@@ -575,24 +575,29 @@ if st.button("Calculer l'estimation"):
 
     st.session_state.historique = st.session_state.historique[:20]
 
-    prix_bas = int(prix_marche * 0.92)
-    prix_haut = int(prix_marche * 1.08)
+    prix_bas_min = int(prix_marche * 0.80)
+    prix_bas_max = int(prix_marche * 0.90)
+
+    prix_marche_min = int(prix_marche * 0.90)
+    prix_marche_max = int(prix_marche)
+
+    prix_haut_min = int(prix_marche)
+    prix_haut_max = int(prix_marche * 1.10)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
     else:
         commission_calc = commission
 
-    net_bas = int(prix_bas - commission_calc)
     net_marche = int(prix_marche - commission_calc)
-    net_haut = int(prix_haut - commission_calc)
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("### 💰 PRIX MARCHÉ GARAGE")
     st.markdown(f"# {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown(f"📉 BAS : {prix_bas} €  |  Net vendeur : {net_bas} €")
-    st.markdown(f"📈 HAUT : {prix_haut} €  |  Net vendeur : {net_haut} €")
+    st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
+    st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
+    st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
     st.markdown("---")
 
     buffer = io.StringIO()
