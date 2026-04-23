@@ -148,7 +148,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
         price *= 0.75
 
+    # 🔥 DÉCOTE RENFORCÉE SELON ÂGE
     price -= age * 1200
+
+    if age > 5:
+        price *= 0.75
+    if age > 8:
+        price *= 0.70
+    if age > 10:
+        price *= 0.60
     price -= (km / 1000) * 15
 
     if carburant == "Hybride":
