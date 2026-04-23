@@ -486,12 +486,24 @@ if st.button("Calculer l'estimation"):
     st.session_state.historique = st.session_state.historique[:20]
 
     prix_vente = prix_psy(prix_marche)
-    prix_bas_min = int(prix_vente * 0.80)
-    prix_bas_max = int(prix_vente * 0.90)
-    prix_marche_min = int(prix_vente * 0.90)
-    prix_marche_max = int(prix_vente)
-    prix_haut_min = int(prix_vente)
-    prix_haut_max = int(prix_vente * 1.10)
+
+    # 🔥 LOGIQUE PRIX COHÉRENTE PRO
+    def arrondi_10(x):
+        return int(round(x / 10) * 10)
+
+    base = prix_vente
+
+    # BAS
+    prix_bas_min = arrondi_10(base * 0.90)
+    prix_bas_max = base - 1
+
+    # MARCHÉ
+    prix_marche_min = base
+    prix_marche_max = arrondi_10(base * 1.03)
+
+    # HAUT
+    prix_haut_min = prix_marche_max + 1
+    prix_haut_max = arrondi_10(base * 1.10)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
