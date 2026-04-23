@@ -134,19 +134,18 @@ BASE_PRICES = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
 
     base = None
 
-    # 🔥 MATCH INTELLIGENT
     for k, v in BASE_PRICES.items():
         if all(word in key_full for word in k.split()):
             base = v
             break
 
-    # 🔥 fallback segment
     if base is None:
         if any(x in key for x in ["corsa","clio","208","polo","ibiza","fiesta"]):
             base = 14000
@@ -158,30 +157,35 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     age = datetime.now().year - annee
     price = base
 
-    # 🔥 DÉCOTE RÉALISTE (corrigée)
+    # 🔥 décote normale
     if age > 0:
-        price *= (0.94 ** age)
+        price *= (0.93 ** age)
 
-    # 🔥 KM PLUS DOUX
+    # 🔥 correction vieux véhicule (>6 ans)
+    if age > 6:
+        price *= 0.85
+
+    # 🔥 KM
     if km > 0:
         price *= (1 - min(km / 300000, 0.25))
 
-    # 🔥 CARBURANT (léger)
-    if carburant == "Diesel":
-        price *= 0.97
+    # 🔥 diesel ancien pénalisé
+    if carburant == "Diesel" and age > 6:
+        price *= 0.90
+
     elif carburant == "Hybride":
         price *= 1.03
     elif carburant == "Électrique":
         price *= 1.05
 
-    # 🔥 BOITE
     if boite == "Automatique":
         price *= 1.03
 
-    # 🔥 PLANCHER MARCHÉ (clé du problème)
-    price = max(price, base * 0.65)
+    # 🔥 plancher ajusté
+    price = max(price, base * 0.55)
 
     return int(max(4000, min(price, 80000)))
+
 
 
 
