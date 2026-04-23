@@ -372,37 +372,66 @@ if st.button("Se déconnecter"):
 
 rid = st.session_state.reset_id
 
-marque = st.text_input("Marque", key=f"marque_{rid}")
-modele = st.text_input("Modèle", key=f"modele_{rid}")
-sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
-finition = st.text_input("Finition", key=f"finition_{rid}")
-motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 
-mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
-annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
-
-carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
-boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
-
-boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
-traction = st.selectbox("Transmission", ["", "4x2","4x4","4WD","Traction","Propulsion"], key=f"traction_{rid}")
-
-portes = st.text_input("Nombre de portes (ex: -, 0, 5)", key=f"portes_{rid}")
-places = st.text_input("Nombre de places (ex: -, 0, 5)", key=f"places_{rid}")
-
-options = st.multiselect("Options", [
-    "Caméra recul","Bip avant","Bip arrière",
-    "Sièges chauffants avant","Sièges chauffants arrière",
-    "Hayon électrique","Attelage","Toit panoramique"
-], key=f"options_{rid}")
-
+# Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
-km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
+rid = st.session_state.reset_id
+
+col1, col2 = st.columns(2)
+with col1:
+    marque = st.text_input("Marque", key=f"marque_{rid}")
+with col2:
+    modele = st.text_input("Modèle", key=f"modele_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
+with col2:
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    finition = st.text_input("Finition", key=f"finition_{rid}")
+with col2:
+    sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
+with col2:
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
+with col2:
+    boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    portes = st.text_input("Nombre de portes (ex: -, 0, 5)", key=f"portes_{rid}")
+with col2:
+    places = st.text_input("Nombre de places (ex: -, 0, 5)", key=f"places_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    options = st.multiselect("Options", [
+        "Caméra recul","Bip avant","Bip arrière",
+        "Sièges chauffants avant","Sièges chauffants arrière",
+        "Hayon électrique","Attelage","Toit panoramique"
+    ], key=f"options_{rid}")
+with col2:
+    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
+
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
-commission = st.number_input("Commission (€)", 0, 10000, 0, key=f"comm_{rid}")
-commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
+col1, col2 = st.columns(2)
+with col1:
+    commission = st.number_input("Commission (€)", 0, 10000, 0, key=f"comm_{rid}")
+with col2:
+    commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
+", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
 
 if st.button("Calculer l'estimation"):
 
@@ -463,8 +492,8 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
-    st.markdown(f"# {prix_marche} €  |  Net vendeur : {net_marche} €")
+    st.markdown("### 💰 PRIX MARCHÉ GARAGE")
+    st.markdown(f"### {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("---")
     st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
