@@ -5,13 +5,6 @@ from datetime import datetime, timedelta
 import statistics
 import io
 import os
-try:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet
-    PDF_AVAILABLE = True
-except:
-    PDF_AVAILABLE = False
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
@@ -281,39 +274,6 @@ def send_to_webhook(username, password, societe, siret):
     except:
         pass
 
-
-def generate_pdf(marque, modele, finition, sous_version, motorisation, annee, km, carburant, boite, options, net_marche, net_bas, net_haut):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    elements = []
-
-    elements.append(Paragraph("ESTIMATION VÉHICULE", styles["Title"]))
-    elements.append(Spacer(1, 10))
-
-    elements.append(Paragraph(f"{marque} {modele} {finition}", styles["Normal"]))
-    elements.append(Paragraph(f"Sous-version : {sous_version}", styles["Normal"]))
-    elements.append(Paragraph(f"{motorisation}", styles["Normal"]))
-    elements.append(Paragraph(f"{annee} • {km} km", styles["Normal"]))
-    elements.append(Paragraph(f"{carburant} / {boite}", styles["Normal"]))
-    elements.append(Spacer(1, 10))
-
-    if options:
-        elements.append(Paragraph("Options :", styles["Normal"]))
-        elements.append(Paragraph(", ".join(options), styles["Normal"]))
-        elements.append(Spacer(1, 10))
-
-    elements.append(Paragraph("PRIX CLIENT (NET VENDEUR)", styles["Heading2"]))
-    elements.append(Spacer(1, 10))
-
-    elements.append(Paragraph(f"Prix marché : {net_marche} €", styles["Normal"]))
-    elements.append(Paragraph(f"Prix bas : {net_bas} €", styles["Normal"]))
-    elements.append(Paragraph(f"Prix haut : {net_haut} €", styles["Normal"]))
-
-    doc.build(elements)
-    buffer.seek(0)
-    return buffer
-
 def clean_prices(prices):
     if len(prices) < 5:
         return prices
@@ -379,8 +339,6 @@ if not st.session_state.logged:
             st.error("Remplir tous les champs")
 
     st.markdown("---")
-
-
 
     st.subheader("🔐 Connexion")
 
@@ -556,8 +514,6 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"📉 BAS : {prix_bas} €  |  Net vendeur : {net_bas} €")
     st.markdown(f"📈 HAUT : {prix_haut} €  |  Net vendeur : {net_haut} €")
     st.markdown("---")
-
-
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
