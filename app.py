@@ -135,6 +135,7 @@ BASE_PRICES = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
@@ -157,21 +158,21 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     age = datetime.now().year - annee
     price = base
 
-    # 🔥 décote normale
+    # 🔥 décote équilibrée
     if age > 0:
-        price *= (0.93 ** age)
+        price *= (0.92 ** age)
 
-    # 🔥 correction vieux véhicule (>6 ans)
+    # 🔥 correction forte vieux véhicules
     if age > 6:
-        price *= 0.85
+        price *= 0.75
 
     # 🔥 KM
     if km > 0:
         price *= (1 - min(km / 300000, 0.25))
 
-    # 🔥 diesel ancien pénalisé
+    # 🔥 diesel ancien fort impact marché
     if carburant == "Diesel" and age > 6:
-        price *= 0.90
+        price *= 0.85
 
     elif carburant == "Hybride":
         price *= 1.03
@@ -181,10 +182,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if boite == "Automatique":
         price *= 1.03
 
-    # 🔥 plancher ajusté
-    price = max(price, base * 0.55)
+    # 🔥 plancher ajusté réaliste
+    price = max(price, base * 0.50)
 
     return int(max(4000, min(price, 80000)))
+
 
 
 
