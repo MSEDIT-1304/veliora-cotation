@@ -136,6 +136,7 @@ BASE_PRICES = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
@@ -151,41 +152,42 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if any(x in key for x in ["corsa","clio","208","polo","ibiza","fiesta"]):
             base = 14000
         elif any(x in key for x in ["3008","qashqai","tiguan","ix35","kadjar"]):
-            base = 22000
-        else:
             base = 20000
+        else:
+            base = 18000
 
     age = datetime.now().year - annee
     price = base
 
-    # 🔥 décote équilibrée
+    # 🔥 décote calibrée terrain
     if age > 0:
-        price *= (0.92 ** age)
+        price *= (0.90 ** age)
 
     # 🔥 correction forte vieux véhicules
-    if age > 6:
-        price *= 0.75
+    if age > 5:
+        price *= 0.70
 
     # 🔥 KM
     if km > 0:
-        price *= (1 - min(km / 300000, 0.25))
+        price *= (1 - min(km / 250000, 0.30))
 
-    # 🔥 diesel ancien fort impact marché
-    if carburant == "Diesel" and age > 6:
-        price *= 0.85
+    # 🔥 diesel ancien (fort impact réel)
+    if carburant == "Diesel" and age > 5:
+        price *= 0.80
 
     elif carburant == "Hybride":
-        price *= 1.03
+        price *= 1.02
     elif carburant == "Électrique":
-        price *= 1.05
+        price *= 1.04
 
     if boite == "Automatique":
-        price *= 1.03
+        price *= 1.02
 
-    # 🔥 plancher ajusté réaliste
-    price = max(price, base * 0.50)
+    # 🔥 plancher réaliste terrain
+    price = max(price, base * 0.45)
 
     return int(max(4000, min(price, 80000)))
+
 
 
 
