@@ -128,58 +128,133 @@ BASE_PRICES = {
 }
 
 
-
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    base = 25000
+    key_full = f"{marque.strip()} {modele.strip()} {annee}".lower()
+    key = f"{marque.strip()} {modele.strip()}".lower()
+
+    # 🔒 PRIORITÉ ABSOLUE
+    if key_full in BASE_PRICES:
+        return BASE_PRICES[key_full]
+
+    elif key in BASE_PRICES:
+        base = BASE_PRICES[key]
+    else:
+        base = 20000
+
+
     age = max(0, datetime.now().year - annee)
     price = base
 
-    key = f"{marque} {modele}".lower()
+    if any(x in key for x in ["x", "q", "tiguan", "suv", "3008", "2008"]):
+        segment = "SUV"
+        price *= 1.02
+    elif any(x in key for x in ["clio", "208", "yaris", "twingo"]):
+        segment = "citadine"
+        price *= 0.92
+    else:
+        segment = "standard"
 
-    # SEGMENT SIMPLE
-    if any(x in key for x in ["x", "q", "suv", "3008", "2008", "tiguan"]):
-        price *= 1.10
-    elif any(x in key for x in ["clio", "208", "yaris", "twingo", "c1", "107"]):
-        price *= 0.75
+    price -= age * 500
 
-    # AGE
-    price -= age * 1200
+    price -= max(0, (km - 60000)) * 0.015
+    price += max(0, (60000 - km)) * 0.012
 
-    # KM
-    price -= (km / 1000) * 15
-
-    # CARBURANT
     if carburant == "Hybride":
-        price *= 1.08
-    elif carburant == "Électrique":
         price *= 1.10
+    elif carburant == "Électrique":
+        price *= 1.12
     elif carburant == "Diesel":
-        price *= 0.95
+        price *= 0.96
+    elif carburant == "GPL":
+        price *= 1.02
 
-    # BOITE
     if boite == "Automatique":
-        price *= 1.03
+        price *= 1.02
 
-    # PUISSANCE
+    if departement:
+        try:
+            dep = int(departement)
+            if dep in range(75, 96):
+                price *= 1.02
+            elif dep in range(1, 20):
+                price *= 0.95
+        except:
+            pass
+
+    if any(x in key for x in ["bmw", "audi", "mercedes"]):
+        if age <= 3:
+            price *= 1.03
+        else:
+            price *= 1.03
+
+    # 🔥 BOOST PUISSANCE AMÉLIORÉ
     if motorisation:
         m = motorisation.lower()
-        if any(x in m for x in ["90", "100"]):
-            price *= 0.95
-        elif any(x in m for x in ["130", "150"]):
-            price *= 1.05
-        elif any(x in m for x in ["180", "200"]):
+
+        if any(x in m for x in ["90", "95", "100"]):
+            price *= 0.97
+        elif any(x in m for x in ["110", "115", "120"]):
+            price *= 1.00
+        elif any(x in m for x in ["130", "136"]):
+            price *= 1.03
+        elif "150" in m:
+            price *= 1.06
+        elif any(x in m for x in ["180", "190"]):
             price *= 1.08
 
-    # FINITION
+    # 🔥 BOOST FINITIONS AMÉLIORÉ
     if finition:
         f = finition.lower()
-        if any(x in f for x in ["life", "access", "business"]):
-            price *= 0.95
-        elif any(x in f for x in ["gt", "sport", "amg", "s line"]):
-            price *= 1.08
 
-    price = max(4000, min(price, 80000))
+        if any(x in f for x in ["business", "trend", "active", "access", "life"]):
+            price *= 0.97
+        elif any(x in f for x in ["style", "allure", "comfort", "design"]):
+            price *= 1.00
+        elif any(x in f for x in ["gt", "gt line", "sport", "rs", "st"]):
+            price *= 1.04
+        elif any(x in f for x in ["amg", "m sport", "s line"]):
+            price *= 1.06
+
+    if segment == "SUV" and (age > 8 or km > 100000):
+        price *= 0.92
+
+    if "dacia" in key:
+        price *= 0.88
+
+    # 🔥 PLANCHER INTELLIGENT GLOBAL
+    if age > 8 and km > 100000:
+        price = max(price, base * 0.65)
+    elif age > 10:
+        price = max(price, base * 0.60)
+
+    
+    
+    # 🔥 correction petites citadines faibles + Fiat 500
+    if segment == "citadine":
+        if age > 4:
+            price *= 0.90
+        if km > 80000:
+            price *= 0.88
+
+    # 🔥 correction spécifique Fiat 500 / 500C
+    if "500c" in key:
+        price *= 0.80
+    elif "fiat 500" in key:
+        price *= 0.85
+
+    # 🔥 correction SUV anciens réaliste (POSITION FINALE)
+    if segment == "SUV":
+        if age > 8:
+            price *= 0.85
+        elif age > 6:
+            price *= 0.90
+
+        if km > 100000:
+            price *= 0.88
+
+    price = max(base * 0.50, min(price, base * 1.35))
+
 
     return int(price)
 
@@ -452,17 +527,8 @@ if st.button("Calculer l'estimation"):
 
     st.session_state.historique = st.session_state.historique[:20]
 
-    age = datetime.now().year - annee
-
-    if km > 120000 or age > 8:
-        marge = 0.15
-    elif km > 80000 or age > 5:
-        marge = 0.12
-    else:
-        marge = 0.08
-
-    prix_bas = int(prix_marche * (1 - marge))
-    prix_haut = int(prix_marche * (1 + marge))
+    prix_bas = int(prix_marche * 0.92)
+    prix_haut = int(prix_marche * 1.08)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
