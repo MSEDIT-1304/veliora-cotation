@@ -485,12 +485,13 @@ if st.button("Calculer l'estimation"):
 
     st.session_state.historique = st.session_state.historique[:20]
 
-    prix_bas_min = int(prix_marche * 0.80)
-    prix_bas_max = int(prix_marche * 0.90)
-    prix_marche_min = int(prix_marche * 0.90)
-    prix_marche_max = int(prix_marche)
-    prix_haut_min = int(prix_marche)
-    prix_haut_max = int(prix_marche * 1.10)
+    prix_vente = prix_psy(prix_marche)
+    prix_bas_min = int(prix_vente * 0.80)
+    prix_bas_max = int(prix_vente * 0.90)
+    prix_marche_min = int(prix_vente * 0.90)
+    prix_marche_max = int(prix_vente)
+    prix_haut_min = int(prix_vente)
+    prix_haut_max = int(prix_vente * 1.10)
 
     if commission_pct > 0:
         commission_calc = prix_marche * (commission_pct / 100)
@@ -501,7 +502,6 @@ if st.button("Calculer l'estimation"):
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
-    prix_vente = prix_psy(prix_marche)
     st.markdown(f"### {prix_vente} €  |  Net vendeur : {net_marche} €")
     st.caption(f"Prix marché estimé : {prix_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
@@ -528,10 +528,6 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
 
-
-# HISTORY MOVED
-#
-    st.subheader("📊 Historique des estimations")
 
     if len(st.session_state.historique) == 0:
         st.info("Aucune estimation pour le moment")
