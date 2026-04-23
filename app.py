@@ -5,9 +5,13 @@ from datetime import datetime, timedelta
 import statistics
 import io
 import os
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
+    PDF_AVAILABLE = True
+except:
+    PDF_AVAILABLE = False
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
@@ -376,18 +380,6 @@ if not st.session_state.logged:
 
     st.markdown("---")
 
-    pdf = generate_pdf(
-        marque, modele, finition, sous_version, motorisation,
-        annee, km, carburant, boite, options,
-        net_marche, net_bas, net_haut
-    )
-
-    st.download_button(
-        label="📄 Télécharger PDF client",
-        data=pdf,
-        file_name="estimation_client.pdf",
-        mime="application/pdf"
-    )
 
 
     st.subheader("🔐 Connexion")
@@ -565,18 +557,6 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"📈 HAUT : {prix_haut} €  |  Net vendeur : {net_haut} €")
     st.markdown("---")
 
-    pdf = generate_pdf(
-        marque, modele, finition, sous_version, motorisation,
-        annee, km, carburant, boite, options,
-        net_marche, net_bas, net_haut
-    )
-
-    st.download_button(
-        label="📄 Télécharger PDF client",
-        data=pdf,
-        file_name="estimation_client.pdf",
-        mime="application/pdf"
-    )
 
 
     buffer = io.StringIO()
@@ -614,5 +594,4 @@ if st.button("Calculer l'estimation"):
 
 ---
 """)
-
 
