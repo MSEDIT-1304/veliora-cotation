@@ -130,19 +130,18 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    key = f"{marque} {modele}".lower()
-
     if any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
-        base = 18000
-    elif any(x in key for x in ["3008","5008","tiguan","qashqai"]):
-        base = 28000
-    elif any(x in key for x in ["audi","bmw","mercedes"]):
-        base = 35000
-    else:
-        base = 22000
-
+    base = 18000
+elif any(x in key for x in ["3008","5008","tiguan","qashqai"]):
+    base = 28000
+elif any(x in key for x in ["audi","bmw","mercedes"]):
+    base = 35000
+else:
+    base = 22000
     age = max(0, datetime.now().year - annee)
     price = base
+
+    key = f"{marque} {modele}".lower()
 
     if any(x in key for x in ["x","q","suv","3008","2008","tiguan"]):
         price *= 1.10
