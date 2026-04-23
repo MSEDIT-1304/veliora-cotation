@@ -120,7 +120,7 @@ BASE_PRICES = {
 
     # 🔥 AJOUT CORSA
     "opel corsa": 14000,
-    "opel corsa 2020": 12000,
+    "opel corsa 2020": 14000,
 
     "renault megane 2020": 17000,
     "renault grand scenic 2020": 21000,
