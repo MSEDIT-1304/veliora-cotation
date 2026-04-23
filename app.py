@@ -463,7 +463,7 @@ if st.button("Calculer l'estimation"):
     net_marche = int(prix_marche - commission_calc)
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown("### 💰 PRIX MARCHÉ GARAGE")
+    st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
     st.markdown(f"# {prix_marche} €  |  Net vendeur : {net_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("---")
