@@ -130,8 +130,14 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
+    key_full = f"{marque} {modele} {annee}".lower()
 
-    if any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
+    # 🔥 PRIORITÉ BASE PRIX RÉEL
+    if key_full in BASE_PRICES:
+        base = BASE_PRICES[key_full]
+    elif key in BASE_PRICES:
+        base = BASE_PRICES[key]
+    elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
         base = 18000
     elif any(x in key for x in ["3008","5008","tiguan","qashqai"]):
         base = 28000
@@ -148,15 +154,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
         price *= 0.75
 
-    # 🔥 DÉCOTE RENFORCÉE SELON ÂGE
     price -= age * 1200
-
-    if age > 5:
-        price *= 0.75
-    if age > 8:
-        price *= 0.70
-    if age > 10:
-        price *= 0.60
     price -= (km / 1000) * 15
 
     if carburant == "Hybride":
