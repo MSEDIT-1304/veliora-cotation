@@ -132,84 +132,53 @@ BASE_PRICES = {
 }
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
 
-    # 🔥 MATCH INTELLIGENT VRAIMENT ROBUSTE
     base = None
 
-    def match_key(k, text):
-        return all(word in text for word in k.split())
-
-    # priorité année
+    # match intelligent
     for k, v in BASE_PRICES.items():
-        if str(annee) in k and match_key(k, key_full):
+        if all(word in key_full for word in k.split()):
             base = v
             break
 
-    # sinon modèle
+    # fallback segments
     if base is None:
-        for k, v in BASE_PRICES.items():
-            if match_key(k, key):
-                base = v
-                break
-
-    # fallback
-    if base is None:
-        if any(x in key for x in ["clio","208","yaris","twingo","c1","107","corsa","polo","ibiza","fiesta"]):
+        if any(x in key for x in ["corsa","clio","208","polo","ibiza","fiesta"]):
             base = 14000
-        elif any(x in key for x in ["3008","5008","tiguan","qashqai"]):
+        elif any(x in key for x in ["3008","qashqai","tiguan"]):
             base = 28000
-        elif any(x in key for x in ["audi","bmw","mercedes"]):
-            base = 35000
         else:
-            base = 22000
+            base = 20000
 
-    age = max(0, datetime.now().year - annee)
+    age = datetime.now().year - annee
     price = base
 
-    if any(x in key for x in ["x","q","suv","3008","2008","tiguan"]):
-        price *= 1.10
-    elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
-        price *= 0.75
+    # décote exponentielle
+    if age > 0:
+        price *= (0.92 ** age)
 
-    price -= age * 700
+    # km intelligent
+    if km > 0:
+        price *= (1 - min(km / 200000, 0.4))
 
-    # 🔥 DÉCOTE KM RENFORCÉE
-    price -= (km / 1000) * 18
-
-    # 🔥 MALUS ESSENCE PURETECH (marché faible)
-    if carburant == "Essence":
-        price *= 0.93
-
-    if carburant == "Hybride":
-        price *= 1.08
-    elif carburant == "Électrique":
-        price *= 1.10
-    elif carburant == "Diesel":
+    # carburant
+    if carburant == "Diesel":
         price *= 0.95
+    elif carburant == "Hybride":
+        price *= 1.05
+    elif carburant == "Électrique":
+        price *= 1.08
 
+    # boite
     if boite == "Automatique":
         price *= 1.03
 
-    if motorisation:
-        m = motorisation.lower()
-        if any(x in m for x in ["90","100"]):
-            price *= 0.95
-        elif any(x in m for x in ["130","150"]):
-            price *= 1.05
-        elif any(x in m for x in ["180","200"]):
-            price *= 1.08
-
-    if finition:
-        f = finition.lower()
-        if any(x in f for x in ["life","access","business"]):
-            price *= 0.95
-        elif any(x in f for x in ["gt","sport","amg","s line"]):
-            price *= 1.08
-
     return int(max(4000, min(price, 80000)))
+
 
 def prix_psy(prix):
     if prix < 10000:
