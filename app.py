@@ -102,8 +102,8 @@ BASE_PRICES = {
     "fiat 500": 11000,
     "fiat 500 2019": 10000,
     "fiat 500c": 10000,
-    "fiat 500c 2019": 10000,
-
+    "fiat 500c 2019": 10000, "fiat 500c 2020": 10900, "fiat 500c 2021": 11700,
+    # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
 
     "nissan qashqai": 24000,
     "nissan qashqai 2021": 22000,
