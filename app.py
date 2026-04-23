@@ -158,7 +158,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
         price *= 0.75
 
-    price -= age * 1200
+    price -= age * 700
 
     # 🔥 DÉCOTE KM RENFORCÉE
     price -= (km / 1000) * 18
