@@ -102,7 +102,7 @@ BASE_PRICES = {
     "fiat 500": 11000,
     "fiat 500 2019": 10000,
     "fiat 500c": 10000,
-    "fiat 500c 2019": 9500,
+    "fiat 500c 2019": 10000,
 
 
     "nissan qashqai": 24000,
