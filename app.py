@@ -136,20 +136,26 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
 
-    # 🔥 MATCH INTELLIGENT + PRIORITÉ ANNÉE
+    # 🔥 MATCH INTELLIGENT VRAIMENT ROBUSTE
     base = None
 
+    def match_key(k, text):
+        return all(word in text for word in k.split())
+
+    # priorité année
     for k, v in BASE_PRICES.items():
-        if str(annee) in k and k in key_full:
+        if str(annee) in k and match_key(k, key_full):
             base = v
             break
 
+    # sinon modèle
     if base is None:
         for k, v in BASE_PRICES.items():
-            if k in key:
+            if match_key(k, key):
                 base = v
                 break
 
+    # fallback
     if base is None:
         if any(x in key for x in ["clio","208","yaris","twingo","c1","107","corsa","polo","ibiza","fiesta"]):
             base = 14000
