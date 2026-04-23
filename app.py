@@ -179,6 +179,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     return int(max(4000, min(price, 80000)))
 
+def prix_psy(prix):
+    if prix < 10000:
+        return int(prix / 100) * 100 - 10
+    elif prix < 20000:
+        return int(prix / 100) * 100 - 10
+    else:
+        return int(prix / 1000) * 1000 - 10
+
+
 
 
 
@@ -492,7 +501,9 @@ if st.button("Calculer l'estimation"):
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
-    st.markdown(f"### {prix_marche} €  |  Net vendeur : {net_marche} €")
+    prix_vente = prix_psy(prix_marche)
+    st.markdown(f"### {prix_vente} €  |  Net vendeur : {net_marche} €")
+    st.caption(f"Prix marché estimé : {prix_marche} €")
     st.markdown("━━━━━━━━━━━━━━━━━━")
     st.markdown("---")
     st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
