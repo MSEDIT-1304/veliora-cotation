@@ -223,6 +223,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price = max(price, base * 0.60)
 
     
+    
+    # 🔥 correction petites citadines faibles + Fiat 500
+    if segment == "citadine":
+        if age > 4:
+            price *= 0.90
+        if km > 80000:
+            price *= 0.88
+
+    # 🔥 correction spécifique Fiat 500 / 500C
+    if "500c" in key:
+        price *= 0.80
+    elif "fiat 500" in key:
+        price *= 0.85
+
     # 🔥 correction SUV anciens réaliste (POSITION FINALE)
     if segment == "SUV":
         if age > 8:
