@@ -130,7 +130,14 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
-    base = 25000
+    if any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
+    base = 18000
+elif any(x in key for x in ["3008","5008","tiguan","qashqai"]):
+    base = 28000
+elif any(x in key for x in ["audi","bmw","mercedes"]):
+    base = 35000
+else:
+    base = 22000
     age = max(0, datetime.now().year - annee)
     price = base
 
@@ -601,8 +608,9 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Boîte : {boite}\n")
     buffer.write(f"\n===== PRIX =====\n")
     buffer.write(f"Prix marché garage : {prix_marche} €\n")
-    buffer.write(f"Prix bas : {prix_bas} €\n")
-    buffer.write(f"Prix haut : {prix_haut} €\n")
+    buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
+    buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
+    buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
 
 
