@@ -130,6 +130,47 @@ BASE_PRICES = {
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
+    base = 25000
+    age = max(0, datetime.now().year - annee)
+    price = base
+
+    key = f"{marque} {modele}".lower()
+
+    if any(x in key for x in ["x","q","suv","3008","2008","tiguan"]):
+        price *= 1.10
+    elif any(x in key for x in ["clio","208","yaris","twingo","c1","107"]):
+        price *= 0.75
+
+    price -= age * 1200
+    price -= (km / 1000) * 15
+
+    if carburant == "Hybride":
+        price *= 1.08
+    elif carburant == "Électrique":
+        price *= 1.10
+    elif carburant == "Diesel":
+        price *= 0.95
+
+    if boite == "Automatique":
+        price *= 1.03
+
+    if motorisation:
+        m = motorisation.lower()
+        if any(x in m for x in ["90","100"]):
+            price *= 0.95
+        elif any(x in m for x in ["130","150"]):
+            price *= 1.05
+        elif any(x in m for x in ["180","200"]):
+            price *= 1.08
+
+    if finition:
+        f = finition.lower()
+        if any(x in f for x in ["life","access","business"]):
+            price *= 0.95
+        elif any(x in f for x in ["gt","sport","amg","s line"]):
+            price *= 1.08
+
+    return int(max(4000, min(price, 80000)))
     key_full = f"{marque.strip()} {modele.strip()} {annee}".lower()
     key = f"{marque.strip()} {modele.strip()}".lower()
 
