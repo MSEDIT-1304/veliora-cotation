@@ -155,7 +155,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 0.75
 
     price -= age * 1200
-    price -= (km / 1000) * 15
+
+    # 🔥 DÉCOTE KM RENFORCÉE
+    price -= (km / 1000) * 25
+
+    # 🔥 MALUS ESSENCE PURETECH (marché faible)
+    if carburant == "Essence":
+        price *= 0.85
 
     if carburant == "Hybride":
         price *= 1.08
