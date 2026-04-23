@@ -99,6 +99,12 @@ BASE_PRICES = {
     "fiat panda": 14000,
     "fiat panda 2018": 17500,
 
+    "fiat 500": 11000,
+    "fiat 500 2019": 10000,
+    "fiat 500c": 10000,
+    "fiat 500c 2019": 9500,
+
+
     "nissan qashqai": 24000,
     "nissan qashqai 2021": 22000,
 
