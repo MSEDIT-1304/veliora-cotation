@@ -223,7 +223,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price *= 1.05
 
     # VERROUILLAGE
-    price = max(base * 0.85, min(price, base * 1.05))
+    price = max(base * 0.70, min(price, base * 1.05))
 
     return int(max(4000, min(price, 80000)))
 
