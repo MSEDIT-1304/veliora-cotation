@@ -237,6 +237,29 @@ FINITION_ADJUST = {
 }
 
 
+
+
+# 🔥 OPTIONS LUXE ADJUST PRO
+OPTIONS_ADJUST = {
+    "toit panoramique": (0.05,0.10),
+    "sieges chauffants": (0.03,0.06),
+    "sieges electriques": (0.04,0.08),
+    "cuir": (0.06,0.12),
+    "gps": (0.04,0.08),
+    "camera recul": (0.02,0.04),
+    "camera 360": (0.04,0.07),
+    "adas": (0.05,0.10),
+    "regulateur adaptatif": (0.04,0.08),
+    "audio premium": (0.03,0.06),
+    "jantes": (0.02,0.05),
+    "keyless": (0.03,0.06),
+    "hayon electrique": (0.03,0.06),
+    "sieges ventiles": (0.04,0.07),
+    "hud": (0.03,0.06),
+    "suspension pilotee": (0.05,0.10)
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque} {modele}".lower()
@@ -315,6 +338,21 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
             price *= (1 + max_adj)
+
+        # 🔥 OPTIONS PRO
+    total_option_bonus = 0
+
+    if 'options' in locals():
+        for opt in options:
+            o = opt.lower()
+            for k,v in OPTIONS_ADJUST.items():
+                if k in o:
+                    total_option_bonus += v[0]
+
+        # plafonnement
+        total_option_bonus = min(total_option_bonus, 0.40)
+
+        price *= (1 + total_option_bonus)
 
     # VERROUILLAGE
     price = max(base * 0.70, min(price, base * 1.05))
