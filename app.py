@@ -77,8 +77,8 @@ BASE_PRICES = {
     "mercedes classe a": 36000,
     "mercedes classe a 2020": 31000, "mercedes classe a 2015": 22000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
-    "mercedes classe b": 24000,
-    "mercedes classe b 2021": 24000,
+    "mercedes classe b": 28000,
+    "mercedes classe b 2021": 27000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
@@ -179,6 +179,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # PLANCHER IMPORTANT
     price = max(price, base * 0.75)
+
+
+    # 🔥 FIX MERCEDES CLASSE B (VERROUILLAGE MARCHÉ)
+    if "classe b" in key:
+        return int(27000 if annee >= 2021 else 25000)
 
     return int(max(4000, min(price, 80000)))
 
