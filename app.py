@@ -175,6 +175,23 @@ BASE_PRICES = {
 
 
 
+
+
+# 🔥 KM ADJUST PRO (90k référence)
+KM_ADJUST = {
+    "twingo":1500,"c1":1500,"i10":1500,"corsa":1500,"fiesta":1500,"clio":1500,"208":1500,
+    "polo":1500,"ibiza":1500,"megane":1500,
+    "308":2000,"focus":2000,"ceed":2000,"i30":2000,"2008":2000,
+    "3008":2500,"5008":2500,"qashqai":2500,"karoq":2500,"ateca":2500,"golf":2500,
+    "x1":2500,"xc40":2500,
+    "tucson":3000,"sportage":3000,"kuga":3000,"c5 aircross":3000,
+    "a3":3000,"serie 1":3000,
+    "classe a":3500,"serie 3":3500,"x3":3500,"q5":3500,
+    "xc60":4000,
+    "x5":5500,"q7":5500
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque} {modele}".lower()
@@ -200,7 +217,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price = base - (age * 1200)
 
     # KM
-    price -= (km / 1000) * 10
+    # 🔥 KM PRO PAR MODELE
+    km_ref = 90000
+    delta_km = km - km_ref
+
+    adjust = 2000
+    for k,v in KM_ADJUST.items():
+        if k in key:
+            adjust = v
+            break
+
+    price -= (delta_km / 30000) * adjust
 
     # CARBURANT
     if carburant == "Diesel":
@@ -644,4 +671,5 @@ if "resultat" in st.session_state:
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
 
+        st.success(f"💶 Net vendeur : {net_calc} €")
         st.success(f"💶 Net vendeur : {net_calc} €")
