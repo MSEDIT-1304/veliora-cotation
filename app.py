@@ -215,6 +215,28 @@ YEAR_ADJUST = {
 }
 
 
+
+
+# 🔥 FINITION ADJUST PRO
+FINITION_ADJUST = {
+    "c1": (0.12,0.18),"i10": (0.12,0.18),"twingo": (0.12,0.18),
+
+    "corsa": (0.15,0.22),"fiesta": (0.15,0.22),"c3": (0.15,0.22),"clio": (0.15,0.22),
+    "208": (0.15,0.22),"i20": (0.15,0.22),"ibiza": (0.15,0.22),"polo": (0.15,0.22),
+
+    "megane": (0.18,0.25),"308": (0.18,0.25),"focus": (0.18,0.25),
+    "ceed": (0.18,0.25),"i30": (0.18,0.25),"golf": (0.18,0.25),
+
+    "3008": (0.20,0.30),"5008": (0.22,0.32),"qashqai": (0.20,0.30),
+    "tucson": (0.20,0.30),"sportage": (0.20,0.30),
+
+    "a3": (0.18,0.28),"serie 1": (0.18,0.28),"classe a": (0.18,0.28),
+
+    "serie 3": (0.20,0.30),"x3": (0.25,0.35),"q5": (0.25,0.35),
+    "x5": (0.30,0.45),"q7": (0.30,0.45)
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque} {modele}".lower()
@@ -274,13 +296,25 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if boite == "Automatique":
         price *= 1.02
 
-    # FINITION
+    # 🔥 FINITION PRO PAR MODELE
     if finition:
         f = finition.lower()
-        if any(x in f for x in ["business","life","access"]):
-            price *= 0.95
-        elif any(x in f for x in ["amg","gt","s line","m sport"]):
-            price *= 1.05
+
+        min_adj, max_adj = (0.15,0.25)
+
+        for k,v in FINITION_ADJUST.items():
+            if k in key:
+                min_adj, max_adj = v
+                break
+
+        if any(x in f for x in ["access","life","business","trend","base"]):
+            price *= (1 - min_adj)
+
+        elif any(x in f for x in ["gt","sport","line","plus","tech","style"]):
+            price *= (1 + (min_adj/2))
+
+        elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
+            price *= (1 + max_adj)
 
     # VERROUILLAGE
     price = max(base * 0.70, min(price, base * 1.05))
