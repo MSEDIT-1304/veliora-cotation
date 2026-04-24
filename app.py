@@ -99,10 +99,10 @@ BASE_PRICES = {
     "fiat panda": 14000,
     "fiat panda 2018": 17500,
 
-    "fiat 500": 18400,
-    "fiat 500 2019": 18400,
-    "fiat 500c": 18400,
-    "fiat 500c 2019": 18400, "fiat 500c 2020": 19300, "fiat 500c 2021": 20000,
+    "fiat 500": 19700,
+    "fiat 500 2019": 19700,
+    "fiat 500c": 19700,
+    "fiat 500c 2019": 19700, "fiat 500c 2020": 20600, "fiat 500c 2021": 21000,
     # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
 
     "nissan qashqai": 24000,
