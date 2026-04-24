@@ -77,7 +77,7 @@ BASE_PRICES = {
     "mercedes classe a": 36000,
     "mercedes classe a 2020": 31000, "mercedes classe a 2015": 22000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
-    "mercedes classe b 2020": 61000, "mercedes classe b 2021": 62000, "mercedes classe b 2022": 63000
+    "mercedes classe b 2020": 61000, "mercedes classe b 2021": 62000, "mercedes classe b 2022": 63000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
