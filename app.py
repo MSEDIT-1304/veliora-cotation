@@ -587,6 +587,30 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
     st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
 
+    st.markdown("---")
+    st.markdown("### 🧮 Calculateur Net Vendeur")
+
+    colA, colB = st.columns(2)
+
+    with colA:
+        prix_choisi = st.number_input("Prix de vente choisi (€)", value=prix_vente)
+
+    with colB:
+        commission_user = st.number_input("Commission (€)", value=commission)
+
+    commission_pct_user = st.number_input("Commission (%) (prioritaire si rempli)", 0.0, 100.0, 0.0)
+
+    if commission_pct_user > 0:
+        commission_calc_user = round(prix_choisi * (commission_pct_user / 100))
+    else:
+        commission_calc_user = commission_user
+
+    net_calc = prix_choisi - commission_calc_user
+    net_calc = int(round(net_calc / 10) * 10)
+
+    st.success(f"💶 Net vendeur : {net_calc} €")
+
+
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
     buffer.write(f"Marque : {marque}\n")
