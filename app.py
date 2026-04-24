@@ -197,10 +197,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # AGE
     age = datetime.now().year - annee
-    price = base - (age * 1000)
+    price = base - (age * 1200)
 
     # KM
-    price -= (km / 1000) * 8
+    price -= (km / 1000) * 10
 
     # CARBURANT
     if carburant == "Diesel":
