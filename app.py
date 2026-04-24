@@ -124,6 +124,16 @@ BASE_PRICES = {
     "citroen c4 2020": 13440,
     "citroen c5 aircross 2020": 16520,
 
+    
+    # 🔥 SKODA AJOUT (corrigé +12%)
+    "skoda fabia 2020": 10640,
+    "skoda scala 2020": 12320,
+    "skoda octavia 2020": 14000,
+    "skoda kamiq 2020": 13440,
+    "skoda karoq 2020": 14560,
+    "skoda kodiaq 2020": 20720,
+    "skoda superb 2020": 17360,
+
     # fallback générique
     "renault megane": 26880,
     "peugeot 208": 19040,
@@ -593,4 +603,5 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
     buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
+
 
