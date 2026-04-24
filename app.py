@@ -587,6 +587,19 @@ if st.button("Calculer l'estimation"):
     st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
     st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
 
+    # 🔥 STOCKAGE RESULTAT (pour éviter reset)
+    st.session_state.resultat = {
+        "prix_vente": prix_vente,
+        "net_marche": net_marche,
+        "prix_bas_min": prix_bas_min,
+        "prix_bas_max": prix_bas_max,
+        "prix_marche_min": prix_marche_min,
+        "prix_marche_max": prix_marche_max,
+        "prix_haut_min": prix_haut_min,
+        "prix_haut_max": prix_haut_max
+    }
+
+
     st.markdown("---")
     st.markdown("### 🧮 Calculateur Net Vendeur")
 
@@ -628,3 +641,33 @@ if st.button("Calculer l'estimation"):
     buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
+
+
+# ===== AFFICHAGE STABLE (hors bouton) =====
+if "resultat" in st.session_state:
+    r = st.session_state.resultat
+
+    col_left, col_right = st.columns(2)
+
+    with col_left:
+        st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
+        st.markdown(f"### {r['prix_vente']} €  |  Net vendeur : {r['net_marche']} €")
+        st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
+        st.markdown(f"🎯 MARCHÉ : {r['prix_marche_min']} € → {r['prix_marche_max']} €")
+        st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
+
+    with col_right:
+        st.markdown("### 🧮 Calculateur")
+        prix_choisi = st.number_input("Prix choisi", value=r["prix_vente"])
+        commission_user = st.number_input("Commission (€)", value=0)
+        commission_pct_user = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
+
+        if commission_pct_user > 0:
+            commission_calc_user = round(prix_choisi * (commission_pct_user / 100))
+        else:
+            commission_calc_user = commission_user
+
+        net_calc = prix_choisi - commission_calc_user
+        net_calc = int(round(net_calc / 10) * 10)
+
+        st.success(f"💶 Net vendeur : {net_calc} €")
