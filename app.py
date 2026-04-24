@@ -260,6 +260,29 @@ OPTIONS_ADJUST = {
 }
 
 
+
+
+# 🔥 OPTIONS YEAR ADJUST PRO
+OPTIONS_YEAR = {
+    "toit panoramique": {"2019":0.04,"2021":0.07,"2023":0.10},
+    "sieges chauffants": {"2019":0.02,"2021":0.04,"2023":0.06},
+    "sieges electriques": {"2019":0.03,"2021":0.05,"2023":0.08},
+    "cuir": {"2019":0.05,"2021":0.08,"2023":0.12},
+    "gps": {"2019":0.03,"2021":0.06,"2023":0.09},
+    "camera recul": {"2019":0.01,"2021":0.03,"2023":0.04},
+    "camera 360": {"2019":0.03,"2021":0.05,"2023":0.07},
+    "adas": {"2019":0.04,"2021":0.07,"2023":0.10},
+    "regulateur adaptatif": {"2019":0.03,"2021":0.06,"2023":0.09},
+    "audio premium": {"2019":0.02,"2021":0.04,"2023":0.06},
+    "jantes": {"2019":0.01,"2021":0.03,"2023":0.05},
+    "keyless": {"2019":0.02,"2021":0.04,"2023":0.06},
+    "hayon electrique": {"2019":0.02,"2021":0.04,"2023":0.06},
+    "sieges ventiles": {"2019":0.03,"2021":0.05,"2023":0.07},
+    "hud": {"2019":0.02,"2021":0.04,"2023":0.06},
+    "suspension pilotee": {"2019":0.04,"2021":0.07,"2023":0.10}
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque} {modele}".lower()
@@ -347,7 +370,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             o = opt.lower()
             for k,v in OPTIONS_ADJUST.items():
                 if k in o:
-                    total_option_bonus += v[0]
+                    year_key = str(annee)
+                    if k in OPTIONS_YEAR and year_key in OPTIONS_YEAR[k]:
+                        total_option_bonus += OPTIONS_YEAR[k][year_key]
+                    else:
+                        total_option_bonus += v[0]
 
         # plafonnement
         total_option_bonus = min(total_option_bonus, 0.40)
