@@ -38,99 +38,96 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 # 🔥 DATASET PREMIUM COMPLET
 BASE_PRICES = {
 
-    "toyota chr": 30000, "toyota chr 2023": 31000, "toyota chr 2024": 32000, "toyota chr 2025": 33000,
-    "toyota yaris": 20000, "toyota yaris 2023": 22000, "toyota corolla": 28000,
+    # 2020 / 90 000 km base marché PRO (médiane)
 
-    "peugeot 208": 18000, "peugeot 208 2022": 19000, "peugeot 208 2023": 20000,
-    "peugeot 2008": 24000, "peugeot 3008": 32000,
+    "renault megane 2020": 10000,
+    "peugeot 208 2020": 9500,
+    "peugeot 2008 2020": 11500,
+    "peugeot 3008 2020": 12500,
+    "peugeot 5008 2020": 13500,
+    "toyota yaris 2020": 10500,
+    "toyota corolla 2020": 14500,
+    "volvo xc40 2020": 19000,
+    "volvo xc60 2020": 22000,
+    "volvo v60 2020": 18000,
+    "hyundai i20 2020": 9500,
+    "volkswagen polo 2020": 11000,
+    "hyundai tucson 2020": 15000,
+    "kia sportage 2020": 14500,
+    "audi q3 2020": 21000,
+    "audi q5 2020": 26000,
+    "audi q7 2020": 36500,
+    "bmw x1 2020": 19500,
+    "bmw x3 2020": 24000,
+    "bmw x5 2020": 34000,
+    "bmw serie 1 2020": 17500,
+    "bmw serie 3 2020": 21000,
+    "audi a1 2020": 14000,
+    "audi a3 2020": 17000,
+    "mercedes classe a 2020": 20000,
+    "mercedes classe b 2020": 18500,
+    "mini cooper 2020": 16250,
+    "opel corsa 2020": 9000,
+    "opel grandland 2020": 13750,
+    "opel grandland x 2020": 13250,
 
-    "renault clio": 17000, "renault clio 2022": 18000, "renault clio 2023": 19000,
-    "renault captur": 23000, "renault megane": 26000,
-
-    "ford focus": 18000,
-    "ford focus 2020": 17500,
-
-    # ✅ AJOUT IMPORTANT POUR ÉVITER LES PRIX FAUX
-    "renault twingo": 11000,
-    "renault twingo 2017": 10500,
-
-    "dacia sandero": 14000, "dacia sandero 2023": 15000, "dacia duster": 22000,
-
-    "bmw serie 1": 30000, "bmw serie 1 2022": 32000, "bmw serie 1 2023": 34000,
-    "bmw x1": 31000,
-    "bmw x1 2020": 32000,
-
-    "mini countryman": 26000,
-    "mini countryman 2019": 25000,
-
-    "audi a3": 32000, "audi a3 2022": 34000, "audi a3 2023": 36000,
-    "audi q3": 40000,
-    "audi a4 2020": 33300,
-    "audi a4": 33300,
-    # ✅ CORRECTION AJOUTÉE
-    "audi q5": 32000,
-    "audi q5 2020": 30000,
-    "audi q5 2021": 33000,
-    "audi q5 2022": 36000,
-
-
-    "mercedes classe a": 36000,
-    "mercedes classe a 2020": 31000, "mercedes classe a 2015": 22000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
-    "mercedes gla": 42000,
-    "mercedes classe b": 28000,
-    "mercedes classe b 2021": 27000,
-
-    "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
-    "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
-    "volkswagen t cross 2020": 22500,
-    "volkswagen t cross": 22500,
     
-    "renault zoe": 22000,
-    "renault zoe 2021": 20000,
+    # 🔥 AJOUT LISTE UTILISATEUR (médianes 2020 / 90 000 km)
+    "renault clio v 2020": 9500,
+    "renault captur ii 2020": 11750,
+    "renault kadjar 2020": 13250,
+    "peugeot 308 2020": 11250,
+    "citroen c3 2020": 9000,
+    "citroen c5 aircross 2020": 15000,
+    "volkswagen golf 8 2020": 15250,
+    "volkswagen tiguan 2020": 17500,
+    "seat leon 2020": 11750,
+    "seat ateca 2020": 15000,
+    "skoda octavia 2020": 12750,
+    "skoda karoq 2020": 15000,
+    "ford fiesta 2020": 9000,
+    "ford focus 2020": 11250,
+    "ford kuga 2020": 15500,
+    "nissan qashqai 2020": 14500,
+    "nissan juke 2020": 11750,
+    "mazda cx-30 2020": 16000,
+    "mazda 3 2020": 13750,
+    "honda civic 2020": 14250,
+    "honda cr-v 2020": 19500,
+    "kia ceed 2020": 11750,
+    "kia xceed 2020": 13750,
 
-    "citroen c4": 18000,
-    "citroen c4 2019": 16000,
-    "citroen c4 cactus 2019": 17000,
-
-    "kia rio": 16000,
-    "kia rio 2020": 18000,
-
-    "renault kadjar": 22000,
-    "renault kadjar 2016": 17800,
-
-    "fiat panda": 14000,
-    "fiat panda 2018": 17500,
-
-    "fiat 500": 11000,
-    "fiat 500 2019": 10000,
-    "fiat 500c": 10000,
-    "fiat 500c 2019": 10000, "fiat 500c 2020": 10900, "fiat 500c 2021": 11700,
-    # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
-
-    "nissan qashqai": 24000,
-    "nissan qashqai 2021": 22000,
-
-    "hyundai ix35": 13500,
-    "hyundai ix35 2016": 11500, "hyundai ix35 2018": 12900, "hyundai ix35 2020": 14700,
-    # 🔥 AJOUT BASES MARCHÉ 2020 / 90000KM
-    "toyota yaris 2020": 13000,
-    "toyota corolla 2020": 20000,
-
-    "peugeot 2008 2020": 15000,
-    "peugeot 3008 2020": 20200,
-    "peugeot 5008 2020": 19000,
-
-    # 🔥 AJOUT CORSA
-    "opel corsa": 14300,
-    "opel corsa 2020": 14300,
-
-    "renault megane 2020": 17000,
-    "renault grand scenic 2020": 21000,
-
-    "volvo xc40 2020": 26000,
-    "volvo xc60 2020": 35000,
-    "volvo v60 2020": 26000,
-
+    # fallback générique
+    "renault megane": 24000,
+    "peugeot 208": 17000,
+    "peugeot 2008": 22000,
+    "peugeot 3008": 30000,
+    "peugeot 5008": 28000,
+    "toyota yaris": 18000,
+    "toyota corolla": 22000,
+    "volvo xc40": 40000,
+    "volvo xc60": 50000,
+    "volvo v60": 42000,
+    "hyundai i20": 16000,
+    "volkswagen polo": 18000,
+    "hyundai tucson": 30000,
+    "kia sportage": 28000,
+    "audi q3": 38000,
+    "audi q5": 50000,
+    "audi q7": 70000,
+    "bmw x1": 34000,
+    "bmw x3": 50000,
+    "bmw x5": 75000,
+    "bmw serie 1": 32000,
+    "bmw serie 3": 42000,
+    "audi a1": 25000,
+    "audi a3": 33000,
+    "mercedes classe a": 33000,
+    "mercedes classe b": 28000,
+    "mini cooper": 28000,
+    "opel corsa": 15000,
+    "opel grandland": 26000,
+    "opel grandland x": 25000
 }
 
 
@@ -140,52 +137,59 @@ BASE_PRICES = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
+
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
 
+    # BASE DATASET
     base = None
-
     for k, v in BASE_PRICES.items():
         if all(word in key_full for word in k.split()):
             base = v
             break
 
     if base is None:
-        if any(x in key for x in ["classe b","classe a","gla","audi","bmw","mercedes"]):
+        if any(x in key for x in ["mercedes","bmw","audi"]):
             base = 30000
-        elif any(x in key for x in ["3008","qashqai","tiguan","ix35","kadjar"]):
+        elif any(x in key for x in ["3008","qashqai","tiguan","kadjar","ix35"]):
             base = 20000
         else:
-            base = 18000
+            base = 15000
 
+    # AGE
     age = datetime.now().year - annee
-    price = base
+    price = base - (age * 1000)
 
-    # DECOTE BEAUCOUP PLUS DOUCE
-    if age > 0:
-        price *= (0.95 ** age)
+    # KM
+    price -= (km / 1000) * 8
 
-    # KM plus doux
-    if km > 0:
-        price *= (1 - min(km / 300000, 0.20))
-
-    # léger ajustement diesel
+    # CARBURANT
     if carburant == "Diesel":
-        price *= 0.97
-
-    if boite == "Automatique":
+        price *= 0.98
+    elif carburant == "Hybride":
+        price *= 1.02
+    elif carburant == "Électrique":
         price *= 1.03
 
-    # PLANCHER IMPORTANT
-    price = max(price, base * 0.75)
+    # BOITE
+    if boite == "Automatique":
+        price *= 1.02
 
+    # FINITION
+    if finition:
+        f = finition.lower()
+        if any(x in f for x in ["business","life","access"]):
+            price *= 0.95
+        elif any(x in f for x in ["amg","gt","s line","m sport"]):
+            price *= 1.05
 
-    # 🔥 FIX MERCEDES CLASSE B (VERROUILLAGE MARCHÉ)
-    if "classe b" in key:
-        return int(27000 if annee >= 2021 else 25000)
+    # VERROUILLAGE
+    price = max(base * 0.85, min(price, base * 1.05))
 
     return int(max(4000, min(price, 80000)))
+
 
 
 
