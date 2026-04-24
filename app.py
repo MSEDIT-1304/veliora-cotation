@@ -77,6 +77,8 @@ BASE_PRICES = {
     "mercedes classe a": 36000,
     "mercedes classe a 2020": 31000, "mercedes classe a 2015": 22000, "mercedes classe a 2022": 33000, "mercedes classe a 2023": 34000,
     "mercedes gla": 42000,
+    "mercedes classe b": 28000,
+    "mercedes classe b 2021": 27000,
 
     "volkswagen golf 2019": 22000, "volkswagen golf 2022": 26000, "volkswagen golf 2023": 27000,
     "volkswagen tiguan 2020": 33000, "volkswagen tiguan 2022": 34700, "volkswagen tiguan 2023": 35700,
@@ -137,6 +139,7 @@ BASE_PRICES = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
@@ -149,8 +152,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     if base is None:
-        if any(x in key for x in ["corsa","clio","208","polo","ibiza","fiesta"]):
-            base = 14000
+        if any(x in key for x in ["classe b","classe a","gla","audi","bmw","mercedes"]):
+            base = 30000
         elif any(x in key for x in ["3008","qashqai","tiguan","ix35","kadjar"]):
             base = 20000
         else:
@@ -159,34 +162,26 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     age = datetime.now().year - annee
     price = base
 
-    # 🔥 décote calibrée terrain
+    # DECOTE BEAUCOUP PLUS DOUCE
     if age > 0:
-        price *= (0.90 ** age)
+        price *= (0.95 ** age)
 
-    # 🔥 correction forte vieux véhicules
-    if age > 5:
-        price *= 0.70
-
-    # 🔥 KM
+    # KM plus doux
     if km > 0:
-        price *= (1 - min(km / 250000, 0.30))
+        price *= (1 - min(km / 300000, 0.20))
 
-    # 🔥 diesel ancien (fort impact réel)
-    if carburant == "Diesel" and age > 5:
-        price *= 0.80
-
-    elif carburant == "Hybride":
-        price *= 1.02
-    elif carburant == "Électrique":
-        price *= 1.04
+    # léger ajustement diesel
+    if carburant == "Diesel":
+        price *= 0.97
 
     if boite == "Automatique":
-        price *= 1.02
+        price *= 1.03
 
-    # 🔥 plancher réaliste terrain
-    price = max(price, base * 0.45)
+    # PLANCHER IMPORTANT
+    price = max(price, base * 0.75)
 
     return int(max(4000, min(price, 80000)))
+
 
 
 
