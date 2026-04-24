@@ -235,12 +235,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
 
 def prix_psy(prix):
-    if prix < 10000:
-        return int(prix / 100) * 100 - 10
-    elif prix < 20000:
-        return int(prix / 100) * 100 - 10
-    else:
-        return int(prix / 1000) * 1000 - 10
+    return int(prix / 100) * 100 - 10
 
 
 
