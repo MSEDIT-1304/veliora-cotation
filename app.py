@@ -542,19 +542,20 @@ if st.button("Calculer l'estimation"):
     def arrondi_10(x):
         return int(round(x / 10) * 10)
 
-    base = prix_vente
+    base = prix_marche
+    base = int(round(base / 100) * 100)
 
     # BAS
-    prix_bas_min = arrondi_10(base * 0.90)
-    prix_bas_max = arrondi_10(base * 0.99)
+    prix_bas_min = arrondi_10(base * 0.88)
+    prix_bas_max = arrondi_10(base * 0.94)
 
     # MARCHÉ (plage cohérente fixe)
-    prix_marche_min = base
-    prix_marche_max = arrondi_10(base * 1.10)
+    prix_marche_min = arrondi_10(base * 0.95)
+    prix_marche_max = arrondi_10(base * 1.05)
 
     # HAUT
     prix_haut_min = prix_marche_max + 1
-    prix_haut_max = arrondi_10(base * 1.20)
+    prix_haut_max = arrondi_10(base * 1.12)
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
