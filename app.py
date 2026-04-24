@@ -192,6 +192,29 @@ KM_ADJUST = {
 }
 
 
+
+
+# 🔥 YEAR ADJUST PRO (base 2020)
+YEAR_ADJUST = {
+    "x5": {"2019": -0.10, "2021": 0.15, "2023": 0.36},
+    "q7": {"2019": -0.10, "2021": 0.15, "2023": 0.36},
+
+    "corsa": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
+    "clio": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
+    "208": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
+
+    "3008": {"2019": -0.08, "2021": 0.19, "2023": 0.42},
+    "5008": {"2019": -0.08, "2021": 0.19, "2023": 0.42},
+
+    "x3": {"2019": -0.11, "2021": 0.17, "2023": 0.42},
+    "q5": {"2019": -0.11, "2021": 0.17, "2023": 0.42},
+
+    "c1": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
+    "i10": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
+    "twingo": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
 
     key = f"{marque} {modele}".lower()
@@ -214,7 +237,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # AGE
     age = datetime.now().year - annee
-    price = base - (age * 1200)
+    price = base
+
+    # 🔥 YEAR PRO PAR MODELE
+    year_adjust = 0
+    for k,v in YEAR_ADJUST.items():
+        if k in key:
+            if str(annee) in v:
+                year_adjust = v[str(annee)]
+            break
+
+    price *= (1 + year_adjust)
 
     # KM
     # 🔥 KM PRO PAR MODELE
@@ -671,5 +704,4 @@ if "resultat" in st.session_state:
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
 
-        st.success(f"💶 Net vendeur : {net_calc} €")
         st.success(f"💶 Net vendeur : {net_calc} €")
