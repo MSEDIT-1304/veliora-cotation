@@ -43,8 +43,8 @@ BASE_PRICES = {
     "renault megane 2020": 11536,
     "peugeot 208 2020": 10959,
     "peugeot 2008 2020": 13266,
-    "peugeot 3008 2020": 14420,
-    "peugeot 5008 2020": 15573,
+    "peugeot 3008 2020": 17500,
+    "peugeot 5008 2020": 18500,
     "toyota yaris 2020": 12112,
     "toyota corolla 2020": 16727,
     "volvo xc40 2020": 21918,
@@ -52,9 +52,9 @@ BASE_PRICES = {
     "volvo v60 2020": 20764,
     "hyundai i20 2020": 10959,
     "volkswagen polo 2020": 12689,
-    "hyundai tucson 2020": 17304,
+    "hyundai tucson 2020": 19500,
     "hyundai ix35 2016": 10382,
-    "kia sportage 2020": 16727,
+    "kia sportage 2020": 19000,
     "audi q3 2020": 20000,
     "audi q5 2020": 26000,
     "audi q7 2020": 35000,
@@ -81,15 +81,15 @@ BASE_PRICES = {
     "citroen c3 2020": 10382,
     "citroen c5 aircross 2020": 17304,
     "volkswagen golf 8 2020": 17592,
-    "volkswagen tiguan 2020": 20188,
+    "volkswagen tiguan 2020": 22500,
     "seat leon 2020": 13554,
-    "seat ateca 2020": 17304,
+    "seat ateca 2020": 19000,
     "skoda octavia 2020": 14708,
-    "skoda karoq 2020": 17304,
+    "skoda karoq 2020": 19000,
     "ford fiesta 2020": 10382,
     "ford focus 2020": 12978,
     "ford kuga 2020": 17880,
-    "nissan qashqai 2020": 16727,
+    "nissan qashqai 2020": 18500,
     "nissan juke 2020": 13554,
     "mazda cx-30 2020": 18457,
     "mazda 3 2020": 15862,
@@ -389,6 +389,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = base
 
+    # 🔥 BOOST MARCHÉ SUV
+    if any(x in key for x in ["3008","5008","tiguan","qashqai","karoq","ateca","tucson","sportage"]):
+        price *= 1.05
+
     # 🔥 YEAR PRO PAR MODELE
     year_adjust = 0
     for k,v in YEAR_ADJUST.items():
@@ -462,11 +466,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if any(x in f for x in ["access","life","business","trend","base"]):
             price *= (1 - min_adj)
 
-        elif any(x in f for x in ["gt","sport","line","plus","tech","style"]):
+        elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
             price *= (1 + (min_adj/2))
 
         elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
             price *= (1 + max_adj)
+
+        # 🔥 BOOST finition SUV premium
+    if any(x in key for x in ["3008","tiguan","qashqai","tucson","sportage"]) and any(x in f for x in ["carat","gt","allure","intens","shine"]):
+        price *= 1.03
 
         # 🔥 OPTIONS PRO
     if carburant == "Électrique":
@@ -528,7 +536,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + geo_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.65, min(price, base * 1.08))
+    price = max(base * 0.65, min(price, base * 1.15))
 
     return int(max(4000, min(price, 80000)))
 
