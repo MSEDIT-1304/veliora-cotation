@@ -285,6 +285,21 @@ OPTIONS_YEAR = {
 
 
 
+
+
+# 🔥 ELECTRIC VEHICLES DATASET (BASE PRIX PAR ANNEE)
+ELECTRIC_BASE = {
+    "tesla model 3": {"2019":24000,"2020":27000,"2021":29000,"2022":31000,"2023":30000,"2024":27000,"2025":25000},
+    "tesla model y": {"2021":38000,"2022":40000,"2023":38000,"2024":34000,"2025":30000},
+    "mg4": {"2022":22000,"2023":21000,"2024":19000,"2025":17000},
+    "mg zs ev": {"2019":16000,"2020":18000,"2021":19000,"2022":20000,"2023":19000,"2024":17000,"2025":15000},
+    "zoe": {"2019":12000,"2020":14000,"2021":15000,"2022":16000,"2023":15000,"2024":13000,"2025":11000},
+    "e-208": {"2020":17000,"2021":19000,"2022":20000,"2023":19000,"2024":17000,"2025":15000},
+    "id.3": {"2020":22000,"2021":24000,"2022":25000,"2023":24000,"2024":21000,"2025":18000},
+    "kona ev": {"2019":20000,"2020":22000,"2021":24000,"2022":25000,"2023":24000,"2024":22000,"2025":20000},
+    "e-niro": {"2019":21000,"2020":23000,"2021":25000,"2022":26000,"2023":25000,"2024":23000,"2025":21000}
+}
+
 # 🔥 ESSENCE vs DIESEL ADJUST PRO
 FUEL_ADJUST = {
     "corsa": 0.03,"fiesta": 0.03,"c3": 0.03,"fabia": 0.03,"clio": 0.03,"208": 0.03,"i20": 0.03,"ibiza": 0.03,
@@ -311,6 +326,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     key_full = f"{marque} {modele} {annee}".lower()
 
     # BASE DATASET
+    # 🔥 ELECTRIC OVERRIDE
+    for k,v in ELECTRIC_BASE.items():
+        if k in key:
+            year_key = str(annee)
+            if year_key in v:
+                base = v[year_key]
+                break
+
     base = None
     for k, v in BASE_PRICES.items():
         if all(word in key_full for word in k.split()):
@@ -338,6 +361,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price *= (1 + year_adjust)
 
     # KM
+    # 🔥 ELECTRIC KM SPECIFIC
+    if carburant == "Électrique":
+        if km <= 60000:
+            price *= 1.12
+        elif km >= 120000:
+            price *= 0.85
+
     # 🔥 KM PRO PAR MODELE
     km_ref = 90000
     delta_km = km - km_ref
@@ -390,6 +420,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price *= (1 + max_adj)
 
         # 🔥 OPTIONS PRO
+    if carburant == "Électrique":
+        for opt in options:
+            o = opt.lower()
+            if "autonomie" in o:
+                price *= 1.15
+            if "awd" in o or "dual" in o:
+                price *= 1.12
+            if "autopilot" in o:
+                price *= 1.08
+            if "pompe" in o:
+                price *= 1.05
+            if "premium" in o:
+                price *= 1.08
+
     total_option_bonus = 0
 
     if options:
