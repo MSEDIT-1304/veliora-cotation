@@ -291,6 +291,17 @@ OPTIONS_YEAR = {
 
 
 
+
+
+# 🔥 AWD / 4x4 ADJUST PRO
+AWD_ADJUST = {
+    "citadine": (0.08,0.15),
+    "compacte": (0.06,0.12),
+    "suv": (0.07,0.15),
+    "premium": (0.08,0.12),
+    "electrique": (0.10,0.20)
+}
+
 # 🔥 GEO ADJUST (DEPARTEMENT)
 GEO_ADJUST = {
     "75": {"citadine":0.12,"compacte":0.12,"suv":0.14,"premium":0.18,"electrique":0.20},
@@ -489,6 +500,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         total_option_bonus = min(total_option_bonus, 0.40)
 
         price *= (1 + total_option_bonus)
+
+    # 🔥 AWD / 4x4 DETECTION
+    if any(x in motorisation.lower() for x in ["awd","4x4","xdrive","quattro","4motion","allgrip"]):
+        type_cat = "citadine"
+        if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
+            type_cat = "suv"
+        if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
+            type_cat = "premium"
+        if carburant == "Électrique":
+            type_cat = "electrique"
+
+        min_awd, max_awd = AWD_ADJUST.get(type_cat,(0.07,0.12))
+        price *= (1 + (min_awd + max_awd)/2)
 
     # 🔥 GEO AJUSTEMENT
     type_cat = "citadine"
