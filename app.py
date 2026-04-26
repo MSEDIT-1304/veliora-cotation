@@ -283,7 +283,10 @@ OPTIONS_YEAR = {
 }
 
 
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement=""):
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None):
+
+    if options is None:
+        options = []
 
     key = f"{marque} {modele}".lower()
     key_full = f"{marque} {modele} {annee}".lower()
@@ -303,8 +306,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         else:
             base = 15000
 
-    # AGE
-    age = datetime.now().year - annee
     price = base
 
     # 🔥 YEAR PRO PAR MODELE
@@ -365,7 +366,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         # 🔥 OPTIONS PRO
     total_option_bonus = 0
 
-    if 'options' in locals():
+    if options:
         for opt in options:
             o = opt.lower()
             for k,v in OPTIONS_ADJUST.items():
@@ -382,7 +383,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + total_option_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.70, min(price, base * 1.05))
+    price = max(base * 0.65, min(price, base * 1.08))
 
     return int(max(4000, min(price, 80000)))
 
@@ -652,7 +653,7 @@ with col2:
 
 if st.button("Calculer l'estimation"):
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement)
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options)
 
     prix_comparables = []
 
@@ -804,3 +805,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
