@@ -366,14 +366,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # BASE DATASET
     # 🔥 ELECTRIC OVERRIDE
+    base = None
+
     for k,v in ELECTRIC_BASE.items():
         if k in key:
             year_key = str(annee)
             if year_key in v:
                 base = v[year_key]
                 break
-
-    base = None
     for k, v in BASE_PRICES.items():
         if all(word in key_full for word in k.split()):
             base = v
@@ -453,6 +453,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 1.02
 
     # 🔥 FINITION PRO PAR MODELE
+    f = finition.lower() if finition else ""
     if finition:
         f = finition.lower()
 
