@@ -686,7 +686,9 @@ if not st.session_state.logged:
             st.error("SIRET obligatoire pour créer un compte")
         elif new_user and new_pass:
             send_to_webhook(new_user, new_pass, societe, siret)
-            st.success("Compte professionnel créé")
+            st.session_state["temp_user"] = new_user.strip()
+            st.session_state["temp_pass"] = new_pass.strip()
+            st.success("Compte professionnel créé (connexion immédiate possible)")
         else:
             st.error("Remplir tous les champs")
 
@@ -702,6 +704,11 @@ if not st.session_state.logged:
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin_logged = True
+            st.rerun()
+
+        # priorité utilisateur fraîchement créé
+        if "temp_user" in st.session_state and user.strip() == st.session_state["temp_user"] and pwd.strip() == st.session_state["temp_pass"]:
+            st.session_state.logged = True
             st.rerun()
 
         result = check_login(user, pwd)
@@ -986,7 +993,5 @@ if "resultat" in st.session_state:
 
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
-
-        st.success(f"💶 Net vendeur : {net_calc} €")
 
         st.success(f"💶 Net vendeur : {net_calc} €")
