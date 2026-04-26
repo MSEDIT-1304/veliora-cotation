@@ -356,7 +356,7 @@ FUEL_ADJUST = {
 }
 
 
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None):
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
         options = []
@@ -501,8 +501,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         price *= (1 + total_option_bonus)
 
-    # 🔥 AWD / 4x4 DETECTION
-    if any(x in motorisation.lower() for x in ["awd","4x4","xdrive","quattro","4motion","allgrip"]):
+    # 🔥 AWD / 4x4 PRO (manuel)
+    if transmission == "4x4 / AWD":
         type_cat = "citadine"
         if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
             type_cat = "suv"
@@ -766,6 +766,8 @@ with col1:
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
+transmission = st.selectbox("Transmission", ["4x2 / Traction","4x4 / AWD"], key=f"trans_{rid}")
+
 col1, col2 = st.columns(2)
 with col1:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
@@ -798,7 +800,7 @@ with col2:
 
 if st.button("Calculer l'estimation"):
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options)
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
 
     prix_comparables = []
 
@@ -950,3 +952,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
