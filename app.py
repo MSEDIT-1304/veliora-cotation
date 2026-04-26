@@ -657,7 +657,7 @@ if not st.session_state.logged:
 
     if st.button("Créer compte"):
         
-        elif not societe or not siret:
+        if not societe or not siret:
             st.error("SIRET obligatoire pour créer un compte")
         elif new_user and new_pass:
             send_to_webhook(new_user, new_pass, societe, siret)
