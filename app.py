@@ -671,53 +671,54 @@ if not st.session_state.logged:
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
-st.markdown("### 👤 Accès professionnel uniquement")
-type_client = "Professionnel auto"
-st.success("Compte professionnel requis")
+    st.markdown("### 👤 Accès professionnel uniquement")
+    type_client = "Professionnel auto"
+    st.success("Compte professionnel requis")
 
-new_user = st.text_input("Créer un identifiant")
-new_pass = st.text_input("Créer un mot de passe", type="password")
+    new_user = st.text_input("Créer un identifiant")
+    new_pass = st.text_input("Créer un mot de passe", type="password")
 
-societe = st.text_input("Nom de la société")
-siret = st.text_input("Numéro SIRET")
+    societe = st.text_input("Nom de la société")
+    siret = st.text_input("Numéro SIRET")
 
-if st.button("Créer compte"):
-    if not societe or not siret:
-        st.error("SIRET obligatoire pour créer un compte")
-    elif new_user and new_pass:
-        send_to_webhook(new_user, new_pass, societe, siret)
-        st.success("Compte professionnel créé")
-    else:
-        st.error("Remplir tous les champs")
+    if st.button("Créer compte"):
+        if not societe or not siret:
+            st.error("SIRET obligatoire pour créer un compte")
+        elif new_user and new_pass:
+            send_to_webhook(new_user, new_pass, societe, siret)
+            st.success("Compte professionnel créé")
+        else:
+            st.error("Remplir tous les champs")
 
-st.markdown("---")
+    st.markdown("---")
 
-st.subheader("🔐 Connexion")
+    st.subheader("🔐 Connexion")
 
-user = st.text_input("Utilisateur")
-pwd = st.text_input("Mot de passe", type="password")
+    user = st.text_input("Utilisateur")
+    pwd = st.text_input("Mot de passe", type="password")
 
-if st.button("Se connecter"):
+    if st.button("Se connecter"):
 
-    if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
-        st.session_state.logged = True
-        st.session_state.admin_logged = True
-        st.rerun()
+        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
+            st.session_state.logged = True
+            st.session_state.admin_logged = True
+            st.rerun()
 
-    result = check_login(user, pwd)
+        result = check_login(user, pwd)
 
-    if result == "ok":
-        st.session_state.logged = True
-        st.rerun()
+        if result == "ok":
+            st.session_state.logged = True
+            st.rerun()
 
-    elif result == "expired":
-        st.error("⛔ Abonnement expiré")
-        st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+        elif result == "expired":
+            st.error("⛔ Abonnement expiré")
+            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
-    else:
-        st.error("Identifiant incorrect")
+        else:
+            st.error("Identifiant incorrect")
 
-st.stop()
+    st.stop()
+
 
 st.title("🚗 VELIORA COTATION PRO")
 
@@ -985,5 +986,7 @@ if "resultat" in st.session_state:
 
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
+
+        st.success(f"💶 Net vendeur : {net_calc} €")
 
         st.success(f"💶 Net vendeur : {net_calc} €")
