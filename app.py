@@ -289,6 +289,21 @@ OPTIONS_YEAR = {
 
 
 
+
+
+# 🔥 GEO ADJUST (DEPARTEMENT)
+GEO_ADJUST = {
+    "75": {"citadine":0.12,"compacte":0.12,"suv":0.14,"premium":0.18,"electrique":0.20},
+    "92": {"citadine":0.10,"compacte":0.10,"suv":0.12,"premium":0.16,"electrique":0.18},
+    "69": {"citadine":0.06,"compacte":0.07,"suv":0.09,"premium":0.12,"electrique":0.14},
+    "13": {"citadine":0.06,"compacte":0.07,"suv":0.09,"premium":0.12,"electrique":0.15},
+    "33": {"citadine":0.05,"compacte":0.06,"suv":0.08,"premium":0.10,"electrique":0.13},
+    "44": {"citadine":0.04,"compacte":0.05,"suv":0.07,"premium":0.09,"electrique":0.11},
+    "01": {"citadine":0.03,"compacte":0.04,"suv":0.06,"premium":0.08,"electrique":0.10},
+    "08": {"citadine":-0.05,"compacte":-0.05,"suv":-0.07,"premium":-0.09,"electrique":-0.10},
+    "23": {"citadine":-0.08,"compacte":-0.07,"suv":-0.09,"premium":-0.12,"electrique":-0.15}
+}
+
 # 🔥 DEPRECIATION YEARS < 2020
 DEPRECIATION_THERMIQUE = {
     2019: -0.07, 2018: -0.14, 2017: -0.20,
@@ -474,6 +489,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         total_option_bonus = min(total_option_bonus, 0.40)
 
         price *= (1 + total_option_bonus)
+
+    # 🔥 GEO AJUSTEMENT
+    type_cat = "citadine"
+    if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
+        type_cat = "suv"
+    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
+        type_cat = "premium"
+    if carburant == "Électrique":
+        type_cat = "electrique"
+
+    if departement in GEO_ADJUST:
+        geo_bonus = GEO_ADJUST[departement].get(type_cat,0)
+        price *= (1 + geo_bonus)
 
     # VERROUILLAGE
     price = max(base * 0.65, min(price, base * 1.08))
