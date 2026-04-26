@@ -283,6 +283,25 @@ OPTIONS_YEAR = {
 }
 
 
+
+
+# 🔥 ESSENCE vs DIESEL ADJUST PRO
+FUEL_ADJUST = {
+    "corsa": 0.03,"fiesta": 0.03,"c3": 0.03,"fabia": 0.03,"clio": 0.03,"208": 0.03,"i20": 0.03,"ibiza": 0.03,
+    "megane": 0.05,"308": 0.05,"polo": 0.04,"scala": 0.04,"c3 aircross": 0.05,"2008": 0.05,"captur": 0.05,
+    "arona": 0.04,"kamiq": 0.04,"juke": 0.05,
+    "3008": 0.06,"grandland": 0.06,"octavia": 0.05,"kona": 0.05,"xceed": 0.05,
+    "qashqai": 0.06,"karoq": 0.06,"5008": 0.07,"sportage": 0.06,"golf": 0.05,
+    "tucson": 0.06,"ateca": 0.06,"kuga": 0.06,"superb": 0.06,"arkana": 0.05,"cx-30": 0.05,
+    "c5 aircross": 0.06,
+    "a1": 0.04,"a3": 0.05,"serie 1": 0.06,"classe a": 0.05,"classe b": 0.05,
+    "serie 3": 0.06,"v60": 0.06,"x1": 0.06,"xc40": 0.06,"q3": 0.06,
+    "xc60": 0.07,"x3": 0.07,"q5": 0.07,
+    "koleos": 0.07,"kodiaq": 0.07,"cr-v": 0.07,"tarraco": 0.07,"santa fe": 0.07,
+    "x5": 0.08,"q7": 0.08
+}
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None):
 
     if options is None:
@@ -331,11 +350,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price -= (delta_km / 30000) * adjust
 
-    # CARBURANT
+    # 🔥 CARBURANT PRO PAR MODELE
     if carburant == "Diesel":
-        price *= 0.98
+        diesel_bonus = 0
+        for k,v in FUEL_ADJUST.items():
+            if k in key:
+                diesel_bonus = v
+                break
+        price *= (1 + diesel_bonus)
+
     elif carburant == "Hybride":
         price *= 1.02
+
     elif carburant == "Électrique":
         price *= 1.03
 
@@ -805,4 +831,3 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
