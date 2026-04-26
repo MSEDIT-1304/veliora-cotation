@@ -356,44 +356,6 @@ FUEL_ADJUST = {
 }
 
 
-
-
-# 🔥 AUTO PARSE ANNONCE
-def parse_annonce(text):
-    text = text.lower()
-    marque = ""
-    modele = ""
-    finition = ""
-    carburant = "Essence"
-    options = []
-    km = 90000
-
-    if "bmw" in text: marque = "bmw"
-    if "audi" in text: marque = "audi"
-    if "mercedes" in text: marque = "mercedes"
-    if "peugeot" in text: marque = "peugeot"
-    if "renault" in text: marque = "renault"
-
-    # modèles simples
-    for m in ["serie 1","serie 3","q5","q3","3008","208","clio","megane"]:
-        if m in text:
-            modele = m
-
-    if "diesel" in text or "dci" in text or "tdi" in text:
-        carburant = "Diesel"
-
-    if "cuir" in text: options.append("cuir")
-    if "camera" in text: options.append("camera recul")
-    if "toit" in text: options.append("toit panoramique")
-
-    import re
-    km_match = re.search(r"(\d{2,3}) ?000 ?km", text)
-    if km_match:
-        km = int(km_match.group(1)) * 1000
-
-    return marque, modele, finition, carburant, options, km
-
-
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None):
 
     if options is None:
@@ -723,14 +685,6 @@ if not st.session_state.logged:
     st.stop()
 
 st.title("🚗 VELIORA COTATION PRO")
-
-st.markdown("### 🤖 Analyse automatique annonce")
-annonce = st.text_area("Colle une annonce")
-
-if st.button("Analyser annonce"):
-    m, mod, fin, carb, opts, km_auto = parse_annonce(annonce)
-    st.success(f"Détection : {m} {mod} | {carb} | {km_auto} km")
-
 
 col1, col2 = st.columns(2)
 
