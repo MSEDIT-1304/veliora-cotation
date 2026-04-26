@@ -287,6 +287,19 @@ OPTIONS_YEAR = {
 
 
 
+
+
+# 🔥 DEPRECIATION YEARS < 2020
+DEPRECIATION_THERMIQUE = {
+    2019: -0.07, 2018: -0.14, 2017: -0.20,
+    2016: -0.27, 2015: -0.35, 2014: -0.42
+}
+
+DEPRECIATION_ELECTRIC = {
+    2019: -0.10, 2018: -0.18, 2017: -0.28,
+    2016: -0.38, 2015: -0.48, 2014: -0.55
+}
+
 # 🔥 ELECTRIC VEHICLES DATASET (BASE PRIX PAR ANNEE)
 ELECTRIC_BASE = {
     "tesla model 3": {"2019":24000,"2020":27000,"2021":29000,"2022":31000,"2023":30000,"2024":27000,"2025":25000},
@@ -359,6 +372,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     price *= (1 + year_adjust)
+
+    # 🔥 DEPRECIATION PRE 2020
+    if annee < 2020:
+        if carburant == "Électrique":
+            if annee in DEPRECIATION_ELECTRIC:
+                price *= (1 + DEPRECIATION_ELECTRIC[annee])
+        else:
+            if annee in DEPRECIATION_THERMIQUE:
+                price *= (1 + DEPRECIATION_THERMIQUE[annee])
+
 
     # KM
     # 🔥 ELECTRIC KM SPECIFIC
