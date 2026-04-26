@@ -951,4 +951,4 @@ if "resultat" in st.session_state:
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
 
-        st.success(f"💶 Net vendeur : {net_calc} €"
+        st.success(f"💶 Net vendeur : {net_calc} €"))
