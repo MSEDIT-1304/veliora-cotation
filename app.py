@@ -194,6 +194,16 @@ KM_ADJUST = {
 
 
 
+
+# 🔥 GLOBAL YEAR ADJUST (PRO 2025)
+GLOBAL_YEAR = {
+    2021: 0.08,
+    2022: 0.12,
+    2023: 0.15,
+    2024: 0.10,
+    2025: 0.20
+}
+
 # 🔥 YEAR ADJUST PRO (base 2020)
 YEAR_ADJUST = {
     "x5": {"2019": -0.10, "2021": 0.15, "2023": 0.36},
@@ -374,10 +384,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if year_key in v:
                 base = v[year_key]
                 break
-    for k, v in BASE_PRICES.items():
-        if all(word in key_full for word in k.split()):
-            base = v
-            break
+
+    if base is None:
+        for k, v in BASE_PRICES.items():
+            if all(word in key_full for word in k.split()):
+                base = v
+                break
 
     if base is None:
         if any(x in key for x in ["mercedes","bmw","audi"]):
@@ -401,7 +413,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 year_adjust = v[str(annee)]
             break
 
-    price *= (1 + year_adjust)
+    if year_adjust != 0:
+        price *= (1 + year_adjust)
+    elif annee in GLOBAL_YEAR:
+        price *= (1 + GLOBAL_YEAR[annee])
 
     # 🔥 DEPRECIATION PRE 2020
     if annee < 2020:
@@ -422,6 +437,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price *= 0.85
 
     # 🔥 KM PRO PAR MODELE
+
+    # 🔥 BOOST VEHICULE RECENT
+    if annee >= 2023:
+        price *= 1.08
+    if annee >= 2024:
+        price *= 1.05
+    if km < 10000 and annee >= 2022:
+        price *= 1.12
     km_ref = 90000
     delta_km = km - km_ref
 
@@ -537,7 +560,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + geo_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.65, min(price, base * 1.15))
+    price = max(base * 0.60, min(price, base * 1.60))
+
+    if price > base * 1.8:
+        price = base * 1.8
 
     return int(max(4000, min(price, 80000)))
 
