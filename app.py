@@ -502,7 +502,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + total_option_bonus)
 
     # 🔥 AWD / 4x4 PRO (manuel)
-    if transmission == "4x4 / AWD":
+    if transmission in ["4x4","AWD","4WD"]:
         type_cat = "citadine"
         if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
             type_cat = "suv"
@@ -766,7 +766,7 @@ with col1:
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
-transmission = st.selectbox("Transmission", ["4x2 / Traction","4x4 / AWD"], key=f"trans_{rid}")
+transmission = st.selectbox("Transmission", ["4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -951,5 +951,4 @@ if "resultat" in st.session_state:
         net_calc = prix_choisi - commission_calc_user
         net_calc = int(round(net_calc / 10) * 10)
 
-        st.success(f"💶 Net vendeur : {net_calc} €")
-
+        st.success(f"💶 Net vendeur : {net_calc} €"
