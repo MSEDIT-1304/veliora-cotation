@@ -145,8 +145,8 @@ BASE_PRICES = {
     "volvo xc40": 46144,
     "volvo xc60": 57680,
     "volvo v60": 48451,
-    "hyundai i20": 18457,
-    "hyundai i20 2023": 9000,
+    
+    
     "volkswagen polo": 20764,
     "hyundai tucson": 34608,
     "kia sportage": 32300,
@@ -180,7 +180,7 @@ BASE_PRICES = {
 
 # 🔥 KM ADJUST PRO (90k référence)
 KM_ADJUST = {
-    "i20":1100,
+    "i20":1500,
     "twingo":1500,"c1":1500,"i10":1500,"corsa":1500,"fiesta":1500,"clio":1500,"208":1500,
     "polo":1500,"ibiza":1500,"megane":1500,
     "308":2000,"focus":2000,"ceed":2000,"i30":2000,"2008":2000,
@@ -201,7 +201,7 @@ KM_ADJUST = {
 GLOBAL_YEAR = {
     2021: 0.08,
     2022: 0.12,
-    2023: 0.00,
+    2023: 0.22,
     2024: 0.10,
     2025: 0.20
 }
@@ -405,7 +405,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST MARCHÉ SUV
     if any(x in key for x in ["3008","5008","tiguan","qashqai","karoq","ateca","tucson","sportage"]):
-        price *= 1.05
+        price *= 1.03
 
     # 🔥 YEAR PRO PAR MODELE
     year_adjust = 0
@@ -441,7 +441,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 KM PRO PAR MODELE
 
     if annee >= 2024:
-        price *= 1.05
+        price *= 1.03
     if km < 10000 and annee >= 2022:
         price *= 1.12
     km_ref = 90000
@@ -486,7 +486,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 min_adj, max_adj = v
                 break
 
-        if any(x in f for x in ["access","life","business","trend","base"]):
+        if any(x in f for x in ["access","life","business","trend","base","intuitive","active","comfort"]):
             price *= (1 - min_adj)
 
         elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
@@ -510,7 +510,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if "autopilot" in o:
                 price *= 1.08
             if "pompe" in o:
-                price *= 1.05
+                price *= 1.03
             if "premium" in o:
                 price *= 1.08
 
@@ -559,7 +559,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + geo_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.60, min(price, base * 1.60))
+    price = max(base * 0.75, min(price, base * 1.35))
 
     if price > base * 1.8:
         price = base * 1.8
