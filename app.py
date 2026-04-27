@@ -453,7 +453,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             adjust = v
             break
 
-    price -= (delta_km / 30000) * adjust
+    
+# 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
+km_ratio = delta_km / 90000
+km_effect = km_ratio * adjust * 0.7
+
+# plafonds globaux anti dérive
+if km_effect > 2500:
+    km_effect = 2500
+if km_effect < -1200:
+    km_effect = -1200
+
+price -= km_effect
+
 
     # 🔥 CARBURANT PRO PAR MODELE
     if carburant == "Diesel":
