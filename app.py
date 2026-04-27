@@ -675,7 +675,8 @@ if not st.session_state.logged:
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
 
-    new_user = st.text_input("Créer un identifiant")
+    email = st.text_input("Adresse email")
+    new_user = email
     new_pass = st.text_input("Créer un mot de passe", type="password")
 
     societe = st.text_input("Nom de la société")
