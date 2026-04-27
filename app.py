@@ -485,7 +485,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST MARCHÉ SUV
     if any(x in key for x in ["3008","5008","tiguan","qashqai","karoq","ateca","tucson","sportage"]):
-        price *= 1.03
+        price *= 1.08
 
     # 🔥 YEAR PRO PAR MODELE
     year_adjust = 0
@@ -520,7 +520,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 KM PRO PAR MODELE
 
     if annee >= 2024:
-        price *= 1.03
+        price *= 1.08
     
     km_ref = 90000
     delta_km = km - km_ref
@@ -567,7 +567,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 1.02
 
     elif carburant == "Électrique":
-        price *= 1.03
+        price *= 1.08
 
     # BOITE
     if boite == "Automatique":
@@ -585,8 +585,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 min_adj, max_adj = v
                 break
 
-        if any(x in f for x in ["access","life","business","trend","base","intuitive","active","comfort"]):
+        if any(x in f for x in ["access","life","business","trend","base"]):
             price *= (1 - min_adj)
+
+        elif any(x in f for x in ["intuitive","active","comfort","style"]):
+            price *= 1.00
 
         elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
             price *= (1 + (min_adj/2))
@@ -596,7 +599,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         # 🔥 BOOST finition SUV premium
     if any(x in key for x in ["3008","tiguan","qashqai","tucson","sportage"]) and any(x in f for x in ["carat","gt","allure","intens","shine"]):
-        price *= 1.03
+        price *= 1.08
 
     # 🔥 OPTIONS PRO
     if carburant == "Électrique":
@@ -609,7 +612,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if "autopilot" in o:
                 price *= 1.08
             if "pompe" in o:
-                price *= 1.03
+                price *= 1.08
             if "premium" in o:
                 price *= 1.08
 
@@ -656,6 +659,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if departement in GEO_ADJUST:
         geo_bonus = GEO_ADJUST[departement].get(type_cat,0)
         price *= (1 + geo_bonus)
+
+    
+    # 🔥 BOOST PREMIUM
+    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
+        price *= 1.05
 
     # VERROUILLAGE
     price = max(base * 0.75, min(price, base * 1.45))
