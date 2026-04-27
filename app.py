@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import statistics
 import io
 import os
+import unicodedata
 
 SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
 
@@ -37,9 +38,7 @@ ADMIN_PASS = "TonMotDePasseFort123!"
 
 # 🔥 DATASET PREMIUM COMPLET
 BASE_PRICES = {
-
     # 2020 / 90 000 km base marché PRO (médiane)
-
     "renault megane 2020": 11536,
     "peugeot 208 2020": 10959,
     "peugeot 2008 2020": 13266,
@@ -71,8 +70,6 @@ BASE_PRICES = {
     "opel corsa 2020": 10382,
     "opel grandland 2020": 15862,
     "opel grandland x 2020": 15285,
-
-    
     # 🔥 AJOUT LISTE UTILISATEUR (médianes 2020 / 90 000 km)
     "renault clio v 2020": 10959,
     "renault captur ii 2020": 13554,
@@ -83,9 +80,9 @@ BASE_PRICES = {
     "volkswagen golf 8 2020": 17592,
     "volkswagen tiguan 2020": 22500,
     "seat leon 2020": 13554,
-    "seat ateca 2020": 19000,
+    
     "skoda octavia 2020": 14708,
-    "skoda karoq 2020": 19000,
+    
     "ford fiesta 2020": 10382,
     "ford focus 2020": 12978,
     "ford kuga 2020": 17880,
@@ -97,9 +94,6 @@ BASE_PRICES = {
     "honda cr-v 2020": 22495,
     "kia ceed 2020": 13554,
     "kia xceed 2020": 15862,
-
-    
-    # 🔥 NOUVEAUX MODELES AJOUTÉS (médianes)
     "hyundai i10 2020": 9228,
     "hyundai i30 2020": 13266,
     "hyundai kona 2020": 15862,
@@ -114,58 +108,18 @@ BASE_PRICES = {
     "renault arkana 2020": 17880,
     "renault twingo 3 2020": 9228,
     "seat ibiza 2020": 11536,
-    
     "seat arona 2020": 13554,
     "seat ateca 2020": 18457,
     "seat tarraco 2020": 23360,
     "citroen c1 2020": 8652,
-    "citroen c3 2020": 10382,
     "citroen c3 aircross 2020": 12689,
     "citroen c4 2020": 13843,
-    
-
-    
-    # 🔥 SKODA AJOUT (corrigé +12%)
     "skoda fabia 2020": 10959,
     "skoda scala 2020": 12689,
-    
     "skoda kamiq 2020": 13843,
     "skoda karoq 2020": 14996,
     "skoda kodiaq 2020": 21341,
     "skoda superb 2020": 17880,
-
-    # fallback générique
-    "renault megane": 27686,
-    
-    "peugeot 2008": 25379,
-    "peugeot 3008": 34608,
-    "peugeot 5008": 32300,
-    "toyota yaris": 20764,
-    "toyota corolla": 25379,
-    "volvo xc40": 46144,
-    "volvo xc60": 57680,
-    "volvo v60": 48451,
-    
-    
-    "volkswagen polo": 20764,
-    "hyundai tucson": 34608,
-    "kia sportage": 32300,
-    "audi q3": 43836,
-    
-    "audi q7": 80752,
-    "bmw x1": 39222,
-    "bmw x3": 57680,
-    
-    "bmw serie 1": 36915,
-    "bmw serie 3": 48451,
-    "audi a1": 28840,
-    "audi a3": 38068,
-    "mercedes classe a": 38068,
-    "mercedes classe b": 32300,
-    "mini cooper": 32300,
-    "opel corsa": 17304,
-    "opel grandland": 29993,
-    "opel grandland x": 28840
 }
 
 
@@ -373,8 +327,36 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if options is None:
         options = []
 
-    key = f"{marque} {modele}".lower()
-    key_full = f"{marque} {modele} {annee}".lower()
+    # 🔧 NORMALISATION OPTIONS (accents / variantes UI)
+    def _norm(s):
+        if not s: return ""
+        s = s.lower()
+        s = unicodedata.normalize('NFD', s).encode('ascii','ignore').decode('utf-8')
+        return s
+
+    options = [_norm(o) for o in options]
+
+    # 🔧 MAPPING OPTIONS UI → MOTEUR
+    mapped_options = []
+    for o in options:
+        if "camera recul" in o:
+            mapped_options.append("camera recul")
+        elif "sieges chauffants" in o:
+            mapped_options.append("sieges chauffants")
+        elif "bip" in o:
+            continue
+        elif "hayon electrique" in o:
+            mapped_options.append("hayon electrique")
+        elif "toit panoramique" in o:
+            mapped_options.append("toit panoramique")
+        else:
+            mapped_options.append(o)
+    options = mapped_options
+
+
+
+    key = unicodedata.normalize('NFD', f"{marque} {modele}".lower()).encode('ascii','ignore').decode('utf-8')
+    key_full = unicodedata.normalize('NFD', f"{marque} {modele} {annee}".lower()).encode('ascii','ignore').decode('utf-8')
 
     # BASE DATASET
     # 🔥 ELECTRIC OVERRIDE
@@ -390,6 +372,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if base is None:
         for k, v in BASE_PRICES.items():
             if k == key_full:
+                base = v
+                break
+
+    # fallback intelligent (même modèle sans année)
+    if base is None:
+        for k, v in BASE_PRICES.items():
+            if key in k:
                 base = v
                 break
 
@@ -442,8 +431,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if annee >= 2024:
         price *= 1.03
-    if km < 10000 and annee >= 2022:
-        price *= 1.12
+    
     km_ref = 90000
     delta_km = km - km_ref
 
@@ -465,6 +453,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price -= km_effect
 
+
+    
+    # 🔥 MOTORISATION AJUST
+    m = motorisation.lower() if motorisation else ""
+    if any(x in m for x in ["130","140","150"]):
+        price *= 1.05
+    elif any(x in m for x in ["110","115"]):
+        price *= 1.02
+    elif any(x in m for x in ["70","75","80"]):
+        price *= 0.97
 
     # 🔥 CARBURANT PRO PAR MODELE
     if carburant == "Diesel":
@@ -510,7 +508,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if any(x in key for x in ["3008","tiguan","qashqai","tucson","sportage"]) and any(x in f for x in ["carat","gt","allure","intens","shine"]):
         price *= 1.03
 
-        # 🔥 OPTIONS PRO
+    # 🔥 OPTIONS PRO
     if carburant == "Électrique":
         for opt in options:
             o = opt.lower()
@@ -570,7 +568,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + geo_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.80, min(price, base * 1.30))
+    price = max(base * 0.75, min(price, base * 1.45))
 
     if price > base * 1.8:
         price = base * 1.8
