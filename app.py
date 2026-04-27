@@ -997,3 +997,4 @@ if "resultat" in st.session_state:
 
         st.success(f"💶 Net vendeur : {net_calc} €")
 
+
