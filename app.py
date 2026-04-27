@@ -146,7 +146,7 @@ BASE_PRICES = {
     "volvo xc60": 57680,
     "volvo v60": 48451,
     "hyundai i20": 18457,
-    "hyundai i20 2023": 12000,
+    "hyundai i20 2023": 9000,
     "volkswagen polo": 20764,
     "hyundai tucson": 34608,
     "kia sportage": 32300,
@@ -201,7 +201,7 @@ KM_ADJUST = {
 GLOBAL_YEAR = {
     2021: 0.08,
     2022: 0.12,
-    2023: 0.05,
+    2023: 0.00,
     2024: 0.10,
     2025: 0.20
 }
