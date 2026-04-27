@@ -553,9 +553,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 MOTORISATION AJUST
     m = motorisation.lower() if motorisation else ""
     if any(x in m for x in ["130","140","150"]):
-        price *= 1.03
+        price *= 1.04
     elif any(x in m for x in ["110","115"]):
-        price *= 1.02
+        price *= 1.01
     elif any(x in m for x in ["70","75","80"]):
         price *= 0.97
 
@@ -566,7 +566,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if k in key:
                 diesel_bonus = v
                 break
-        price *= (1 + diesel_bonus)
+        price *= (1 + (diesel_bonus*0.85))
 
     elif carburant == "Hybride":
         price *= 1.02
@@ -635,7 +635,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                         total_option_bonus += v[0]
 
         # plafonnement
-        total_option_bonus = min(total_option_bonus, 0.40)
+        total_option_bonus = min(total_option_bonus, 0.25)
 
         price *= (1 + total_option_bonus)
 
@@ -666,6 +666,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + geo_bonus)
 
     
+    
+    # 🔥 BOOST SUV PREMIUM HAUT DE GAMME
+    if any(x in key for x in ["q5","x3","glc","xc60"]):
+        price *= 1.04
+
     # 🔥 BOOST PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
         price *= 1.03
