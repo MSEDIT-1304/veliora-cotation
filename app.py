@@ -114,7 +114,7 @@ BASE_PRICES = {
     "renault arkana 2020": 17880,
     "renault twingo 3 2020": 9228,
     "seat ibiza 2020": 11536,
-    "seat leon 2020": 16150,
+    
     "seat arona 2020": 13554,
     "seat ateca 2020": 18457,
     "seat tarraco 2020": 23360,
@@ -122,13 +122,13 @@ BASE_PRICES = {
     "citroen c3 2020": 10382,
     "citroen c3 aircross 2020": 12689,
     "citroen c4 2020": 13843,
-    "citroen c5 aircross 2020": 17015,
+    
 
     
     # 🔥 SKODA AJOUT (corrigé +12%)
     "skoda fabia 2020": 10959,
     "skoda scala 2020": 12689,
-    "skoda octavia 2020": 14420,
+    
     "skoda kamiq 2020": 13843,
     "skoda karoq 2020": 14996,
     "skoda kodiaq 2020": 21341,
@@ -136,7 +136,7 @@ BASE_PRICES = {
 
     # fallback générique
     "renault megane": 27686,
-    "peugeot 208": 19611,
+    
     "peugeot 2008": 25379,
     "peugeot 3008": 34608,
     "peugeot 5008": 32300,
@@ -151,11 +151,11 @@ BASE_PRICES = {
     "hyundai tucson": 34608,
     "kia sportage": 32300,
     "audi q3": 43836,
-    "audi q5": 57680,
+    
     "audi q7": 80752,
     "bmw x1": 39222,
     "bmw x3": 57680,
-    "bmw x5": 86520,
+    
     "bmw serie 1": 36915,
     "bmw serie 3": 48451,
     "audi a1": 28840,
@@ -389,17 +389,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if base is None:
         for k, v in BASE_PRICES.items():
-            if all(word in key_full for word in k.split()):
+            if k == key_full:
                 base = v
                 break
 
     if base is None:
         if any(x in key for x in ["mercedes","bmw","audi"]):
-            base = 30000
+            base = 25000
         elif any(x in key for x in ["3008","qashqai","tiguan","kadjar","ix35"]):
-            base = 20000
+            base = 18000
         else:
-            base = 15000
+            base = 12000
 
     price = base
 
@@ -454,17 +454,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     
-# 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
-km_ratio = delta_km / 90000
-km_effect = km_ratio * adjust * 0.7
+    # 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
+    km_ratio = delta_km / 90000
+    km_effect = km_ratio * adjust * 0.7
 
-# plafonds globaux anti dérive
-if km_effect > 2500:
-    km_effect = 2500
-if km_effect < -1200:
-    km_effect = -1200
+    if km_effect > 2500:
+        km_effect = 2500
+    if km_effect < -1200:
+        km_effect = -1200
 
-price -= km_effect
+    price -= km_effect
 
 
     # 🔥 CARBURANT PRO PAR MODELE
@@ -571,7 +570,7 @@ price -= km_effect
         price *= (1 + geo_bonus)
 
     # VERROUILLAGE
-    price = max(base * 0.75, min(price, base * 1.35))
+    price = max(base * 0.80, min(price, base * 1.30))
 
     if price > base * 1.8:
         price = base * 1.8
