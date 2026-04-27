@@ -147,6 +147,7 @@ BASE_PRICES = {
     "volvo xc60": 57680,
     "volvo v60": 48451,
     "hyundai i20": 18457,
+    "hyundai i20 2023": 12000,
     "volkswagen polo": 20764,
     "hyundai tucson": 34608,
     "kia sportage": 32300,
@@ -179,6 +180,7 @@ BASE_PRICES = {
 
 
 # 🔥 KM ADJUST PRO (90k référence)
+    "i20":1100,
 KM_ADJUST = {
     "twingo":1500,"c1":1500,"i10":1500,"corsa":1500,"fiesta":1500,"clio":1500,"208":1500,
     "polo":1500,"ibiza":1500,"megane":1500,
@@ -200,7 +202,7 @@ KM_ADJUST = {
 GLOBAL_YEAR = {
     2021: 0.08,
     2022: 0.12,
-    2023: 0.15,
+    2023: 0.05,
     2024: 0.10,
     2025: 0.20
 }
@@ -439,9 +441,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 KM PRO PAR MODELE
 
-    # 🔥 BOOST VEHICULE RECENT
-    if annee >= 2023:
-        price *= 1.08
     if annee >= 2024:
         price *= 1.05
     if km < 10000 and annee >= 2022:
