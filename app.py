@@ -546,6 +546,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     
+    
+    # 🔥 BOOST TRES FAIBLE KILOMETRAGE
+    if km < 30000:
+        price *= 1.04
+
     # 🔥 AJUST GLOBAL FINAL (anti sous-cotation)
     if not any(x in key for x in ["3008","5008","tiguan","qashqai","tucson","sportage"]):
         price *= 1.03
@@ -569,14 +574,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + (diesel_bonus*0.85))
 
     elif carburant == "Hybride":
-        price *= 1.02
+        price *= 1.04
 
     elif carburant == "Électrique":
         price *= 1.04
 
     # BOITE
     if boite == "Automatique":
-        price *= 1.02
+        price *= 1.025
 
     # 🔥 FINITION PRO PAR MODELE
     f = finition.lower() if finition else ""
