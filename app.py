@@ -663,7 +663,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if price > base * 1.8:
         price = base * 1.8
 
+    
+    # 🔥 RECALAGE MARCHÉ GLOBAL (ANTI-DERIVE PRO)
+    if model_key in BASE_PRICES_V2:
+        market_ref = BASE_PRICES_V2[model_key].get(annee, base)
+
+        if abs(price - market_ref) > 500:
+            if price > market_ref:
+                price = market_ref + 500
+            else:
+                price = market_ref - 500
+
     return int(max(4000, min(price, 80000)))
+
 
 
 
