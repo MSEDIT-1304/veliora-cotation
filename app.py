@@ -155,7 +155,7 @@ BASE_PRICES_V2 = {
         2022:16000,
         2023:17500,
         2024:18500
-    }
+    },
 
 # DATASET 100+ MODELES SANS DOUBLONS
 EXTRA_BASE_PRICES_V2 = {
@@ -217,7 +217,6 @@ for model, data in EXTRA_BASE_PRICES_V2.items():
     if model not in BASE_PRICES_V2:
         BASE_PRICES_V2[model] = data
 
-}
 
 # 🔥 KM ADJUST PRO (90k référence)
 KM_ADJUST = {
