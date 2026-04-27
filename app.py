@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -180,8 +179,8 @@ BASE_PRICES = {
 
 
 # 🔥 KM ADJUST PRO (90k référence)
-    "i20":1100,
 KM_ADJUST = {
+    "i20":1100,
     "twingo":1500,"c1":1500,"i10":1500,"corsa":1500,"fiesta":1500,"clio":1500,"208":1500,
     "polo":1500,"ibiza":1500,"megane":1500,
     "308":2000,"focus":2000,"ceed":2000,"i30":2000,"2008":2000,
@@ -996,5 +995,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
