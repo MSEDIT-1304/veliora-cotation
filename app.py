@@ -176,12 +176,6 @@ BASE_PRICES_V2 = {
     "bmw x1": {2020:20000,2021:21500,2022:23500,2023:25500,2024:27500},
     "mercedes classe a": {2020:20000,2021:22000,2022:24000,2023:26000,2024:28000}
 }
-,
-    "peugeot 208": {2020:10959,2021:11800,2022:12800,2023:13800,2024:14800},
-    "renault clio": {2020:10959,2021:11700,2022:12600,2023:13500,2024:14500},
-    "peugeot 3008": {2020:17500,2021:18900,2022:20500,2023:22500,2024:23500},
-    "nissan qashqai": {2020:18500,2021:19800,2022:21500,2023:23000,2024:24000},
-    "volkswagen golf": {2020:17592,2021:19000,2022:20500,2023:22000,2024:23000}
 }
 
 # 🔥 KM ADJUST PRO (90k référence)
@@ -203,14 +197,8 @@ KM_ADJUST = {
 
 
 
-# 🔥 GLOBAL YEAR ADJUST (PRO 2025)
-GLOBAL_YEAR = {
-    2021: 0.08,
-    2022: 0.12,
-    2023: 0.22,
-    2024: 0.10,
-    2025: 0.20
-}
+# DISABLED GLOBAL_YEAR (multi-year base active)
+GLOBAL_YEAR = {}
 
 # 🔥 YEAR ADJUST PRO (base 2020)
 YEAR_ADJUST = {
@@ -1059,6 +1047,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
