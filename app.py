@@ -7,7 +7,7 @@ import io
 import os
 import unicodedata
 
-SCRAPER_API_KEY = "sk_ad_6UkihaYMO3C3ukRwDVFVpjV2"
+SCRAPER_API_KEY = None
 
 try:
     get_leboncoin_prices = None  # scraper désactivé
