@@ -461,7 +461,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 break
 
     # 🔥 BASE MULTI-ANNÉES PRIORITAIRE
-    model_key = key
+    model_key = key.strip()
     if model_key in BASE_PRICES_V2:
         year_data = BASE_PRICES_V2[model_key]
         if annee in year_data:
@@ -537,7 +537,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     # 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
-    km_ratio = delta_km / 90000
+    km_ratio = delta_km / 90000 if 90000 else 0
     km_effect = km_ratio * adjust * 0.7
 
     if km_effect > 2500:
@@ -545,7 +545,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if km_effect < -1200:
         km_effect = -1200
 
-    price -= km_effect
+    price -= max(-1500, min(km_effect, 2500))
 
 
     
@@ -697,6 +697,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 BOOST SUV PREMIUM HAUT DE GAMME
     if any(x in key for x in ["q5","x3","glc","xc60"]):
         price *= 1.04
+
+
+    # 🔥 CORRECTION VIEUX PREMIUM (anti sous-cotation)
+    if annee <= 2016 and any(x in key for x in ["x5","q7","a6","x3"]):
+        price *= 1.05
 
     # 🔥 BOOST PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
