@@ -24,14 +24,6 @@ except:
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-# 🔐 Bouton déconnexion
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = True
-
-if st.session_state.get("authenticated"):
-    if st.button("Se déconnecter"):
-        st.session_state.authenticated = False
-        st.rerun()
 
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
@@ -934,7 +926,7 @@ if st.session_state.show_history:
 ---
 """)
 
-if st.button("Se déconnecter"):
+if st.button("Se déconnecter", key="logout_main"):
     st.session_state.logged = False
     st.session_state.admin_logged = False
     st.rerun()
@@ -1157,6 +1149,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
