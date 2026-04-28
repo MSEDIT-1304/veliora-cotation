@@ -967,35 +967,50 @@ if st.button("Se déconnecter", key="logout_main"):
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
 
-# 🔥 ASSISTANT SAISIE INTELLIGENT
+
+# 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
 def parse_title(title):
     t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
 
     result = {
         "modele": "",
         "motorisation": "",
-        "finition": ""
+        "finition": "",
+        "carburant": ""
     }
 
-    # modèles simples
-    if "clio" in t: result["modele"] = "clio"
-    if "golf" in t: result["modele"] = "golf"
-    if "q5" in t: result["modele"] = "q5"
-    if "x3" in t: result["modele"] = "x3"
+    # MODELES
+    if "ds4" in t: result["modele"] = "ds4 crossback"
+    elif "ds3" in t: result["modele"] = "ds3 crossback"
+    elif "clio" in t: result["modele"] = "clio"
+    elif "golf" in t: result["modele"] = "golf"
+    elif "q5" in t: result["modele"] = "q5"
+    elif "x3" in t: result["modele"] = "x3"
 
-    # motorisation
-    if "tdi" in t or "dci" in t:
+    # CARBURANT + MOTORISATION
+    if "ethanol" in t or "e85" in t:
+        result["motorisation"] = "ethanol"
+        result["carburant"] = "Essence"
+    elif "diesel" in t or "tdi" in t or "dci" in t:
         result["motorisation"] = "diesel"
-    if "tce" in t or "tsi" in t:
+        result["carburant"] = "Diesel"
+    elif "essence" in t or "tce" in t or "tsi" in t:
         result["motorisation"] = "essence"
+        result["carburant"] = "Essence"
+    elif "hybride" in t:
+        result["carburant"] = "Hybride"
+    elif "electrique" in t:
+        result["carburant"] = "Électrique"
 
-    # finition
-    if "s line" in t: result["finition"] = "s line"
-    if "m sport" in t: result["finition"] = "m sport"
-    if "intens" in t: result["finition"] = "intens"
-    if "allure" in t: result["finition"] = "allure"
+    # FINITION
+    if "crossback" in t: result["finition"] = "crossback"
+    elif "s line" in t: result["finition"] = "s line"
+    elif "m sport" in t: result["finition"] = "m sport"
+    elif "intens" in t: result["finition"] = "intens"
+    elif "allure" in t: result["finition"] = "allure"
 
     return result
+
 
 rid = st.session_state.reset_id
 
@@ -1024,7 +1039,7 @@ col1, col2 = st.columns(2)
 with col1:
     motorisation = st.text_input("Motorisation", value=parsed.get("motorisation",""), key=f"motorisation_{rid}")
 with col2:
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], index=["Essence","Diesel","Hybride","Électrique","GPL"].index(parsed.get("carburant","Essence")), key=f"carburant_{rid}")
 
 transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
 
