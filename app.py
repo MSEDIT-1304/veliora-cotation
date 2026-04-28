@@ -158,14 +158,7 @@ BASE_PRICES_V2 = {
     },
     "citroen c1": {2020:8650,2021:9200,2022:9800,2023:10500,2024:11200},
     "volkswagen polo": {2020:12689,2021:13500,2022:14500,2023:15500,2024:16500},
-    "renault captur": {
-        2020:13554,
-        2021:14800,
-        2022:16000,
-        2023:17500,
-        2024:18500
     }
-}
 
 # DATASET 100+ MODELES SANS DOUBLONS
 EXTRA_BASE_PRICES_V2 = {
@@ -467,7 +460,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BASE MULTI-ANNÉES PRIORITAIRE
     model_key = key
-    if True:
+    if model_key in BASE_PRICES_V2:
         year_data = BASE_PRICES_V2[model_key]
         if annee in year_data:
             base = year_data[annee]
@@ -700,7 +693,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     # 🔥 RECALAGE MARCHÉ GLOBAL (ANTI-DERIVE PRO)
-    if True:
+    if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
         if abs(price - market_ref) > 500:
