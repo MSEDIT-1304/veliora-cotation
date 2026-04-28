@@ -444,6 +444,24 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             mapped_options.append(o)
     options = mapped_options
 
+    # 🔥 NORMALISATION INTELLIGENTE MODELE
+    def normalize_model(modele):
+        m = unicodedata.normalize('NFD', modele.lower()).encode('ascii','ignore').decode('utf-8')
+        ALIASES = {
+            "clio v":"clio","clio 5":"clio","clio iv":"clio",
+            "golf 8":"golf","golf vii":"golf","golf 7":"golf",
+            "serie 3 f30":"serie 3","serie 3 g20":"serie 3",
+            "a3 sportback":"a3","a4 avant":"a4",
+            "q5 quattro":"q5","x3 xdrive":"x3"
+        }
+        for k,v in ALIASES.items():
+            if k in m:
+                return v
+        return m
+
+    modele = normalize_model(modele)
+
+
 
 
     key = unicodedata.normalize('NFD', f"{marque} {modele}".lower()).encode('ascii','ignore').decode('utf-8')
