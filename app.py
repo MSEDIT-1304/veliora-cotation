@@ -974,7 +974,7 @@ with col1:
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
-transmission = st.selectbox("Transmission", ["4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
+transmission = st.selectbox("Transmission", ["-","", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
