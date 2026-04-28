@@ -1014,16 +1014,13 @@ def parse_title(title):
 
 rid = st.session_state.reset_id
 
-titre = st.text_input("🔍 Titre annonce (optionnel)")
-parsed = parse_title(titre) if titre else {}
+# champ titre supprimé
+parsed = {}
 
 col1, col2 = st.columns(2)
 with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
 with col2:
-    if titre:
-        if f"modele_{rid}" not in st.session_state or st.session_state[f"modele_{rid}"] == "":
-            st.session_state[f"modele_{rid}"] = parsed.get("modele","")
     modele = st.text_input("Modèle", key=f"modele_{rid}")
 
 col1, col2 = st.columns(2)
@@ -1034,23 +1031,14 @@ with col2:
 
 col1, col2 = st.columns(2)
 with col1:
-    if titre:
-        if f"finition_{rid}" not in st.session_state or st.session_state[f"finition_{rid}"] == "":
-            st.session_state[f"finition_{rid}"] = parsed.get("finition","")
     finition = st.text_input("Finition", key=f"finition_{rid}")
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    if titre:
-        if f"motorisation_{rid}" not in st.session_state or st.session_state[f"motorisation_{rid}"] == "":
-            st.session_state[f"motorisation_{rid}"] = parsed.get("motorisation","")
     motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 with col2:
-    if titre:
-        if f"carburant_{rid}" not in st.session_state:
-            st.session_state[f"carburant_{rid}"] = parsed.get("carburant","Essence")
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
 transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
