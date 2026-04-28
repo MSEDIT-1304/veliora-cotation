@@ -912,7 +912,21 @@ if not st.session_state.logged:
 
     st.stop()
 
+# 🔥 AUTO-REMPLISSAGE VIA EXTENSION
+st.markdown("""
+<script>
+let data = localStorage.getItem("veliora_data");
 
+if (data) {
+    let parsed = JSON.parse(data);
+    let params = new URLSearchParams(parsed).toString();
+
+    if (!window.location.search.includes("modele")) {
+        window.location.search = params;
+    }
+}
+</script>
+""", unsafe_allow_html=True)
 
 # AUTO-FILL VIA URL (EXTENSION)
 params = st.query_params
@@ -1233,6 +1247,7 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
 
