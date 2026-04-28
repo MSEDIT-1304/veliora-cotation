@@ -1250,4 +1250,3 @@ if "resultat" in st.session_state:
 
 
 
-
