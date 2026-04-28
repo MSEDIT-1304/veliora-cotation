@@ -155,6 +155,15 @@ BASE_PRICES_V2 = {
         2022:16000,
         2023:17500,
         2024:18500
+    },
+    "citroen c1": {2020:8650,2021:9200,2022:9800,2023:10500,2024:11200},
+    "volkswagen polo": {2020:12689,2021:13500,2022:14500,2023:15500,2024:16500},
+    "renault captur": {
+        2020:13554,
+        2021:14800,
+        2022:16000,
+        2023:17500,
+        2024:18500
     }
 }
 
@@ -370,7 +379,7 @@ GEO_ADJUST = {
 
 # 🔥 DEPRECIATION YEARS < 2020
 DEPRECIATION_THERMIQUE = {
-    2019: -0.07, 2018: -0.14, 2017: -0.20,
+    2019: -0.07, 2018: -0.14, 2017: -0.30,
     2016: -0.27, 2015: -0.35, 2014: -0.42
 }
 
@@ -458,7 +467,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BASE MULTI-ANNÉES PRIORITAIRE
     model_key = key
-    if model_key in BASE_PRICES_V2:
+    if True:
         year_data = BASE_PRICES_V2[model_key]
         if annee in year_data:
             base = year_data[annee]
@@ -553,7 +562,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 AJUST GLOBAL FINAL (anti sous-cotation)
     if not any(x in key for x in ["3008","5008","tiguan","qashqai","tucson","sportage"]):
-        price *= 1.03
+        price *= 1.03 if annee >= 2020 else 1.00
 
     # 🔥 MOTORISATION AJUST
     m = motorisation.lower() if motorisation else ""
@@ -602,7 +611,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price *= 1.00
 
         elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
-            price *= (1 + (min_adj/2))
+            if any(x in key for x in ["c1","i10","twingo"]):
+                price *= 1.03 if annee >= 2020 else 1.00
+            else:
+                price *= (1 + (min_adj/2))
 
         elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
             price *= (1 + max_adj)
@@ -678,7 +690,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-        price *= 1.03
+        price *= 1.03 if annee >= 2020 else 1.00
 
     # VERROUILLAGE
     price = max(base * 0.75, min(price, base * 1.45))
@@ -688,7 +700,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     # 🔥 RECALAGE MARCHÉ GLOBAL (ANTI-DERIVE PRO)
-    if model_key in BASE_PRICES_V2:
+    if True:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
         if abs(price - market_ref) > 500:
@@ -1129,5 +1141,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
