@@ -24,6 +24,16 @@ except:
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
+# 🔐 Bouton déconnexion
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = True
+
+if st.session_state.get("authenticated"):
+    if st.button("Se déconnecter"):
+        st.session_state.authenticated = False
+        st.rerun()
+
+
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
@@ -553,14 +563,24 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if km < 30000:
         price *= 1.04
 
+    
+    # 🔥 CORRECTION CITADINES RÉCENTES
+    if any(x in key for x in ["clio","208","polo","corsa","i20"]) and annee >= 2020:
+        price *= 0.97
+
     # 🔥 AJUST GLOBAL FINAL (anti sous-cotation)
     if not any(x in key for x in ["3008","5008","tiguan","qashqai","tucson","sportage"]):
         price *= 1.03 if annee >= 2020 else 1.00
 
+    
+    # 🔥 AJUST PETITS MOTEURS (évite surcotation)
+    if any(x in m for x in ["1.0","1.2"]) and "tce" in m.lower():
+        price *= 0.96
+
     # 🔥 MOTORISATION AJUST
     m = motorisation.lower() if motorisation else ""
     if any(x in m for x in ["130","140","150"]):
-        price *= 1.04
+        price *= 1.03
     elif any(x in m for x in ["110","115"]):
         price *= 1.01
     elif any(x in m for x in ["70","75","80"]):
@@ -583,6 +603,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # BOITE
     if boite == "Automatique":
+        price *= 1.025
+    elif boite == "" or boite is None:
+        price *= 1.00
         price *= 1.025
 
     # 🔥 FINITION PRO PAR MODELE
@@ -607,7 +630,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if any(x in key for x in ["c1","i10","twingo"]):
                 price *= 1.03 if annee >= 2020 else 1.00
             else:
-                price *= (1 + (min_adj/2))
+                price *= (1 + (min_adj/3))
 
         elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
             price *= (1 + max_adj)
