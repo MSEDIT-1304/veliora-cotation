@@ -966,13 +966,47 @@ if st.button("Se déconnecter", key="logout_main"):
 # Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
+
+# 🔥 ASSISTANT SAISIE INTELLIGENT
+def parse_title(title):
+    t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
+
+    result = {
+        "modele": "",
+        "motorisation": "",
+        "finition": ""
+    }
+
+    # modèles simples
+    if "clio" in t: result["modele"] = "clio"
+    if "golf" in t: result["modele"] = "golf"
+    if "q5" in t: result["modele"] = "q5"
+    if "x3" in t: result["modele"] = "x3"
+
+    # motorisation
+    if "tdi" in t or "dci" in t:
+        result["motorisation"] = "diesel"
+    if "tce" in t or "tsi" in t:
+        result["motorisation"] = "essence"
+
+    # finition
+    if "s line" in t: result["finition"] = "s line"
+    if "m sport" in t: result["finition"] = "m sport"
+    if "intens" in t: result["finition"] = "intens"
+    if "allure" in t: result["finition"] = "allure"
+
+    return result
+
 rid = st.session_state.reset_id
+
+titre = st.text_input("🔍 Titre annonce (optionnel)")
+parsed = parse_title(titre) if titre else {}
 
 col1, col2 = st.columns(2)
 with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
 with col2:
-    modele = st.text_input("Modèle", key=f"modele_{rid}")
+    modele = st.text_input("Modèle", value=parsed.get("modele",""), key=f"modele_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -982,13 +1016,13 @@ with col2:
 
 col1, col2 = st.columns(2)
 with col1:
-    finition = st.text_input("Finition", key=f"finition_{rid}")
+    finition = st.text_input("Finition", value=parsed.get("finition",""), key=f"finition_{rid}")
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
+    motorisation = st.text_input("Motorisation", value=parsed.get("motorisation",""), key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
