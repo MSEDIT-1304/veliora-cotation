@@ -912,26 +912,6 @@ if not st.session_state.logged:
 
     st.stop()
 
-# 🔥 AUTO-REMPLISSAGE VIA EXTENSION
-st.markdown("""
-<script>
-let data = localStorage.getItem("veliora_data");
-
-if (data) {
-    let parsed = JSON.parse(data);
-    let params = new URLSearchParams(parsed).toString();
-
-    if (!window.location.search.includes("modele")) {
-        window.location.search = params;
-    }
-}
-</script>
-""", unsafe_allow_html=True)
-
-# AUTO-FILL VIA URL (EXTENSION)
-params = st.query_params
-def qp(key, default=""):
-    return params.get(key, default)
 
 st.title("🚗 VELIORA COTATION PRO")
 
@@ -1039,9 +1019,9 @@ parsed = {}
 
 col1, col2 = st.columns(2)
 with col1:
-    marque = st.text_input("Marque", value=qp("marque"), key=f"marque_{rid}")
+    marque = st.text_input("Marque", key=f"marque_{rid}")
 with col2:
-    modele = st.text_input("Modèle", value=qp("modele"), key=f"modele_{rid}")
+    modele = st.text_input("Modèle", key=f"modele_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -1057,7 +1037,7 @@ with col2:
 
 col1, col2 = st.columns(2)
 with col1:
-    motorisation = st.text_input("Motorisation", value=qp("motorisation"), key=f"motorisation_{rid}")
+    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
@@ -1083,7 +1063,7 @@ with col1:
         "Hayon électrique","Attelage","Toit panoramique"
     ], key=f"options_{rid}")
 with col2:
-    km = st.number_input("Kilométrage", 0, 400000, int(qp("km",0)), key=f"km_{rid}")
+    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
 
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
@@ -1247,6 +1227,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
