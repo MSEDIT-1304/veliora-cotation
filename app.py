@@ -522,7 +522,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price *= 0.85
 
     # 🔥 CORRECTION ELECTRIQUE RECENT (anti surcote 2024-2025 faible km)
-    if carburant == \"Électrique" and annee >= 2024 and km < 60000:
+    if carburant == "Électrique" and annee >= 2024 and km < 60000:
         price *= 0.97
 
     # 🔥 KM PRO PAR MODELE
