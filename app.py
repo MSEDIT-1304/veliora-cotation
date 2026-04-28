@@ -1,4 +1,4 @@
-import streamlit as st
+mport streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -562,11 +562,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 AJUST GLOBAL FINAL (anti sous-cotation)
     if not any(x in key for x in ["3008","5008","tiguan","qashqai","tucson","sportage"]):
-        price *= 1.03 if annee >= 2020 else 1.00
+        price *= 1.015 if annee >= 2020 else 1.00
 
     
+    # 🔥 MOTORISATION BASE
+    m = motorisation.lower() if motorisation else ""
+
     # 🔥 AJUST PETITS MOTEURS (évite surcotation)
-    if any(x in m for x in ["1.0","1.2"]) and "tce" in m.lower():
+    if any(x in m for x in ["1.0","1.2"]):
         price *= 0.96
 
     # 🔥 MOTORISATION AJUST
@@ -597,8 +600,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if boite == "Automatique":
         price *= 1.025
     elif boite == "" or boite is None:
-        price *= 1.00
-        price *= 1.025
+        pass
 
     # 🔥 FINITION PRO PAR MODELE
     f = finition.lower() if finition else ""
@@ -620,7 +622,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
             if any(x in key for x in ["c1","i10","twingo"]):
-                price *= 1.03 if annee >= 2020 else 1.00
+                price *= 1.015 if annee >= 2020 else 1.00
             else:
                 price *= (1 + (min_adj/3))
 
@@ -698,10 +700,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-        price *= 1.03 if annee >= 2020 else 1.00
+        price *= 1.015 if annee >= 2020 else 1.00
 
     # VERROUILLAGE
     price = max(base * 0.75, min(price, base * 1.45))
+
+    # 🔥 SAFETY FLOOR
+    if price < base * 0.7:
+        price = base * 0.7
 
     if price > base * 1.8:
         price = base * 1.8
