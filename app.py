@@ -447,8 +447,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
 
     key = unicodedata.normalize('NFD', f"{marque} {modele}".lower()).encode('ascii','ignore').decode('utf-8')
-    key_full = unicodedata.normalize('NFD', f"{marque} {modele} {annee}".lower()).encode('ascii','ignore').decode('utf-8')
-
+    
     # BASE DATASET
     # 🔥 ELECTRIC OVERRIDE
     base = None
@@ -541,7 +540,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     # 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
-    km_ratio = delta_km / 90000 if 90000 else 0
+    km_ratio = delta_km / 90000
     km_effect = km_ratio * adjust * 0.7
 
     if km_effect > 2500:
@@ -549,7 +548,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if km_effect < -1200:
         km_effect = -1200
 
-    price -= max(-1500, min(km_effect, 2500))
+    price -= km_effect
 
 
     
@@ -598,7 +597,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 1.04
 
     elif carburant == "Électrique":
-        price *= 1.04
+        price *= 1.02
 
     # BOITE
     if boite == "Automatique":
@@ -946,9 +945,6 @@ if st.button("Se déconnecter", key="logout_main"):
     st.session_state.admin_logged = False
     st.rerun()
 
-rid = st.session_state.reset_id
-
-
 # Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
@@ -978,7 +974,7 @@ with col1:
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
-transmission = st.selectbox("Transmission", ["-","", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
+transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
