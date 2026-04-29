@@ -478,7 +478,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 break
 
     # 🔥 BASE MULTI-ANNÉES PRIORITAIRE
-    model_key = key.strip()
+    model_key = modele.strip()
     if model_key in BASE_PRICES_V2:
         year_data = BASE_PRICES_V2[model_key]
         if annee in year_data:
@@ -1222,5 +1222,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
