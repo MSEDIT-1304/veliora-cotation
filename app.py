@@ -248,7 +248,7 @@ GLOBAL_YEAR = {
     2022: 0.12,
     2023: 0.22,
     2024: 0.10,
-    2025: 0.20
+    2025: 0.12
 }
 
 # 🔥 YEAR ADJUST PRO (base 2020)
@@ -1229,3 +1229,6 @@ if "resultat" in st.session_state:
         st.success(f"💶 Net vendeur : {net_calc} €")
 
 
+
+
+  
