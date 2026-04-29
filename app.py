@@ -544,8 +544,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 KM PRO PAR MODELE
 
-    if annee >= 2024:
-        price *= 1.04
+    # removed double boost 2024 (already handled)
     
     km_ref = 90000
     delta_km = km - km_ref
@@ -559,7 +558,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
     # 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
     km_ratio = delta_km / 90000
-    km_effect = km_ratio * adjust * 0.7
+    km_effect = km_ratio * adjust * 0.9
 
     if km_effect > 2500:
         km_effect = 2500
@@ -743,11 +742,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
-        if abs(price - market_ref) > 500:
-            if price > market_ref:
-                price = market_ref + 500
-            else:
-                price = market_ref - 500
+        price = market_ref + max(min(price - market_ref, 500), -500)
 
     return int(max(4000, min(price, 80000)))
 
@@ -1229,6 +1224,3 @@ if "resultat" in st.session_state:
         st.success(f"💶 Net vendeur : {net_calc} €")
 
 
-
-
-  
