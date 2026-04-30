@@ -9,7 +9,29 @@ import unicodedata
 
 SCRAPER_API_KEY = None
 
-LEARNING_DATA = {}
+
+import json
+
+LEARNING_FILE = "learning_data.json"
+
+def load_learning_data():
+    if os.path.exists(LEARNING_FILE):
+        try:
+            with open(LEARNING_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_learning_data(data):
+    try:
+        with open(LEARNING_FILE, "w") as f:
+            json.dump(data, f)
+    except:
+        pass
+
+LEARNING_DATA = load_learning_data()
+
 
 try:
     get_leboncoin_prices = None  # scraper désactivé
@@ -1106,6 +1128,8 @@ if st.button("Calculer l'estimation"):
         if model_key_learning not in LEARNING_DATA:
             LEARNING_DATA[model_key_learning] = []
         LEARNING_DATA[model_key_learning].append(median_price)
+        LEARNING_DATA[model_key_learning] = LEARNING_DATA[model_key_learning][-20:]
+        save_learning_data(LEARNING_DATA)
 
         # 🔥 HYBRIDE PRO : on vérifie si le scraper est cohérent
         if (prix_ai * 0.75) < median_price < (prix_ai * 1.25):
@@ -1241,4 +1265,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
