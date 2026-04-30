@@ -9,6 +9,8 @@ import unicodedata
 
 SCRAPER_API_KEY = None
 
+LEARNING_DATA = {}
+
 try:
     get_leboncoin_prices = None  # scraper désactivé
 except:
@@ -608,7 +610,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if k in key:
                 diesel_bonus = v
                 break
-        price *= (1 + (diesel_bonus*0.85))
+        price *= (1 + (diesel_bonus*0.95))
 
     elif carburant == "Hybride":
         price *= 1.04
@@ -728,7 +730,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= 1.015 if annee >= 2020 else 1.00
 
     # VERROUILLAGE
-    price = max(base * 0.75, min(price, base * 1.45))
+    if any(x in key for x in ["x5","q7","xc90","cayenne"]):
+        max_cap = base * 1.55
+    else:
+        max_cap = base * 1.45
+
+    price = max(base * 0.75, min(price, max_cap))
 
     # 🔥 SAFETY FLOOR
     if price < base * 0.7:
@@ -743,6 +750,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
         price = market_ref + max(min(price - market_ref, 500), -500)
+
+    model_key_learning = f"{marque} {modele}".lower()
+    if model_key_learning in LEARNING_DATA and len(LEARNING_DATA[model_key_learning]) >= 5:
+        avg_market = sum(LEARNING_DATA[model_key_learning]) / len(LEARNING_DATA[model_key_learning])
+        correction = (avg_market - base) / base
+        correction = max(min(correction, 0.08), -0.08)
+        price *= (1 + correction)
 
     return int(max(4000, min(price, 80000)))
 
@@ -1088,6 +1102,11 @@ if st.button("Calculer l'estimation"):
 
         median_price = statistics.median(prix_comparables)
 
+        model_key_learning = f"{marque} {modele}".lower()
+        if model_key_learning not in LEARNING_DATA:
+            LEARNING_DATA[model_key_learning] = []
+        LEARNING_DATA[model_key_learning].append(median_price)
+
         # 🔥 HYBRIDE PRO : on vérifie si le scraper est cohérent
         if (prix_ai * 0.75) < median_price < (prix_ai * 1.25):
             prix_marche = int((prix_ai * 0.75) + (median_price * 0.25))
@@ -1222,6 +1241,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
-
 
