@@ -584,10 +584,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     km_ratio = delta_km / 90000
     km_effect = km_ratio * adjust * 0.9
 
-    if km_effect > 2500:
-        km_effect = 2500
-    if km_effect < -1200:
-        km_effect = -1200
+    if km_effect > 1800:
+        km_effect = 1800
+    if km_effect < -1000:
+        km_effect = -1000
 
     price -= km_effect
 
@@ -706,7 +706,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                         total_option_bonus += v[0]
 
         # plafonnement
-        total_option_bonus = min(total_option_bonus, 0.25)
+        total_option_bonus = min(total_option_bonus, 0.18)
 
         price *= (1 + total_option_bonus)
 
@@ -771,13 +771,20 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
-        price = market_ref + max(min(price - market_ref, 500), -500)
+        diff = price - market_ref
+
+    if abs(diff) > 400:
+        diff *= 0.6
+
+    diff = max(min(diff, 500), -500)
+
+    price = market_ref + diff
 
     model_key_learning = f"{marque} {modele}".lower()
     if model_key_learning in LEARNING_DATA and len(LEARNING_DATA[model_key_learning]) >= 5:
         avg_market = sum(LEARNING_DATA[model_key_learning]) / len(LEARNING_DATA[model_key_learning])
         correction = (avg_market - base) / base
-        correction = max(min(correction, 0.08), -0.08)
+        correction = max(min(correction, 0.05), -0.05)
         price *= (1 + correction)
 
     return int(max(4000, min(price, 80000)))
@@ -1265,5 +1272,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
