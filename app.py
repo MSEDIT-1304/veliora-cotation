@@ -530,7 +530,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST MARCHÉ SUV
     if any(x in key for x in ["3008","5008","tiguan","qashqai","karoq","ateca","tucson","sportage"]):
-        price *= 1.10
+        price *= 1.07
 
     # 🔥 YEAR PRO PAR MODELE
     year_adjust = 0
@@ -597,7 +597,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
     # 🔥 BOOST TRES FAIBLE KILOMETRAGE
     if km < 30000:
-        price *= 1.04
+        price *= 1.02
 
     
     # 🔥 CORRECTION CITADINES RÉCENTES
@@ -635,7 +635,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + (diesel_bonus*0.95))
 
     elif carburant == "Hybride":
-        price *= 1.04
+        price *= 1.02
 
     elif carburant == "Électrique":
         price *= 1.02
@@ -675,7 +675,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         # 🔥 BOOST finition SUV premium
     if any(x in key for x in ["3008","tiguan","qashqai","tucson","sportage"]) and any(x in f for x in ["carat","gt","allure","intens","shine"]):
-        price *= 1.04
+        price *= 1.02
 
     # 🔥 OPTIONS PRO
     if carburant == "Électrique":
@@ -686,11 +686,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             if "awd" in o or "dual" in o:
                 price *= 1.12
             if "autopilot" in o:
-                price *= 1.04
+                price *= 1.02
             if "pompe" in o:
-                price *= 1.04
+                price *= 1.02
             if "premium" in o:
-                price *= 1.04
+                price *= 1.02
 
     total_option_bonus = 0
 
@@ -740,7 +740,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
     # 🔥 BOOST SUV PREMIUM HAUT DE GAMME
     if any(x in key for x in ["q5","x3","glc","xc60"]):
-        price *= 1.04
+        price *= 1.02
 
 
     # 🔥 CORRECTION VIEUX PREMIUM (anti sous-cotation)
@@ -767,24 +767,30 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price = base * 1.8
 
     
-    # 🔥 RECALAGE MARCHÉ GLOBAL (ANTI-DERIVE PRO)
+    # 🔥 RECALAGE MARCHÉ ULTRA PRÉCIS (NIVEAU ARGUS)
+
     if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
         diff = price - market_ref
 
-    if abs(diff) > 400:
-        diff *= 0.6
+        # zone ultra précise
+        if abs(diff) > 300:
+            diff *= 0.5
+        elif abs(diff) > 200:
+            diff *= 0.7
 
-    diff = max(min(diff, 500), -500)
+        # sécurité max
+        diff = max(min(diff, 500), -500)
 
-    price = market_ref + diff
+        price = market_ref + diff
+
 
     model_key_learning = f"{marque} {modele}".lower()
     if model_key_learning in LEARNING_DATA and len(LEARNING_DATA[model_key_learning]) >= 5:
         avg_market = sum(LEARNING_DATA[model_key_learning]) / len(LEARNING_DATA[model_key_learning])
         correction = (avg_market - base) / base
-        correction = max(min(correction, 0.05), -0.05)
+        correction = max(min(correction, 0.03), -0.03)
         price *= (1 + correction)
 
     return int(max(4000, min(price, 80000)))
@@ -1272,6 +1278,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
