@@ -844,6 +844,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if price < min_floor:
             price = min_floor
 
+    
+    # 🔥 VERROU FINAL MARCHÉ (MAX +400€)
+    market_ceiling = base + 400
+    market_floor = base - 400
+
+    if price > market_ceiling:
+        price = market_ceiling
+    if price < market_floor:
+        price = market_floor
+
     return int(max(4000, min(price, 80000)))
     
 
@@ -1321,3 +1331,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
+
