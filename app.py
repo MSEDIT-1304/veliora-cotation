@@ -850,14 +850,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             price = min_floor
 
     
-    # 🔥 VERROU FINAL MARCHÉ (MAX +400€)
-    market_ceiling = base + 400
-    market_floor = base - 400
-
-    if price > market_ceiling:
-        price = market_ceiling
-    if price < market_floor:
-        price = market_floor
+    
+    
+    # 🔥 CLAMP FINAL MARCHÉ PRO (OUVERT)
+    market_floor = base * 0.90
+    market_ceiling = base * 1.25
+    price = max(market_floor, min(price, market_ceiling))
 
     return int(max(4000, min(price, 80000)))
     
