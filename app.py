@@ -617,9 +617,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 AJUST PETITS MOTEURS (évite surcotation)
     if any(x in m for x in ["1.0","1.2"]):
         if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-        price *= 0.98
-    else:
-        price *= 0.96
+            price *= 0.98
+        else:
+            price *= 0.96
 
     # 🔥 MOTORISATION AJUST
     m = motorisation.lower() if motorisation else ""
@@ -665,9 +665,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         if any(x in f for x in ["access","life","business","trend","base"]):
             if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-            price *= 0.92
-        else:
-            price *= (1 - min_adj)
+                price *= 0.92
+            else:
+                price *= (1 - min_adj)
 
         elif any(x in f for x in ["intuitive","active","comfort","style"]):
             price *= 1.00
