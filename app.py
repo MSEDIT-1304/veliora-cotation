@@ -597,6 +597,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price -= km_effect
 
     # 🔥 BOOST KM INTELLIGENT (CITADINE FIX)
+    # 🔥 BOOST SUV RECENT (CORRECTION MARCHÉ V3)
+    if annee >= 2019 and km < 60000:
+        if any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage","kuga"]):
+            price *= 1.08
+
+    # 🔥 BOOST PREMIUM RECENT (ANTI SOUS-COTATION V3)
+    if annee >= 2019 and km < 60000:
+        if any(x in key for x in ["x3","q5","glc","xc60","serie 3","a4","classe c"]):
+            price *= 1.10
+
     if km < 40000:
         price *= 1.10
     elif km < 60000:
@@ -852,10 +862,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
     
     
-    # 🔥 CLAMP FINAL MARCHÉ PRO (OUVERT)
+    
+    # 🔥 CLAMP FINAL PAR SEGMENT V3 (PRO)
+    if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla","volvo"]):
+        market_ceiling = base * 1.45
+    elif any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage"]):
+        market_ceiling = base * 1.35
+    else:
+        market_ceiling = base * 1.25
+
     market_floor = base * 0.90
-    market_ceiling = base * 1.25
     price = max(market_floor, min(price, market_ceiling))
+
 
     return int(max(4000, min(price, 80000)))
     
