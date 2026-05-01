@@ -838,12 +838,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if any(x in key for x in ["clio","208","corsa","i20","polo"]):
             price *= 1.08
 
-    # 🔥 GARDE-FOU FINAL (MAX 400€ ERREUR VS MARCHÉ)
-    if km < 60000:
-        min_floor = base * 1.05
-        if price < min_floor:
-            price = min_floor
-
+    
 
     # 🔥 VERROU FINAL ULTRA STRICT (MAX +400€ DU PRIX RÉEL BASE)
     max_allowed = base + 400
