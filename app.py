@@ -598,7 +598,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BOOST KM INTELLIGENT (CITADINE FIX)
     if km < 40000:
-        price *= 1.06
+        price *= 1.10
     elif km < 60000:
         price *= 1.03
 
@@ -665,7 +665,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         if any(x in f for x in ["access","life","business","trend","base"]):
             if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-                price *= 0.92
+                price *= 0.96
             else:
                 price *= (1 - min_adj)
 
@@ -837,6 +837,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if annee >= 2019 and km < 50000:
         if any(x in key for x in ["clio","208","corsa","i20","polo"]):
             price *= 1.08
+
+    
+    # 🔥 BOOST CITADINE RECENTE CORRIGE
+    if annee >= 2019 and km < 50000 and any(x in key for x in ["clio","208","corsa","i20","polo"]):
+        price *= 1.06
 
     # 🔥 GARDE-FOU FINAL (MAX 400€ ERREUR VS MARCHÉ)
     if km < 60000:
