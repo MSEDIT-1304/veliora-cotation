@@ -996,6 +996,8 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("🔄 Nouvelle cotation (reset)"):
         st.session_state.reset_id += 1
+        if "resultat" in st.session_state:
+            del st.session_state["resultat"]
         st.rerun()
 
 col2a, col2b = st.columns(2)
@@ -1299,4 +1301,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
