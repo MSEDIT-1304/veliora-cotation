@@ -1238,10 +1238,7 @@ if st.button("Calculer l'estimation"):
     if commission == 0 and commission_pct == 0:
         net_marche = prix_vente
 
-    st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
-    st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
-    st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
+    # DUPLICATE DISPLAY REMOVED
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
@@ -1284,8 +1281,8 @@ if "resultat" in st.session_state:
     col_left, col_right = st.columns(2)
 
     with col_left:
-        st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
-        st.markdown(f"### {r['prix_vente']} €  |  Net vendeur : {r['net_marche']} €")
+        st.markdown("### 💰 PRIX MARCHÉ")
+
         st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
         st.markdown(f"🎯 MARCHÉ : {r['prix_marche_min']} € → {r['prix_marche_max']} €")
         st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
