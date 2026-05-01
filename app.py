@@ -1239,11 +1239,6 @@ if st.button("Calculer l'estimation"):
         net_marche = prix_vente
 
     st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown("### 💰 PRIX MARCHÉ MOYEN GARAGE")
-    st.markdown(f"### {prix_vente} €  |  Net vendeur : {net_marche} €")
-    st.caption(f"Prix marché estimé : {prix_marche} €")
-    st.markdown("━━━━━━━━━━━━━━━━━━")
-    st.markdown("---")
     st.markdown(f"📉 BAS : {prix_bas_min} € → {prix_bas_max} €")
     st.markdown(f"🎯 MARCHÉ : {prix_marche_min} € → {prix_marche_max} €")
     st.markdown(f"📈 HAUT : {prix_haut_min} € → {prix_haut_max} €")
