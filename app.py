@@ -844,12 +844,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if price < min_floor:
             price = min_floor
 
-
-    # 🔥 VERROU FINAL ULTRA STRICT (MAX +400€ DU PRIX RÉEL BASE)
-    max_allowed = base + 400
-    if price > max_allowed:
-        price = max_allowed
-
     return int(max(4000, min(price, 80000)))
     
 
@@ -1327,6 +1321,3 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
-
-
