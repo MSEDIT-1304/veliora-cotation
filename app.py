@@ -812,20 +812,23 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
         price += diff_ai
 
-    # 🔥 CLAMP FINAL PRO (FIX 500€)
-    if model_key in BASE_PRICES_V2:
-        market_ref = BASE_PRICES_V2[model_key].get(annee, base)
+    # CLAMP FINAL PRO REMOVED (FULL FIX PRO)
 
-        diff = price - market_ref
+    
+    # 🔥 CLAMP FINAL INTELLIGENT (FULL FIX PRO)
+    floor = base * 0.85
 
-        if abs(diff) > 300:
-            diff *= 0.5
+    if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla","volvo"]):
+        ceiling = base * 1.50
+    elif any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage"]):
+        ceiling = base * 1.40
+    else:
+        ceiling = base * 1.35
 
-        diff = max(min(diff, 300), -300)
-
-        price = market_ref + diff
+    price = max(floor, min(price, ceiling))
 
     return int(max(4000, min(price, 80000)))
+    
 
 
 
