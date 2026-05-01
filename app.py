@@ -845,6 +845,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if price > max_allowed:
         price = max_allowed
 
+    
+    # 🔒 ULTRA FINAL LOCK (ANTI DERIVE)
+    if price > base + 400:
+        price = base + 400
+
     return int(max(4000, min(price, 80000)))
     
 
