@@ -314,7 +314,7 @@ FINITION_ADJUST = {
     "a3": (0.18,0.28),"serie 1": (0.18,0.28),"classe a": (0.18,0.28),
 
     "serie 3": (0.20,0.30),"x3": (0.25,0.35),"q5": (0.25,0.35),
-    "x5": (0.30,0.45),"q7": (0.30,0.45)
+    "x5": (0.20,0.28),"q7": (0.20,0.28)
 }
 
 
@@ -558,9 +558,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 ELECTRIC KM SPECIFIC
     if carburant == "Électrique":
         if km <= 60000:
-            price *= 1.12
+            price *= 1.08
         elif km >= 120000:
-            price *= 0.85
+            price *= 0.80
 
     # 🔥 CORRECTION ELECTRIQUE RECENT (anti surcote 2024-2025 faible km)
     if carburant == "Électrique" and annee >= 2024 and km < 60000:
@@ -580,14 +580,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     
-    # 🔥 KM LOGIQUE PRO STABLE (GLOBAL FIX)
-    km_ratio = delta_km / 90000
-    km_effect = km_ratio * adjust * 0.9
+    # 🔥 KM LOGIQUE PRO STABLE (FIX 500€)
+    km_ref = 90000
+    delta_km = km - km_ref
 
-    if km_effect > 1800:
-        km_effect = 1800
-    if km_effect < -1000:
-        km_effect = -1000
+    adjust = 2500
+    for k,v in KM_ADJUST.items():
+        if k in key:
+            adjust = v
+            break
+
+    km_effect = (delta_km / 60000) * adjust
+
+    km_effect = max(min(km_effect, 3000), -2500)
 
     price -= km_effect
 
@@ -604,9 +609,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if any(x in key for x in ["clio","208","polo","corsa","i20"]) and annee >= 2020:
         price *= 0.97
 
-    # 🔥 AJUST GLOBAL FINAL (anti sous-cotation)
-    if not any(x in key for x in ["3008","5008","tiguan","qashqai","tucson","sportage"]):
-        price *= 1.015 if annee >= 2020 else 1.00
+    # 🔥 AJUST GLOBAL FINAL supprimé (FIX 500€)
 
     
     # 🔥 MOTORISATION BASE
@@ -706,7 +709,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                         total_option_bonus += v[0]
 
         # plafonnement
-        total_option_bonus = min(total_option_bonus, 0.18)
+        total_option_bonus = min(total_option_bonus, 0.12)
 
         price *= (1 + total_option_bonus)
 
@@ -747,9 +750,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if annee <= 2016 and any(x in key for x in ["x5","q7","a6","x3"]):
         price *= 1.05
 
-    # 🔥 BOOST PREMIUM
-    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-        price *= 1.015 if annee >= 2020 else 1.00
+    # 🔥 BOOST PREMIUM supprimé (FIX 500€)
 
     # VERROUILLAGE
     if any(x in key for x in ["x5","q7","xc90","cayenne"]):
@@ -778,25 +779,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in key for x in ["clio","208","corsa","i20","polo"]):
         segment_correction = 0.995
 
-    price *= segment_correction
+    # segment_correction supprimé (FIX 500€)
 
-    # 🔥 RECALAGE MARCHÉ ULTRA PRÉCIS (NIVEAU ARGUS)
-
-    if model_key in BASE_PRICES_V2:
-        market_ref = BASE_PRICES_V2[model_key].get(annee, base)
-
-        diff = price - market_ref
-
-        # zone ultra précise
-        if abs(diff) > 300:
-            diff *= 0.5
-        elif abs(diff) > 200:
-            diff *= 0.7
-
-        # sécurité max
-        diff = max(min(diff, 500), -500)
-
-        price = market_ref + diff
+    # 🔥 RECALAGE intermédiaire supprimé (FIX 500€)
 
 
     model_key_learning = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
@@ -807,18 +792,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + correction)
 
     
-    # 🔥 CLAMP FINAL 300€ (ULTRA PRÉCIS)
+    # 🔥 CLAMP FINAL PRO (FIX 500€)
     if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
 
-        final_diff = price - market_ref
+        diff = price - market_ref
 
-        if abs(final_diff) > 300:
-            final_diff *= 0.6
+        if abs(diff) > 300:
+            diff *= 0.5
 
-        final_diff = max(min(final_diff, 300), -300)
+        diff = max(min(diff, 300), -300)
 
-        price = market_ref + final_diff
+        price = market_ref + diff
 
     return int(max(4000, min(price, 80000)))
 
