@@ -1050,7 +1050,7 @@ if st.session_state.show_history:
 **{item['marque']} {item['modele']} {item['finition']}**  
 {item['motorisation']}  
 {item['annee']} • {item['km']} km  
-➡️ **{item['prix']} €**  
+➡️ **{item['prix']} € (marché)**  
 🕒 {item['date']}  
 
 ---
@@ -1214,7 +1214,7 @@ if st.button("Calculer l'estimation"):
         "motorisation": motorisation,
         "annee": annee,
         "km": km,
-        "prix": prix_psy(prix_marche)
+        "prix": prix_marche
     })
 
     st.session_state.historique = st.session_state.historique[:20]
