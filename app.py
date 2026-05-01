@@ -767,6 +767,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price = base * 1.8
 
     
+    
+    # 🔥 AUTO-CORRECTION DYNAMIQUE PAR SEGMENT
+    segment_correction = 1.0
+
+    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
+        segment_correction = 0.985
+    elif any(x in key for x in ["3008","qashqai","tucson","sportage","kuga"]):
+        segment_correction = 1.015
+    elif any(x in key for x in ["clio","208","corsa","i20","polo"]):
+        segment_correction = 0.995
+
+    price *= segment_correction
+
     # 🔥 RECALAGE MARCHÉ ULTRA PRÉCIS (NIVEAU ARGUS)
 
     if model_key in BASE_PRICES_V2:
@@ -786,12 +799,26 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price = market_ref + diff
 
 
-    model_key_learning = f"{marque} {modele}".lower()
+    model_key_learning = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
     if model_key_learning in LEARNING_DATA and len(LEARNING_DATA[model_key_learning]) >= 5:
         avg_market = sum(LEARNING_DATA[model_key_learning]) / len(LEARNING_DATA[model_key_learning])
-        correction = (avg_market - base) / base
-        correction = max(min(correction, 0.03), -0.03)
+        correction = (avg_market - price) / price
+        correction = max(min(correction, 0.02), -0.02)
         price *= (1 + correction)
+
+    
+    # 🔥 CLAMP FINAL 300€ (ULTRA PRÉCIS)
+    if model_key in BASE_PRICES_V2:
+        market_ref = BASE_PRICES_V2[model_key].get(annee, base)
+
+        final_diff = price - market_ref
+
+        if abs(final_diff) > 300:
+            final_diff *= 0.6
+
+        final_diff = max(min(final_diff, 300), -300)
+
+        price = market_ref + final_diff
 
     return int(max(4000, min(price, 80000)))
 
@@ -1137,7 +1164,7 @@ if st.button("Calculer l'estimation"):
 
         median_price = statistics.median(prix_comparables)
 
-        model_key_learning = f"{marque} {modele}".lower()
+        model_key_learning = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
         if model_key_learning not in LEARNING_DATA:
             LEARNING_DATA[model_key_learning] = []
         LEARNING_DATA[model_key_learning].append(median_price)
