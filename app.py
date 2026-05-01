@@ -821,7 +821,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     # 🔥 CLAMP FINAL INTELLIGENT (FULL FIX PRO)
-    floor = base * 0.85
+    floor = base * 0.90
 
     if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla","volvo"]):
         ceiling = base * 1.50
