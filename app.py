@@ -832,6 +832,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = max(floor, min(price, ceiling))
 
+    
+    # 🔥 CORRECTION MARCHÉ FORTE (ANTI SOUS-COTATION CITADINES RÉCENTES)
+    if annee >= 2019 and km < 50000:
+        if any(x in key for x in ["clio","208","corsa","i20","polo"]):
+            price *= 1.08
+
+    # 🔥 GARDE-FOU FINAL (MAX 400€ ERREUR VS MARCHÉ)
+    if km < 60000:
+        min_floor = base * 1.05
+        if price < min_floor:
+            price = min_floor
+
     return int(max(4000, min(price, 80000)))
     
 
