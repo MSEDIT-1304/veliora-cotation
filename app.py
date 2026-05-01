@@ -1143,11 +1143,8 @@ with col2:
 
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
-col1, col2 = st.columns(2)
-with col1:
-    commission = st.number_input("Commission (€)", 0, 10000, 0, key=f"comm_{rid}")
-with col2:
-    commission_pct = st.number_input("Commission (%)", 0.0, 100.0, 0.0, key=f"comm_pct_{rid}")
+commission = 0
+commission_pct = 0.0
 
 if st.button("Calculer l'estimation"):
 
@@ -1249,7 +1246,8 @@ if st.button("Calculer l'estimation"):
         "prix_marche_min": prix_marche_min,
         "prix_marche_max": prix_marche_max,
         "prix_haut_min": prix_haut_min,
-        "prix_haut_max": prix_haut_max
+        "prix_haut_max": prix_haut_max,
+        "prix_marche_estime": prix_marche
     }
 
 
@@ -1282,14 +1280,13 @@ if "resultat" in st.session_state:
 
     with col_left:
         st.markdown("### 💰 PRIX MARCHÉ")
-
+        st.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
         st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
-        st.markdown(f"🎯 MARCHÉ : {r['prix_marche_min']} € → {r['prix_marche_max']} €")
         st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
 
     with col_right:
         st.markdown("### 🧮 Calculateur")
-        prix_choisi = st.number_input("Prix choisi", value=r["prix_vente"])
+        prix_choisi = st.number_input("Prix choisi", value=0)
         commission_user = st.number_input("Commission (€)", value=0)
         commission_pct_user = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
@@ -1302,5 +1299,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
