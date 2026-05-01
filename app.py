@@ -596,18 +596,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price -= km_effect
 
+    # 🔥 BOOST KM INTELLIGENT (CITADINE FIX)
+    if km < 40000:
+        price *= 1.06
+    elif km < 60000:
+        price *= 1.03
+
 
     
     
     
-    # 🔥 BOOST TRES FAIBLE KILOMETRAGE
-    if km < 30000:
-        price *= 1.02
-
-    
-    # 🔥 CORRECTION CITADINES RÉCENTES
-    if any(x in key for x in ["clio","208","polo","corsa","i20"]) and annee >= 2020:
-        price *= 0.97
+    # OLD KM/CITADINE REMOVED
 
     # 🔥 AJUST GLOBAL FINAL supprimé (FIX 500€)
 
@@ -617,6 +616,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 AJUST PETITS MOTEURS (évite surcotation)
     if any(x in m for x in ["1.0","1.2"]):
+        if any(x in key for x in ["clio","208","corsa","i20","polo"]):
+        price *= 0.98
+    else:
         price *= 0.96
 
     # 🔥 MOTORISATION AJUST
@@ -662,6 +664,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 break
 
         if any(x in f for x in ["access","life","business","trend","base"]):
+            if any(x in key for x in ["clio","208","corsa","i20","polo"]):
+            price *= 0.92
+        else:
             price *= (1 - min_adj)
 
         elif any(x in f for x in ["intuitive","active","comfort","style"]):
