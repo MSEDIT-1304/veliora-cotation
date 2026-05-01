@@ -792,6 +792,26 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         price *= (1 + correction)
 
     
+    
+    # 🔥 IA ADAPTATIVE TEMPS RÉEL (AUTO-LEARNING RENFORCÉ)
+    model_key_ai = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
+
+    if model_key_ai in LEARNING_DATA and len(LEARNING_DATA[model_key_ai]) >= 3:
+        avg_market = sum(LEARNING_DATA[model_key_ai]) / len(LEARNING_DATA[model_key_ai])
+
+        # correction dynamique progressive
+        diff_ai = avg_market - price
+
+        if abs(diff_ai) > 300:
+            diff_ai *= 0.4
+        elif abs(diff_ai) > 150:
+            diff_ai *= 0.6
+
+        # limite sécurité
+        diff_ai = max(min(diff_ai, 400), -400)
+
+        price += diff_ai
+
     # 🔥 CLAMP FINAL PRO (FIX 500€)
     if model_key in BASE_PRICES_V2:
         market_ref = BASE_PRICES_V2[model_key].get(annee, base)
