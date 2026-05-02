@@ -184,6 +184,8 @@ BASE_PRICES_V2 = {
     },
     "citroen c1": {2020:8650,2021:9200,2022:9800,2023:10500,2024:11200},
     "volkswagen polo": {2020:12689,2021:13500,2022:14500,2023:15500,2024:16500},
+    "ford kuga": {2020:17880,2021:19500,2022:21500,2023:22800,2024:24000},
+
     }
 
 # DATASET 100+ MODELES SANS DOUBLONS
@@ -842,7 +844,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if km > 90000:
         expected_market *= 1.00
 
-    price = max(expected_market - 250, min(price, expected_market + 250))
+    price = max(price, expected_market * 0.97)
+    price = min(price, expected_market * 1.02)
 
     return int(max(4000, min(price, 80000)))
     
