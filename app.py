@@ -30,7 +30,7 @@ def save_learning_data(data):
     except:
         pass
 
-LEARNING_DATA = load_learning_data()
+LEARNING_DATA = {}
 
 
 try:
@@ -891,24 +891,8 @@ if st.button("Calculer l'estimation"):
         except:
             pass
 
-    if len(prix_comparables) >= 5:
-
-        prix_comparables = clean_prices(prix_comparables)
-
-        median_price = statistics.median(prix_comparables)
-
-        model_key_learning = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
-        if model_key_learning not in LEARNING_DATA:
-            LEARNING_DATA[model_key_learning] = []
-        LEARNING_DATA[model_key_learning].append(median_price)
-        LEARNING_DATA[model_key_learning] = LEARNING_DATA[model_key_learning][-20:]
-        save_learning_data(LEARNING_DATA)
-
-        # 🔥 HYBRIDE PRO : on vérifie si le scraper est cohérent
-        if (prix_ai * 0.75) < median_price < (prix_ai * 1.25):
-            prix_marche = int((prix_ai * 0.75) + (median_price * 0.25))
-        else:
-            prix_marche = prix_ai
+    # 🔥 MODE STABLE (désactivation learning / scraping)
+    prix_marche = prix_ai
 
     else:
         prix_marche = prix_ai
