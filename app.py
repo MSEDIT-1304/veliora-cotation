@@ -383,7 +383,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # recherche flexible
     for m, years in BASE_PRICES_V2.items():
-        if m in key:
+        if m == key or m in key:
             if annee in years:
                 base = years[annee]
             else:
@@ -392,7 +392,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     if base is None:
-        base = 13000  # fallback réaliste
+        # fallback intelligent basé sur segment
+        if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla"]):
+            base = 28000
+        elif any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
+            base = 22000
+        elif any(x in key for x in ["clio","208","corsa","i20","polo"]):
+            base = 12000
+        else:
+            base = 16000
 
     price = float(base)
 
@@ -467,8 +475,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # ======================
     # PREMIUM BOOST
     # ======================
-    if any(x in key for x in ["audi","bmw","mercedes","porsche","land rover","tesla"]):
+    if "porsche" in key or "land rover" in key:
+        price *= 1.06
+    elif any(x in key for x in ["bmw","audi","mercedes"]):
         price *= 1.04
+    elif "tesla" in key:
+        price *= 1.02
 
     # ======================
     # CLAMP FINAL (stable)
