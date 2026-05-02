@@ -518,6 +518,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in finition for x in ["amg","rs","m sport","s line"]):
         price *= 1.08
 
+    # 🔥 CORRECTION SUV HYBRIDE PREMIUM (KUGA / 3008 / QASHQAI)
+    if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
+        if carburant in ["Hybride","Électrique"]:
+            price *= 1.06
+
+    # 🔥 FINITION HAUT DE GAMME SUV
+    if any(x in finition for x in ["vignale","gt","initiale","exclusive"]):
+        if any(x in key for x in ["kuga","3008","qashqai","tucson"]):
+            price *= 1.04
+
+
     # OPTIONS
     bonus = min(len(options) * 0.01, 0.08)
     price *= (1 + bonus)
@@ -534,9 +545,14 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif departement in ["08","23"]:
         price *= 0.97
 
-    # CLAMP FINAL
-    min_price = base * 0.92
-    max_price = base * 1.08
+    # CLAMP INTELLIGENT (marché réel)
+    if any(x in key for x in ["kuga","3008","qashqai","tucson"]):
+        min_price = base * 0.97
+        max_price = base * 1.05
+    else:
+        min_price = base * 0.92
+        max_price = base * 1.08
+
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 80000)))
