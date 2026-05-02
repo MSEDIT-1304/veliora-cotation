@@ -440,6 +440,7 @@ FUEL_ADJUST = {
 
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
@@ -459,100 +460,113 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     key = f"{marque} {modele}".strip()
 
-    # BASE
-    base = 12000
-    try:
-        if modele in BASE_PRICES_V2:
-            years = BASE_PRICES_V2[modele]
+    # ======================
+    # BASE (robuste)
+    # ======================
+    base = None
+
+    # recherche flexible
+    for m, years in BASE_PRICES_V2.items():
+        if m in key:
             if annee in years:
                 base = years[annee]
             else:
                 closest = min(years.keys(), key=lambda x: abs(x - annee))
                 base = years[closest]
-        else:
-            for k, v in BASE_PRICES.items():
-                if key in k:
-                    base = v
-                    break
-    except:
-        pass
+            break
+
+    if base is None:
+        for k, v in BASE_PRICES.items():
+            if k in key:
+                base = v
+                break
+
+    if base is None:
+        base = 13000  # fallback réaliste
 
     price = float(base)
 
-    
-    # KM
+    # ======================
+    # KM (adouci)
+    # ======================
     km_ref = 90000
     km_diff = km - km_ref
-    km_adjust = - (km_diff / 10000) * 250
-    km_adjust = max(min(km_adjust, 3000), -3000)
+    km_adjust = - (km_diff / 10000) * 180
+    km_adjust = max(min(km_adjust, 2500), -2500)
     price += km_adjust
 
+    # ======================
     # MOTORISATION
-    if any(x in motorisation for x in ["130","140","150"]):
-        price *= 1.03
-    elif any(x in motorisation for x in ["110","115"]):
-        price *= 1.01
-    elif any(x in motorisation for x in ["70","80"]):
-        price *= 0.97
+    # ======================
+    if any(x in motorisation for x in ["150","160","180"]):
+        price *= 1.04
+    elif any(x in motorisation for x in ["130","140"]):
+        price *= 1.02
+    elif any(x in motorisation for x in ["90","100"]):
+        price *= 0.98
 
+    # ======================
     # CARBURANT
+    # ======================
     if carburant == "Diesel":
         price *= 1.02
     elif carburant == "Hybride":
-        price *= 1.03
-    elif carburant == "Électrique":
-        price *= 1.04
-
-    # BOITE
-    if boite == "Automatique":
-        price *= 1.02
-
-    # FINITION
-    if any(x in finition for x in ["base","life","access"]):
-        price *= 0.95
-    elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
         price *= 1.05
-    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
-        price *= 1.08
+    elif carburant == "Électrique":
+        price *= 1.06
 
-    # 🔥 CORRECTION SUV HYBRIDE PREMIUM (KUGA / 3008 / QASHQAI)
-    if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
-        if carburant in ["Hybride","Électrique"]:
-            price *= 1.06
+    # ======================
+    # BOITE
+    # ======================
+    if boite == "Automatique":
+        price *= 1.025
 
-    # 🔥 FINITION HAUT DE GAMME SUV
-    if any(x in finition for x in ["vignale","gt","initiale","exclusive"]):
-        if any(x in key for x in ["kuga","3008","qashqai","tucson"]):
-            price *= 1.04
+    # ======================
+    # FINITION
+    # ======================
+    if any(x in finition for x in ["base","life","access"]):
+        price *= 0.96
+    elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
+        price *= 1.06
+    elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
+        price *= 1.09
 
-
+    # ======================
     # OPTIONS
-    bonus = min(len(options) * 0.01, 0.08)
+    # ======================
+    bonus = min(len(options) * 0.012, 0.10)
     price *= (1 + bonus)
 
+    # ======================
     # TRANSMISSION
+    # ======================
     if transmission in ["4x4","AWD","4WD"]:
-        price *= 1.04
+        price *= 1.05
 
+    # ======================
     # GEO
+    # ======================
     if departement in ["75","92"]:
-        price *= 1.03
+        price *= 1.04
     elif departement in ["13","69"]:
         price *= 1.02
     elif departement in ["08","23"]:
         price *= 0.97
 
-    # CLAMP FINAL PRO (STABLE MARCHE)
+    # ======================
+    # CLAMP FINAL (stable)
+    # ======================
     if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
         min_price = base * 0.98
-        max_price = base * 1.08
-    else:
-        min_price = base * 0.93
         max_price = base * 1.10
+    else:
+        min_price = base * 0.95
+        max_price = base * 1.12
 
     price = max(min_price, min(price, max_price))
 
-    return int(max(4000, min(price, 80000)))
+    return int(max(4000, min(price, 90000)))
+
 
     
 
