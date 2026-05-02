@@ -476,11 +476,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # PREMIUM BOOST
     # ======================
     if "porsche" in key or "land rover" in key:
-        price *= 1.06
+        price *= 1.05
     elif any(x in key for x in ["bmw","audi","mercedes"]):
-        price *= 1.04
+        price *= 1.03
     elif "tesla" in key:
-        price *= 1.02
+        price *= 1.015
 
     # ======================
     # CLAMP FINAL (stable)
