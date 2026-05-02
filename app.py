@@ -573,17 +573,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     km_ref = 90000
     delta_km = km - km_ref
 
-    adjust = 2000
-    for k,v in KM_ADJUST.items():
-        if k in key:
-            adjust = v
-            break
-
-    
-    # 🔥 KM LOGIQUE PRO STABLE (FIX 500€)
-    km_ref = 90000
-    delta_km = km - km_ref
-
     adjust = 2500
     for k,v in KM_ADJUST.items():
         if k in key:
@@ -830,18 +819,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # CLAMP FINAL PRO REMOVED (FULL FIX PRO)
 
     
-    # 🔥 CLAMP FINAL INTELLIGENT (FULL FIX PRO)
-    floor = base * 0.90
-
-    if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla","volvo"]):
-        ceiling = base * 1.50
-    elif any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage"]):
-        ceiling = base * 1.40
-    else:
-        ceiling = base * 1.35
-
-    price = max(floor, min(price, ceiling))
-
+    
     
     # 🔥 CORRECTION MARCHÉ FORTE (ANTI SOUS-COTATION CITADINES RÉCENTES)
     if annee >= 2019 and km < 50000:
