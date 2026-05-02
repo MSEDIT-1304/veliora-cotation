@@ -482,6 +482,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif "tesla" in key:
         price *= 1.015
 
+    
+    # ======================
+    # SPECIFIC FIX Q5 (cap marché)
+    # ======================
+    if "q5" in key:
+        max_price = base * 1.03
+        min_price = base * 0.95
+        price = max(min_price, min(price, max_price))
+
     # ======================
     # CLAMP FINAL (stable)
     # ======================
@@ -962,5 +971,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
