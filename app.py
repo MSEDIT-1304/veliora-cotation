@@ -439,415 +439,108 @@ FUEL_ADJUST = {
 }
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
         options = []
 
-    # 🔧 NORMALISATION OPTIONS (accents / variantes UI)
-    def _norm(s):
-        if not s: return ""
-        s = s.lower()
-        s = unicodedata.normalize('NFD', s).encode('ascii','ignore').decode('utf-8')
-        return s
+    import unicodedata
 
-    options = [_norm(o) for o in options]
+    def norm(s):
+        if not s:
+            return ""
+        return unicodedata.normalize('NFD', s.lower()).encode('ascii','ignore').decode('utf-8')
 
-    # 🔧 MAPPING OPTIONS UI → MOTEUR
-    mapped_options = []
-    for o in options:
-        if "camera recul" in o:
-            mapped_options.append("camera recul")
-        elif "sieges chauffants" in o:
-            mapped_options.append("sieges chauffants")
-        elif "bip" in o:
-            continue
-        elif "hayon electrique" in o:
-            mapped_options.append("hayon electrique")
-        elif "toit panoramique" in o:
-            mapped_options.append("toit panoramique")
+    marque = norm(marque)
+    modele = norm(modele)
+    finition = norm(finition)
+    motorisation = norm(motorisation)
+
+    key = f"{marque} {modele}".strip()
+
+    # BASE
+    base = 12000
+    try:
+        if modele in BASE_PRICES_V2:
+            years = BASE_PRICES_V2[modele]
+            if annee in years:
+                base = years[annee]
+            else:
+                closest = min(years.keys(), key=lambda x: abs(x - annee))
+                base = years[closest]
         else:
-            mapped_options.append(o)
-    options = mapped_options
+            for k, v in BASE_PRICES.items():
+                if key in k:
+                    base = v
+                    break
+    except:
+        pass
 
-    # 🔥 NORMALISATION INTELLIGENTE MODELE
-    def normalize_model(modele):
-        m = unicodedata.normalize('NFD', modele.lower()).encode('ascii','ignore').decode('utf-8')
-        ALIASES = {
-            "clio v":"clio","clio 5":"clio","clio iv":"clio",
-            "golf 8":"golf","golf vii":"golf","golf 7":"golf",
-            "serie 3 f30":"serie 3","serie 3 g20":"serie 3",
-            "a3 sportback":"a3","a4 avant":"a4",
-            "q5 quattro":"q5","x3 xdrive":"x3"
-        }
-        for k,v in ALIASES.items():
-            if k in m:
-                return v
-        return m
+    price = float(base)
 
-    modele = normalize_model(modele)
-
-
-
-
-    key = unicodedata.normalize('NFD', f"{marque} {modele}".lower()).encode('ascii','ignore').decode('utf-8')
-    
-    # BASE DATASET
-    # 🔥 ELECTRIC OVERRIDE
-    base = None
-
-    for k,v in ELECTRIC_BASE.items():
-        if k in key:
-            year_key = str(annee)
-            if year_key in v:
-                base = v[year_key]
-                break
-
-    # 🔥 BASE MULTI-ANNÉES PRIORITAIRE
-    model_key = modele.strip()
-    if model_key in BASE_PRICES_V2:
-        year_data = BASE_PRICES_V2[model_key]
-        if annee in year_data:
-            base = year_data[annee]
-        else:
-            closest_year = min(year_data.keys(), key=lambda y: abs(y - annee))
-            base = year_data[closest_year]
-
-    # fallback intelligent (même modèle sans année)
-    if base is None:
-        for k, v in BASE_PRICES.items():
-            if key in k:
-                base = v
-                break
-
-    if base is None:
-        if any(x in key for x in ["mercedes","bmw","audi"]):
-            base = 25000
-        elif any(x in key for x in ["3008","qashqai","tiguan","kadjar","ix35"]):
-            base = 18000
-        else:
-            base = 12000
-
-    price = base
-
-    # 🔥 BOOST MARCHÉ SUV
-    if any(x in key for x in ["3008","5008","tiguan","qashqai","karoq","ateca","tucson","sportage"]):
-        price *= 1.07
-
-    # 🔥 YEAR PRO PAR MODELE
-    year_adjust = 0
-    for k,v in YEAR_ADJUST.items():
-        if k in key:
-            if str(annee) in v:
-                year_adjust = v[str(annee)]
-            break
-
-    if year_adjust != 0:
-        price *= (1 + year_adjust)
-    
-
-    # 🔥 DEPRECIATION PRE 2020
-    if annee < 2020:
-        if carburant == "Électrique":
-            if annee in DEPRECIATION_ELECTRIC:
-                price *= (1 + DEPRECIATION_ELECTRIC[annee])
-        else:
-            if annee in DEPRECIATION_THERMIQUE:
-                price *= (1 + DEPRECIATION_THERMIQUE[annee])
-
+    # ANNEE
+    diff_year = annee - 2020
+    price *= (1 + diff_year * 0.05)
 
     # KM
-    # 🔥 ELECTRIC KM SPECIFIC
-    if carburant == "Électrique":
-        if km <= 60000:
-            price *= 1.08
-        elif km >= 120000:
-            price *= 0.80
-
-    # 🔥 CORRECTION ELECTRIQUE RECENT (anti surcote 2024-2025 faible km)
-    if carburant == "Électrique" and annee >= 2024 and km < 60000:
-        price *= 0.97
-
-    # 🔥 KM PRO PAR MODELE
-
-    # removed double boost 2024 (already handled)
-    
     km_ref = 90000
-    delta_km = km - km_ref
+    km_diff = km - km_ref
+    km_adjust = - (km_diff / 10000) * 250
+    km_adjust = max(min(km_adjust, 3000), -3000)
+    price += km_adjust
 
-    adjust = 2500
-    for k,v in KM_ADJUST.items():
-        if k in key:
-            adjust = v
-            break
-
-    km_effect = (delta_km / 60000) * adjust
-
-    km_effect = max(min(km_effect, 3000), -2500)
-
-    price -= km_effect
-
-    # 🔥 BOOST KM INTELLIGENT (CITADINE FIX)
-    # 🔥 BOOST SUV RECENT (CORRECTION MARCHÉ V3)
-    if annee >= 2019 and km < 60000:
-        if any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage","kuga"]):
-            price *= 1.08
-
-    # 🔥 BOOST PREMIUM RECENT (ANTI SOUS-COTATION V3)
-    if annee >= 2019 and km < 60000:
-        if any(x in key for x in ["x3","q5","glc","xc60","serie 3","a4","classe c"]):
-            price *= 1.10
-
-    if km < 40000:
-        price *= 1.10
-    elif km < 60000:
+    # MOTORISATION
+    if any(x in motorisation for x in ["130","140","150"]):
         price *= 1.03
-
-
-    
-    
-    
-    # OLD KM/CITADINE REMOVED
-
-    # 🔥 AJUST GLOBAL FINAL supprimé (FIX 500€)
-
-    
-    # 🔥 MOTORISATION BASE
-    m = motorisation.lower() if motorisation else ""
-
-    # 🔥 AJUST PETITS MOTEURS (évite surcotation)
-    if any(x in m for x in ["1.0","1.2"]):
-        if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-            price *= 0.98
-        else:
-            price *= 0.96
-
-    # 🔥 MOTORISATION AJUST
-    m = motorisation.lower() if motorisation else ""
-    if any(x in m for x in ["130","140","150"]):
-        price *= 1.03
-    elif any(x in m for x in ["110","115"]):
+    elif any(x in motorisation for x in ["110","115"]):
         price *= 1.01
-    elif any(x in m for x in ["70","75","80"]):
+    elif any(x in motorisation for x in ["70","80"]):
         price *= 0.97
 
-    # 🔥 CARBURANT PRO PAR MODELE
+    # CARBURANT
     if carburant == "Diesel":
-        diesel_bonus = 0
-        for k,v in FUEL_ADJUST.items():
-            if k in key:
-                diesel_bonus = v
-                break
-        price *= (1 + (diesel_bonus*0.95))
-
+        price *= 1.02
     elif carburant == "Hybride":
-        price *= 1.02
-
+        price *= 1.03
     elif carburant == "Électrique":
-        price *= 1.02
+        price *= 1.04
 
     # BOITE
     if boite == "Automatique":
-        price *= 1.025
-    elif boite == "" or boite is None:
-        pass
-
-    # 🔥 FINITION PRO PAR MODELE
-    f = finition.lower() if finition else ""
-    if finition:
-        f = finition.lower()
-
-        min_adj, max_adj = (0.15,0.25)
-
-        for k,v in FINITION_ADJUST.items():
-            if k in key:
-                min_adj, max_adj = v
-                break
-
-        if any(x in f for x in ["access","life","business","trend","base"]):
-            if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-                price *= 0.96
-            else:
-                price *= (1 - min_adj)
-
-        elif any(x in f for x in ["intuitive","active","comfort","style"]):
-            price *= 1.00
-
-        elif any(x in f for x in ["gt","sport","line","plus","tech","style","carat","intens","allure","shine"]):
-            if any(x in key for x in ["c1","i10","twingo"]):
-                price *= 1.015 if annee >= 2020 else 1.00
-            else:
-                price *= (1 + (min_adj/3))
-
-        elif any(x in f for x in ["amg","m sport","rs","s line","exclusive","luxe"]):
-            price *= (1 + max_adj)
-
-        # 🔥 BOOST finition SUV premium
-    if any(x in key for x in ["3008","tiguan","qashqai","tucson","sportage"]) and any(x in f for x in ["carat","gt","allure","intens","shine"]):
         price *= 1.02
 
-    # 🔥 OPTIONS PRO
-    if carburant == "Électrique":
-        for opt in options:
-            o = opt.lower()
-            if "autonomie" in o:
-                price *= 1.15
-            if "awd" in o or "dual" in o:
-                price *= 1.12
-            if "autopilot" in o:
-                price *= 1.02
-            if "pompe" in o:
-                price *= 1.02
-            if "premium" in o:
-                price *= 1.02
-
-    total_option_bonus = 0
-
-    if options:
-        for opt in options:
-            o = opt.lower()
-            for k,v in OPTIONS_ADJUST.items():
-                if k in o:
-                    year_key = str(annee)
-                    if k in OPTIONS_YEAR and year_key in OPTIONS_YEAR[k]:
-                        total_option_bonus += OPTIONS_YEAR[k][year_key]
-                    else:
-                        total_option_bonus += v[0]
-
-        # plafonnement
-        total_option_bonus = min(total_option_bonus, 0.12)
-
-        price *= (1 + total_option_bonus)
-
-    # 🔥 AWD / 4x4 PRO (manuel)
-    if transmission in ["4x4","AWD","4WD"]:
-        type_cat = "citadine"
-        if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
-            type_cat = "suv"
-        if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-            type_cat = "premium"
-        if carburant == "Électrique":
-            type_cat = "electrique"
-
-        min_awd, max_awd = AWD_ADJUST.get(type_cat,(0.07,0.12))
-        price *= (1 + (min_awd + max_awd)/2)
-
-    # 🔥 GEO AJUSTEMENT
-    type_cat = "citadine"
-    if any(x in key for x in ["3008","qashqai","tucson","sportage","x1","x3","q5"]):
-        type_cat = "suv"
-    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-        type_cat = "premium"
-    if carburant == "Électrique":
-        type_cat = "electrique"
-
-    if departement in GEO_ADJUST:
-        geo_bonus = GEO_ADJUST[departement].get(type_cat,0)
-        price *= (1 + geo_bonus)
-
-    
-    
-    # 🔥 BOOST SUV PREMIUM HAUT DE GAMME
-    if any(x in key for x in ["q5","x3","glc","xc60"]):
-        price *= 1.02
-
-
-    # 🔥 CORRECTION VIEUX PREMIUM (anti sous-cotation)
-    if annee <= 2016 and any(x in key for x in ["x5","q7","a6","x3"]):
+    # FINITION
+    if any(x in finition for x in ["base","life","access"]):
+        price *= 0.95
+    elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
         price *= 1.05
+    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
+        price *= 1.08
 
-    # 🔥 BOOST PREMIUM supprimé (FIX 500€)
+    # OPTIONS
+    bonus = min(len(options) * 0.01, 0.08)
+    price *= (1 + bonus)
 
-    # VERROUILLAGE
-    if any(x in key for x in ["x5","q7","xc90","cayenne"]):
-        max_cap = base * 1.55
-    else:
-        max_cap = base * 1.45
+    # TRANSMISSION
+    if transmission in ["4x4","AWD","4WD"]:
+        price *= 1.04
 
-    price = max(base * 0.75, min(price, max_cap))
+    # GEO
+    if departement in ["75","92"]:
+        price *= 1.03
+    elif departement in ["13","69"]:
+        price *= 1.02
+    elif departement in ["08","23"]:
+        price *= 0.97
 
-    # 🔥 SAFETY FLOOR
-    if price < base * 0.7:
-        price = base * 0.7
-
-    if price > base * 1.8:
-        price = base * 1.8
-
-    
-    
-    
-    
-    
-    # 🔥 IA ADAPTATIVE TEMPS RÉEL (AUTO-LEARNING RENFORCÉ)
-    model_key_ai = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
-
-    if model_key_ai in LEARNING_DATA and len(LEARNING_DATA[model_key_ai]) >= 3:
-        avg_market = sum(LEARNING_DATA[model_key_ai]) / len(LEARNING_DATA[model_key_ai])
-
-        # correction dynamique progressive
-        diff_ai = avg_market - price
-
-        if abs(diff_ai) > 300:
-            diff_ai *= 0.4
-        elif abs(diff_ai) > 150:
-            diff_ai *= 0.6
-
-        # limite sécurité
-        diff_ai = max(min(diff_ai, 400), -400)
-
-        price += diff_ai
-
-    # CLAMP FINAL PRO REMOVED (FULL FIX PRO)
-
-    
-    
-    
-    # 🔥 CORRECTION MARCHÉ FORTE (ANTI SOUS-COTATION CITADINES RÉCENTES)
-    if annee >= 2019 and km < 50000:
-        if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-            price *= 1.08
-
-    
-    # 🔥 BOOST CITADINE RECENTE CORRIGE
-    if annee >= 2019 and km < 50000 and any(x in key for x in ["clio","208","corsa","i20","polo"]):
-        price *= 1.06
-
-    # 🔥 GARDE-FOU FINAL (MAX 400€ ERREUR VS MARCHÉ)
-    if km < 60000:
-        min_floor = base * 1.05
-        if price < min_floor:
-            price = min_floor
-
-    
-    
-    
-    
-    # 🔥 CLAMP FINAL PAR SEGMENT V3 (PRO) SUPPRIMÉ
-
-
-    
-    
-
-    
-    # 🔥 GARDE-FOU FINAL ABSOLU (VERROU MARCHÉ RÉEL)
-
-    expected_market = base
-
-    if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage","tiguan"]):
-        if annee >= 2022:
-            expected_market = base * 1.02
-
-    if any(x in key for x in ["x3","q5","glc","xc60"]):
-        if annee >= 2021:
-            expected_market = base * 1.03
-
-    if km > 90000:
-        expected_market *= 1.00
-
-    price = max(price, expected_market * 0.97)
-    price = min(price, expected_market * 1.02)
+    # CLAMP FINAL
+    min_price = base * 0.92
+    max_price = base * 1.08
+    price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 80000)))
+
     
 
 
