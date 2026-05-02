@@ -773,28 +773,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
     
-    # 🔥 AUTO-CORRECTION DYNAMIQUE PAR SEGMENT
-    segment_correction = 1.0
-
-    if any(x in key for x in ["bmw","audi","mercedes","volvo"]):
-        segment_correction = 0.985
-    elif any(x in key for x in ["3008","qashqai","tucson","sportage","kuga"]):
-        segment_correction = 1.015
-    elif any(x in key for x in ["clio","208","corsa","i20","polo"]):
-        segment_correction = 0.995
-
-    # segment_correction supprimé (FIX 500€)
-
-    # 🔥 RECALAGE intermédiaire supprimé (FIX 500€)
-
-
-    model_key_learning = f"{marque} {modele}_{annee}_{int(km/10000)*10000}_{carburant}".lower()
-    if model_key_learning in LEARNING_DATA and len(LEARNING_DATA[model_key_learning]) >= 5:
-        avg_market = sum(LEARNING_DATA[model_key_learning]) / len(LEARNING_DATA[model_key_learning])
-        correction = (avg_market - price) / price
-        correction = max(min(correction, 0.02), -0.02)
-        price *= (1 + correction)
-
+    
     
     
     # 🔥 IA ADAPTATIVE TEMPS RÉEL (AUTO-LEARNING RENFORCÉ)
@@ -863,7 +842,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if km > 90000:
         expected_market *= 1.00
 
-    price = max(expected_market - 400, min(price, expected_market + 400))
+    price = max(expected_market - 250, min(price, expected_market + 250))
 
     return int(max(4000, min(price, 80000)))
     
