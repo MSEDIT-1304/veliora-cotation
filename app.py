@@ -894,9 +894,6 @@ if st.button("Calculer l'estimation"):
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
 
-    else:
-        prix_marche = prix_ai
-
 
 
     st.session_state.historique.insert(0, {
