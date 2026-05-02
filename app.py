@@ -876,9 +876,25 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
 
     
-    # 🔥 GARDE-FOU FINAL STRICT (±400€ MAX DU MARCHÉ)
-    lower_bound = base - 400
-    upper_bound = base + 400
+    
+
+    
+    # 🔥 VRAI GARDE-FOU MARCHÉ (CORRECTION DEFINITIVE)
+    expected_market = base
+
+    if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage","tiguan"]):
+        if annee >= 2022:
+            expected_market = base * 1.02
+
+    if any(x in key for x in ["x3","q5","glc","xc60"]):
+        if annee >= 2021:
+            expected_market = base * 1.03
+
+    if km < 60000:
+        expected_market *= 1.02
+
+    lower_bound = expected_market - 400
+    upper_bound = expected_market + 400
     price = max(lower_bound, min(price, upper_bound))
 
     return int(max(4000, min(price, 80000)))
