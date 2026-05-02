@@ -875,6 +875,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price = max(market_floor, min(price, market_ceiling))
 
 
+    
+    # 🔥 GARDE-FOU FINAL STRICT (±400€ MAX DU MARCHÉ)
+    lower_bound = base - 400
+    upper_bound = base + 400
+    price = max(lower_bound, min(price, upper_bound))
+
     return int(max(4000, min(price, 80000)))
     
 
