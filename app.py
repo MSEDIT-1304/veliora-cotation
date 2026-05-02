@@ -863,23 +863,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
     
     
-    # 🔥 CLAMP FINAL PAR SEGMENT V3 (PRO)
-    if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla","volvo"]):
-        market_ceiling = base * 1.45
-    elif any(x in key for x in ["3008","qashqai","tiguan","tucson","sportage"]):
-        market_ceiling = base * 1.35
-    else:
-        market_ceiling = base * 1.25
-
-    market_floor = base * 0.90
-    price = max(market_floor, min(price, market_ceiling))
+    # 🔥 CLAMP FINAL PAR SEGMENT V3 (PRO) SUPPRIMÉ
 
 
     
     
 
     
-    # 🔥 VRAI GARDE-FOU MARCHÉ (CORRECTION DEFINITIVE)
+    # 🔥 GARDE-FOU FINAL ABSOLU (VERROU MARCHÉ RÉEL)
+
     expected_market = base
 
     if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage","tiguan"]):
@@ -890,12 +882,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if annee >= 2021:
             expected_market = base * 1.03
 
-    if km < 60000:
-        expected_market *= 1.02
+    if km > 90000:
+        expected_market *= 1.00
 
-    lower_bound = expected_market - 400
-    upper_bound = expected_market + 400
-    price = max(lower_bound, min(price, upper_bound))
+    price = max(expected_market - 400, min(price, expected_market + 400))
 
     return int(max(4000, min(price, 80000)))
     
