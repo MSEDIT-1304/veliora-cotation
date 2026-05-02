@@ -820,7 +820,15 @@ departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 commission = 0
 commission_pct = 0.0
 
-if st.button("Calculer l'estimation"):
+col_btn, col_txt = st.columns([1,2])
+
+with col_btn:
+    calcul = st.button("Calculer l'estimation")
+
+with col_txt:
+    st.caption("Estimation basée sur algorithme marché — non contractuel")
+
+if calcul:
 
     prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
 
