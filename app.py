@@ -63,90 +63,6 @@ ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
 # 🔥 DATASET PREMIUM COMPLET
-BASE_PRICES = {
-    # 2020 / 90 000 km base marché PRO (médiane)
-    "renault megane 2020": 11536,
-    "peugeot 208 2020": 10959,
-    "peugeot 2008 2020": 13266,
-    "peugeot 3008 2020": 17500,
-    "peugeot 5008 2020": 18500,
-    "toyota yaris 2020": 12112,
-    "toyota corolla 2020": 16727,
-    "volvo xc40 2020": 21918,
-    "volvo xc60 2020": 25379,
-    "volvo v60 2020": 20764,
-    "hyundai i20 2020": 10959,
-    "volkswagen polo 2020": 12689,
-    "hyundai tucson 2020": 19500,
-    "hyundai ix35 2016": 10382,
-    "kia sportage 2020": 19000,
-    "audi q3 2020": 20000,
-    "audi q5 2020": 26000,
-    "audi q7 2020": 35000,
-    "bmw x1 2020": 20000,
-    "bmw x3 2020": 24000,
-    "bmw x5 2020": 33000,
-    "bmw serie 1 2020": 17000,
-    "bmw serie 3 2020": 21000,
-    "audi a1 2020": 14000,
-    "audi a3 2020": 17000,
-    "mercedes classe a 2020": 20000,
-    "mercedes classe b 2020": 18000,
-    "mini cooper 2020": 18746,
-    "opel corsa 2020": 10382,
-    "opel grandland 2020": 15862,
-    "opel grandland x 2020": 15285,
-    # 🔥 AJOUT LISTE UTILISATEUR (médianes 2020 / 90 000 km)
-    "renault clio v 2020": 10959,
-    "renault captur ii 2020": 13554,
-    "renault kadjar 2020": 15285,
-    "peugeot 308 2020": 12978,
-    "citroen c3 2020": 10382,
-    "citroen c5 aircross 2020": 17304,
-    "volkswagen golf 8 2020": 17592,
-    "volkswagen tiguan 2020": 22500,
-    "seat leon 2020": 13554,
-    
-    "skoda octavia 2020": 14708,
-    
-    "ford fiesta 2020": 10382,
-    "ford focus 2020": 12978,
-    "ford kuga 2020": 17880,
-    "nissan qashqai 2020": 18500,
-    "nissan juke 2020": 13554,
-    "mazda cx-30 2020": 18457,
-    "mazda 3 2020": 15862,
-    "honda civic 2020": 16438,
-    "honda cr-v 2020": 22495,
-    "kia ceed 2020": 13554,
-    "kia xceed 2020": 15862,
-    "hyundai i10 2020": 9228,
-    "hyundai i30 2020": 13266,
-    "hyundai kona 2020": 15862,
-    "hyundai santa fe 2020": 27974,
-    "hyundai ioniq 2020": 17592,
-    "hyundai bayon 2020": 14708,
-    "renault megane 5 2020": 11536,
-    "renault koleos 2020": 21053,
-    "renault talisman 2020": 14131,
-    "renault scenic 4 2020": 13554,
-    "renault grand scenic 2020": 14708,
-    "renault arkana 2020": 17880,
-    "renault twingo 3 2020": 9228,
-    "seat ibiza 2020": 11536,
-    "seat arona 2020": 13554,
-    "seat ateca 2020": 18457,
-    "seat tarraco 2020": 23360,
-    "citroen c1 2020": 8652,
-    "citroen c3 aircross 2020": 12689,
-    "citroen c4 2020": 13843,
-    "skoda fabia 2020": 10959,
-    "skoda scala 2020": 12689,
-    "skoda kamiq 2020": 13843,
-    "skoda karoq 2020": 14996,
-    "skoda kodiaq 2020": 21341,
-    "skoda superb 2020": 17880,
-}
 
 
 
@@ -476,12 +392,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             break
 
     if base is None:
-        for k, v in BASE_PRICES.items():
-            if k in key:
-                base = v
-                break
-
-    if base is None:
         base = 13000  # fallback réaliste
 
     price = float(base)
@@ -511,7 +421,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if carburant == "Diesel":
         price *= 1.02
     elif carburant == "Hybride":
-        price *= 1.05
+        price *= 1.03
     elif carburant == "Électrique":
         price *= 1.06
 
@@ -529,7 +439,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
         price *= 1.06
     elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
-        price *= 1.09
+        price *= 1.06
 
     # ======================
     # OPTIONS
@@ -557,11 +467,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # CLAMP FINAL (stable)
     # ======================
     if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
-        min_price = base * 0.98
-        max_price = base * 1.10
+        min_price = base * 0.97
+        max_price = base * 1.05
     else:
         min_price = base * 0.95
-        max_price = base * 1.12
+        max_price = base * 1.07
 
     price = max(min_price, min(price, max_price))
 
