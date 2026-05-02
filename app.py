@@ -479,10 +479,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = float(base)
 
-    # ANNEE
-    diff_year = annee - 2020
-    price *= (1 + diff_year * 0.05)
-
+    
     # KM
     km_ref = 90000
     km_diff = km - km_ref
@@ -545,13 +542,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif departement in ["08","23"]:
         price *= 0.97
 
-    # CLAMP INTELLIGENT (marché réel)
-    if any(x in key for x in ["kuga","3008","qashqai","tucson"]):
-        min_price = base * 0.97
-        max_price = base * 1.05
-    else:
-        min_price = base * 0.92
+    # CLAMP FINAL PRO (STABLE MARCHE)
+    if any(x in key for x in ["kuga","3008","qashqai","tucson","sportage"]):
+        min_price = base * 0.98
         max_price = base * 1.08
+    else:
+        min_price = base * 0.93
+        max_price = base * 1.10
 
     price = max(min_price, min(price, max_price))
 
