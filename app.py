@@ -518,14 +518,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
 
 def get_ai_estimation(marque, modele, annee, km, carburant, boite):
-    # IA légère (non intrusive) : variation contrôlée autour du moteur
     base = ai_price_engine(marque, modele, "", "", annee, km, carburant, boite)
     low = int(base * 0.98)
     high = int(base * 1.02)
     return low, high
 
-
 def prix_psy(prix):
+
     return int(prix / 100) * 100 - 10
 
 
@@ -607,6 +606,7 @@ if "historique" not in st.session_state:
     st.session_state.historique = []
 
 if "show_history" not in st.session_state:
+    st.session_state.show_ia = False
     st.session_state.show_history = False
 
 if st.session_state.admin_logged:
@@ -644,328 +644,22 @@ if not st.session_state.logged:
         else:
             st.error("Remplir tous les champs")
 
-    st.markdown("---")
-
-    st.subheader("🔐 Connexion")
-
-    user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
-
-    if st.button("Se connecter"):
-
-        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
-            st.session_state.logged = True
-            st.session_state.admin_logged = True
-            st.rerun()
-
-        # priorité utilisateur fraîchement créé
-        if "temp_user" in st.session_state and user.strip() == st.session_state["temp_user"] and pwd.strip() == st.session_state["temp_pass"]:
-            st.session_state.logged = True
-            st.rerun()
-
-        result = check_login(user, pwd)
-
-        if result == "ok":
-            st.session_state.logged = True
-            st.rerun()
-
-        elif result == "expired":
-            st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
-        else:
-            st.error("Identifiant incorrect")
-
-    st.stop()
-
-
-st.title("🚗 VELIORA COTATION PRO")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("🔄 Nouvelle cotation (reset)"):
-        st.session_state.reset_id += 1
-        if "resultat" in st.session_state:
-            del st.session_state["resultat"]
-        st.rerun()
-
-col2a, col2b = st.columns(2)
-
-with col2a:
-    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
-
-with col2b:
-    buffer_hist = io.StringIO()
-    buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
-    for item in st.session_state.historique:
-        buffer_hist.write(f"{item['marque']} {item['modele']} {item['finition']}\n")
-        buffer_hist.write(f"{item['motorisation']}\n")
-        buffer_hist.write(f"{item['annee']} • {item['km']} km\n")
-        buffer_hist.write(f"Prix : {item['prix']} €\n")
-        buffer_hist.write(f"Date : {item['date']}\n")
-        buffer_hist.write("-----------------------------\n")
-    st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
-
-
-
-if st.session_state.show_history:
-    st.subheader("📊 Historique des estimations")
-
-    if len(st.session_state.historique) == 0:
-        st.info("Aucune estimation pour le moment")
-    else:
-        for item in st.session_state.historique:
-            st.markdown(f"""
-**{item['marque']} {item['modele']} {item['finition']}**  
-{item['motorisation']}  
-{item['annee']} • {item['km']} km  
-➡️ **{item['prix']} € (marché)**  
-🕒 {item['date']}  
-
----
-""")
-
-if st.button("Se déconnecter", key="logout_main"):
-    st.session_state.logged = False
-    st.session_state.admin_logged = False
-    st.rerun()
-
-# Lien Argus en haut
-st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
-
-
-
-# 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
-def parse_title(title):
-    t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
-
-    result = {
-        "modele": "",
-        "motorisation": "",
-        "finition": "",
-        "carburant": ""
-    }
-
-    # MODELES
-    if "ds4" in t: result["modele"] = "ds4 crossback"
-    elif "ds3" in t: result["modele"] = "ds3 crossback"
-    elif "clio" in t: result["modele"] = "clio"
-    elif "golf" in t: result["modele"] = "golf"
-    elif "q5" in t: result["modele"] = "q5"
-    elif "x3" in t: result["modele"] = "x3"
-
-    # CARBURANT + MOTORISATION
-    if "ethanol" in t or "e85" in t:
-        result["motorisation"] = "ethanol"
-        result["carburant"] = "Essence"
-    elif "diesel" in t or "tdi" in t or "dci" in t:
-        result["motorisation"] = "diesel"
-        result["carburant"] = "Diesel"
-    elif "essence" in t or "tce" in t or "tsi" in t:
-        result["motorisation"] = "essence"
-        result["carburant"] = "Essence"
-    elif "hybride" in t:
-        result["carburant"] = "Hybride"
-    elif "electrique" in t:
-        result["carburant"] = "Électrique"
-
-    # FINITION
-    if "crossback" in t: result["finition"] = "crossback"
-    elif "s line" in t: result["finition"] = "s line"
-    elif "m sport" in t: result["finition"] = "m sport"
-    elif "intens" in t: result["finition"] = "intens"
-    elif "allure" in t: result["finition"] = "allure"
-
-    return result
-
-
-rid = st.session_state.reset_id
-
-# champ titre supprimé
-parsed = {}
-
-col1, col2 = st.columns(2)
-with col1:
-    marque = st.text_input("Marque", key=f"marque_{rid}")
-with col2:
-    modele = st.text_input("Modèle", key=f"modele_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
-with col2:
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    finition = st.text_input("Finition", key=f"finition_{rid}")
-with col2:
-    sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
-with col2:
-    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
-
-transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
-with col2:
-    boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    portes = st.text_input("Nombre de portes (ex: -, 0, 5)", key=f"portes_{rid}")
-with col2:
-    places = st.text_input("Nombre de places (ex: -, 0, 5)", key=f"places_{rid}")
-
-col1, col2 = st.columns(2)
-with col1:
-    options = st.multiselect("Options", [
-        "Caméra recul","Bip avant","Bip arrière",
-        "Sièges chauffants avant","Sièges chauffants arrière",
-        "Hayon électrique","Attelage","Toit panoramique"
-    ], key=f"options_{rid}")
-with col2:
-    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
-
-departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
-
-commission = 0
-commission_pct = 0.0
-
-col_btn, col_txt = st.columns([1,2])
-
-with col_btn:
-    calcul = st.button("Calculer l'estimation")
-
-with col_txt:
-    st.caption("Estimation basée sur algorithme marché — non contractuel")
-
-if calcul:
-
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
-
-    prix_comparables = []
-
-    if get_leboncoin_prices:
-        try:
-            query = f"{marque} {modele} {motorisation} {annee}"
-            prix_comparables = get_leboncoin_prices(query, km, carburant, boite)
-            st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
-        except:
-            pass
-
-    # 🔥 MODE STABLE (désactivation learning / scraping)
-    prix_marche = prix_ai
-
-
-
-    st.session_state.historique.insert(0, {
-        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
-        "marque": marque,
-        "modele": modele,
-        "finition": finition,
-        "motorisation": motorisation,
-        "annee": annee,
-        "km": km,
-        "prix": prix_marche
-    })
-
-    st.session_state.historique = st.session_state.historique[:20]
-
-    prix_vente = prix_psy(prix_marche)
-
-    # 🔥 LOGIQUE PRIX COHÉRENTE FIXÉE (stable)
-
-    def arrondi_10(x):
-        return int(round(x / 10) * 10)
-
-    base = prix_marche
-    base = int(round(base / 100) * 100)
-
-    # BAS
-    prix_bas_min = arrondi_10(base * 0.88)
-    prix_bas_max = arrondi_10(base * 0.94)
-
-    # MARCHÉ (plage cohérente fixe)
-    prix_marche_min = arrondi_10(base * 0.95)
-    prix_marche_max = arrondi_10(base * 1.05)
-
-    # HAUT
-    prix_haut_min = prix_marche_max + 1
-    prix_haut_max = arrondi_10(base * 1.12)
-
-    # 🔥 CORRECTION % + NET VENDEUR JUSTE
-
-    if commission_pct > 0:
-        commission_calc = round(prix_vente * (commission_pct / 100))
-    else:
-        commission_calc = commission
-
-    net_marche = prix_vente - commission_calc
-
-    # arrondi cohérent (comme prix affiché)
-    net_marche = int(round(net_marche / 10) * 10)
-
-    # sécurité si 0 commission
-    if commission == 0 and commission_pct == 0:
-        net_marche = prix_vente
-
-    # DUPLICATE DISPLAY REMOVED
-
-    # 🔥 STOCKAGE RESULTAT (pour éviter reset)
-    st.session_state.resultat = {
-        "prix_vente": prix_vente,
-        "net_marche": net_marche,
-        "prix_bas_min": prix_bas_min,
-        "prix_bas_max": prix_bas_max,
-        "prix_marche_min": prix_marche_min,
-        "prix_marche_max": prix_marche_max,
-        "prix_haut_min": prix_haut_min,
-        "prix_haut_max": prix_haut_max,
-        "prix_marche_estime": prix_marche
-    }
-
-
     
-
-    buffer = io.StringIO()
-    buffer.write("===== ESTIMATION VÉHICULE =====\n")
-    buffer.write(f"Marque : {marque}\n")
-    buffer.write(f"Modèle : {modele}\n")
-    buffer.write(f"Sous-version : {sous_version}\n")
-    buffer.write(f"Finition : {finition}\n")
-    buffer.write(f"Motorisation : {motorisation}\n")
-    buffer.write(f"Année : {annee}\n")
-    buffer.write(f"Kilométrage : {km} km\n")
-    buffer.write(f"Carburant : {carburant}\n")
-    buffer.write(f"Boîte : {boite}\n")
-    buffer.write(f"\n===== PRIX =====\n")
-    buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
-    buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
-    buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
-    buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
-
-
-
-
     st.markdown("---")
     if st.button("🔎 Voir estimation IA (beta)"):
-        if "resultat" in st.session_state:
-            low, high = get_ai_estimation(
-                st.session_state.historique[0]["marque"],
-                st.session_state.historique[0]["modele"],
-                st.session_state.historique[0]["annee"],
-                st.session_state.historique[0]["km"],
-                carburant,
-                boite
-            )
-            st.info(f"Estimation IA marché pro : {low} € – {high} €")
+        st.session_state.show_ia = True
+
+    if st.session_state.get("show_ia", False):
+        last = st.session_state.historique[0]
+        low, high = get_ai_estimation(
+            last["marque"],
+            last["modele"],
+            last["annee"],
+            last["km"],
+            carburant,
+            boite
+        )
+        st.info(f"Estimation IA marché pro : {low} € – {high} €")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
@@ -994,6 +688,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
