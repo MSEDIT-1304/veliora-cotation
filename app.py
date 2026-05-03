@@ -516,6 +516,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
 
 
+
+def get_ai_estimation(marque, modele, annee, km, carburant, boite):
+    # IA légère (non intrusive) : variation contrôlée autour du moteur
+    base = ai_price_engine(marque, modele, "", "", annee, km, carburant, boite)
+    low = int(base * 0.98)
+    high = int(base * 1.02)
+    return low, high
+
+
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
 
@@ -943,6 +952,12 @@ if calcul:
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
 
+
+
+    st.markdown("---")
+    if st.button("🔎 Voir estimation IA (beta)"):
+        low, high = get_ai_estimation(marque, modele, annee, km, carburant, boite)
+        st.info(f"Estimation IA marché pro : {low} € – {high} €")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
