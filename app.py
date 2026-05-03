@@ -956,8 +956,16 @@ if calcul:
 
     st.markdown("---")
     if st.button("🔎 Voir estimation IA (beta)"):
-        low, high = get_ai_estimation(marque, modele, annee, km, carburant, boite)
-        st.info(f"Estimation IA marché pro : {low} € – {high} €")
+        if "resultat" in st.session_state:
+            low, high = get_ai_estimation(
+                st.session_state.historique[0]["marque"],
+                st.session_state.historique[0]["modele"],
+                st.session_state.historique[0]["annee"],
+                st.session_state.historique[0]["km"],
+                carburant,
+                boite
+            )
+            st.info(f"Estimation IA marché pro : {low} € – {high} €")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
