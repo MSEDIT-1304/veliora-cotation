@@ -609,7 +609,7 @@ if not st.session_state.logged:
     st.subheader("🎁 Essai gratuit 1 jour")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
-    st.info(f"Après 3 jours d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
+    st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
