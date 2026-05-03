@@ -147,11 +147,6 @@ BASE_PRICES_V2 = {
 
 # DATASET 100+ MODELES SANS DOUBLONS
 
-# 🔥 MERGE DATASET SANS DOUBLONS
-for model, data in EXTRA_BASE_PRICES_V2.items():
-    if model not in BASE_PRICES_V2:
-        BASE_PRICES_V2[model] = data
-
 # 🔥 KM ADJUST PRO (90k référence)
 KM_ADJUST = {
     "i20":1500,
@@ -919,4 +914,3 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
