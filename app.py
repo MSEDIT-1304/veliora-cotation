@@ -767,66 +767,10 @@ def parse_title(title):
     return result
 
 
-# 🔥 AUTO DETECTION V18
-import re
-import unicodedata
-
-def auto_detect_full(text):
-
-    t = unicodedata.normalize('NFD', text.lower()).encode('ascii','ignore').decode('utf-8')
-
-    result = {
-        "modele": "",
-        "motorisation": "",
-        "carburant": "",
-        "finition": "",
-        "annee": None,
-        "km": None
-    }
-
-    for m in BASE_PRICES_V2.keys():
-        if m in t:
-            result["modele"] = m
-            break
-
-    if any(x in t for x in ["tdi","dci","hdi","diesel"]):
-        result["carburant"] = "Diesel"
-    elif any(x in t for x in ["tce","tsi","essence"]):
-        result["carburant"] = "Essence"
-    elif "hybride" in t:
-        result["carburant"] = "Hybride"
-    elif "electrique" in t:
-        result["carburant"] = "Électrique"
-
-    power = re.findall(r"\b\d{2,3}\b", t)
-    if power:
-        result["motorisation"] = power[0]
-
-    if "s line" in t: result["finition"] = "s line"
-    elif "m sport" in t: result["finition"] = "m sport"
-    elif "amg" in t: result["finition"] = "amg"
-    elif "gt" in t: result["finition"] = "gt"
-    elif "allure" in t: result["finition"] = "allure"
-    elif "life" in t: result["finition"] = "life"
-
-    year = re.findall(r"20\d{2}", t)
-    if year:
-        result["annee"] = int(year[0])
-
-    km_match = re.findall(r"\b\d{4,6}\s?km\b", t)
-    if km_match:
-        result["km"] = int(re.findall(r"\d+", km_match[0])[0])
-
-    return result
 
 
 rid = st.session_state.reset_id
 
-# 🔥 SAISIE AUTO V18
-input_full = st.text_input("Saisie rapide (ex: Q5 s line 2020 86000 km)")
-
-if input_full:
-    detected = auto_detect_full(input_full)
 
 parsed = {}
 
@@ -836,27 +780,23 @@ with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
 
 with col2:
-    default_modele = detected["modele"] if input_full and detected["modele"] else ""
-    modele = st.text_input("Modèle", value=default_modele, key=f"modele_{rid}")
+    modele = st.text_input("Modèle", key=f"modele_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
     mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 with col2:
-    default_annee = detected["annee"] if input_full and detected["annee"] else 2019
-    annee = st.number_input("Année", 1990, datetime.now().year, default_annee, key=f"annee_{rid}")
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}").year, default_annee, key=f"annee_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    default_finition = detected["finition"] if input_full and detected["finition"] else ""
-    finition = st.text_input("Finition", value=default_finition, key=f"finition_{rid}")
+    finition = st.text_input("Finition", key=f"finition_{rid}")
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    default_motorisation = detected["motorisation"] if input_full and detected["motorisation"] else ""
-    motorisation = st.text_input("Motorisation", value=default_motorisation, key=f"motorisation_{rid}")
+    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
@@ -882,8 +822,7 @@ with col1:
         "Hayon électrique","Attelage","Toit panoramique"
     ], key=f"options_{rid}")
 with col2:
-    default_km = detected["km"] if input_full and detected["km"] else 90000
-    km = st.number_input("Kilométrage", 0, 300000, default_km, key=f"km_{rid}")
+    km = st.number_input("Kilométrage", 0, 300000, 90000, key=f"km_{rid}")
 
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
