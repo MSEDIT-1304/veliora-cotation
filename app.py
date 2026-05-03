@@ -440,7 +440,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     segment = detect_segment(key)
 
-    # 🔥 PRIORITÉ 1 : DATASET PRÉCIS
+    # 🔥 PRIORITÉ 1 : DATASET
     base = None
     for m, years in BASE_PRICES_V2.items():
         if key == m or key.startswith(m):
@@ -453,98 +453,80 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 PRIORITÉ 2 : TABLEAU MARCHÉ
     if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
-        table_km = MARKET_TABLE[segment][annee]
-        base = interpolate_km(table_km, km)
+        base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # 🔥 PRIORITÉ 3 : FALLBACK
+    # 🔥 FALLBACK
     if base is None:
-        if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla"]):
-            base = 26000
-        elif any(x in key for x in ["3008","qashqai","kuga","tucson","sportage"]):
-            base = 21000
-        elif any(x in key for x in ["clio","208","corsa","i20","polo"]):
-            base = 11500
-        else:
-            base = 15000
+        base = 15000
 
     coef = 1.0
 
-    # KM
-    km_ref = 90000
-    km_diff = (km - km_ref) / 120000
-    km_diff = max(min(km_diff, 0.05), -0.05)
-    coef -= km_diff
+    # 🔥 KM PRO (utilise KM_ADJUST)
+    for k, val in KM_ADJUST.items():
+        if k in key:
+            km_delta = (km - 90000) / 90000
+            coef -= km_delta * (val / 10000)
+            break
 
-    # ANNEE
-    if annee > 2020:
-        coef += min((annee - 2020) * 0.025, 0.10)
-    elif annee < 2020:
-        coef -= min((2020 - annee) * 0.03, 0.15)
+    # 🔥 YEAR PRO
+    if annee in GLOBAL_YEAR:
+        coef += GLOBAL_YEAR[annee]
 
-    # MOTORISATION
+    if any(k in key for k in YEAR_ADJUST):
+        for k, years in YEAR_ADJUST.items():
+            if k in key and str(annee) in years:
+                coef += years[str(annee)]
+
+    # 🔥 DEPRECIATION
+    if annee < 2020:
+        coef += DEPRECIATION_THERMIQUE.get(annee, -0.20)
+
+    # 🔥 MOTORISATION
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
         if p >= 180:
-            coef += 0.02
+            coef += 0.03
         elif p >= 130:
-            coef += 0.01
+            coef += 0.015
         elif p <= 100:
-            coef -= 0.02
+            coef -= 0.03
 
-    # CARBURANT
-    if carburant == "Diesel":
-        coef += 0.01
-    elif carburant == "Hybride":
-        coef += 0.015
-    elif carburant == "Électrique":
-        coef += 0.02
+    # 🔥 FUEL ADJUST
+    for k, val in FUEL_ADJUST.items():
+        if k in key:
+            if carburant == "Essence":
+                coef += val
+            break
 
-    # BOITE
-    if boite == "Automatique":
-        coef += 0.015
+    # 🔥 FINITION PRO
+    for k, (low, high) in FINITION_ADJUST.items():
+        if k in key:
+            coef += (low + high) / 2
+            break
 
-    # FINITION
-    if any(x in finition for x in ["base","life","access"]):
-        coef -= 0.02
-    elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
-        coef += 0.025
-    elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
-        coef += 0.03
-
-    # OPTIONS
-    heavy_opts = ["cuir","panoramique","camera 360","adas"]
-    bonus = 0
+    # 🔥 OPTIONS PRO
     for opt in options:
         o = norm(opt)
-        if any(h in o for h in heavy_opts):
-            bonus += 0.01
-        else:
-            bonus += 0.005
-    coef += min(bonus, 0.06)
+        if o in OPTIONS_ADJUST:
+            coef += sum(OPTIONS_ADJUST[o]) / 2
 
-    # TRANSMISSION
-    if transmission in ["4x4","AWD","4WD"]:
-        coef += 0.02
+    # 🔥 AWD
+    if transmission in ["4x4","AWD","4WD"] and segment in AWD_ADJUST:
+        coef += sum(AWD_ADJUST[segment]) / 2
 
-    # GEO
-    if departement in ["75","92"]:
-        coef += 0.015
-    elif departement in ["08","23"]:
-        coef -= 0.01
-
-    # PREMIUM léger
-    if any(x in key for x in ["bmw","audi","mercedes"]):
-        coef += 0.005
+    # 🔥 GEO
+    if departement in GEO_ADJUST and segment in GEO_ADJUST[departement]:
+        coef += GEO_ADJUST[departement][segment]
 
     price = base * coef
 
-    # CLAMP FINAL
-    min_price = base * 0.93
-    max_price = base * 1.10
+    # 🔥 CLAMP INTELLIGENT
+    min_price = base * 0.90
+    max_price = base * 1.20
     price = max(min_price, min(price, max_price))
 
-    return int(max(4000, min(price, 90000)))
+    return int(max(4000, min(price, 120000)))
 
 
     
