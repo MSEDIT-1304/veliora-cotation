@@ -84,8 +84,20 @@ BASE_PRICES_V2 = {
     "nissan qashqai": {2020:18500,2021:19800,2022:21500,2023:23000,2024:24000},
     "volkswagen golf": {2020:17592,2021:19000,2022:20500,2023:22000,2024:23000},
 
-    "peugeot 2008": {2020:13266,2021:14500,2022:15800,2023:17000,2024:18000},
-    "renault captur": {2020:13554,2021:14800,2022:16000,2023:17500,2024:18500},
+    "peugeot 2008": {
+        2020:13266,
+        2021:14500,
+        2022:15800,
+        2023:17000,
+        2024:18000
+    },
+    "renault captur": {
+        2020:13554,
+        2021:14800,
+        2022:16000,
+        2023:17500,
+        2024:18500
+    },
     "citroen c1": {2020:8650,2021:9200,2022:9800,2023:10500,2024:11200},
     "volkswagen polo": {2020:12689,2021:13500,2022:14500,2023:15500,2024:16500},
     "ford kuga": {2020:17880,2021:19500,2022:21500,2023:22800,2024:24000},
@@ -346,6 +358,67 @@ FUEL_ADJUST = {
 
 
 
+
+# ===============================
+# 🔥 TABLEAU MARCHE INTEGRE PRO
+# ===============================
+MARKET_TABLE = {
+    "citadine": {
+        2020: {45000:9500, 55000:9000, 75000:8200, 90000:7700},
+        2021: {45000:10500, 55000:10000, 75000:9200, 90000:8700},
+        2022: {45000:11800, 55000:11200, 75000:10300, 90000:9700},
+        2023: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
+        2024: {45000:14200, 55000:13500, 75000:12500, 90000:11500},
+    },
+    "compacte": {
+        2020: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
+        2021: {45000:14200, 55000:13500, 75000:12500, 90000:11500},
+        2022: {45000:16000, 55000:15200, 75000:14000, 90000:13000},
+        2023: {45000:17500, 55000:16500, 75000:15000, 90000:14000},
+        2024: {45000:19000, 55000:18000, 75000:16500, 90000:15000},
+    },
+    "suv": {
+        2020: {45000:15200, 55000:14500, 75000:13300, 90000:12300},
+        2021: {45000:16500, 55000:15800, 75000:14500, 90000:13500},
+        2022: {45000:18500, 55000:17500, 75000:16000, 90000:15000},
+        2023: {45000:20500, 55000:19500, 75000:17500, 90000:16000},
+        2024: {45000:22500, 55000:21000, 75000:19000, 90000:17500},
+    },
+    "premium": {
+        2020: {45000:22000, 55000:20500, 75000:18500, 90000:17000},
+        2021: {45000:24500, 55000:23000, 75000:20500, 90000:19000},
+        2022: {45000:27000, 55000:25500, 75000:23000, 90000:21000},
+        2023: {45000:30000, 55000:28000, 75000:25000, 90000:23000},
+        2024: {45000:33000, 55000:31000, 75000:27500, 90000:25000},
+    }
+}
+
+def detect_segment(key):
+    if any(x in key for x in ["clio","208","corsa","i20","polo"]):
+        return "citadine"
+    elif any(x in key for x in ["megane","308","golf","focus"]):
+        return "compacte"
+    elif any(x in key for x in ["3008","qashqai","tucson","kuga"]):
+        return "suv"
+    elif any(x in key for x in ["audi","bmw","mercedes","tesla","volvo"]):
+        return "premium"
+    return None
+
+def interpolate_km(table_km, km):
+    kms = sorted(table_km.keys())
+    if km <= kms[0]:
+        return table_km[kms[0]]
+    if km >= kms[-1]:
+        return table_km[kms[-1]]
+    for i in range(len(kms)-1):
+        if kms[i] <= km <= kms[i+1]:
+            k1, k2 = kms[i], kms[i+1]
+            v1, v2 = table_km[k1], table_km[k2]
+            ratio = (km - k1) / (k2 - k1)
+            return int(v1 + (v2 - v1) * ratio)
+    return None
+
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
@@ -365,6 +438,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     key = f"{marque} {modele}".strip()
 
+    segment = detect_segment(key)
+
+    # 🔥 PRIORITÉ 1 : DATASET PRÉCIS
     base = None
     for m, years in BASE_PRICES_V2.items():
         if key == m or key.startswith(m):
@@ -375,6 +451,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 base = years[closest]
             break
 
+    # 🔥 PRIORITÉ 2 : TABLEAU MARCHÉ
+    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+        table_km = MARKET_TABLE[segment][annee]
+        base = interpolate_km(table_km, km)
+
+    # 🔥 PRIORITÉ 3 : FALLBACK
     if base is None:
         if any(x in key for x in ["bmw","audi","mercedes","porsche","tesla"]):
             base = 26000
@@ -387,16 +469,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     coef = 1.0
 
+    # KM
     km_ref = 90000
     km_diff = (km - km_ref) / 120000
     km_diff = max(min(km_diff, 0.05), -0.05)
     coef -= km_diff
 
+    # ANNEE
     if annee > 2020:
         coef += min((annee - 2020) * 0.025, 0.10)
     elif annee < 2020:
         coef -= min((2020 - annee) * 0.03, 0.15)
 
+    # MOTORISATION
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
@@ -407,6 +492,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         elif p <= 100:
             coef -= 0.02
 
+    # CARBURANT
     if carburant == "Diesel":
         coef += 0.01
     elif carburant == "Hybride":
@@ -414,9 +500,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Électrique":
         coef += 0.02
 
+    # BOITE
     if boite == "Automatique":
         coef += 0.015
 
+    # FINITION
     if any(x in finition for x in ["base","life","access"]):
         coef -= 0.02
     elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
@@ -424,6 +512,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
         coef += 0.03
 
+    # OPTIONS
     heavy_opts = ["cuir","panoramique","camera 360","adas"]
     bonus = 0
     for opt in options:
@@ -434,22 +523,25 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             bonus += 0.005
     coef += min(bonus, 0.06)
 
+    # TRANSMISSION
     if transmission in ["4x4","AWD","4WD"]:
         coef += 0.02
 
+    # GEO
     if departement in ["75","92"]:
         coef += 0.015
     elif departement in ["08","23"]:
         coef -= 0.01
 
+    # PREMIUM léger
     if any(x in key for x in ["bmw","audi","mercedes"]):
         coef += 0.005
 
     price = base * coef
 
+    # CLAMP FINAL
     min_price = base * 0.93
     max_price = base * 1.10
-
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 90000)))
@@ -920,6 +1012,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
 
 
