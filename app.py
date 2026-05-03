@@ -968,7 +968,7 @@ if "resultat" in st.session_state:
         col_price.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
         col_price.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
     # affichage IA
-    if ia_click:
+        if ia_click:
 
     key = f"{marque.lower()} {modele.lower()}"
 
