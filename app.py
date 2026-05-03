@@ -831,33 +831,32 @@ if input_full:
 parsed = {}
 
 col1, col2 = st.columns(2)
+
 with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
-with col2:
-    modele = st.text_input("Modèle", key=f"modele_{rid}")
-
-if input_full:
-    if detected["modele"]:
-        modele = detected["modele"]
 
 with col2:
-    modele = st.text_input("Modèle", key=f"modele_{rid}")
+    default_modele = detected["modele"] if input_full and detected["modele"] else ""
+    modele = st.text_input("Modèle", value=default_modele, key=f"modele_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
     mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 with col2:
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+    default_annee = detected["annee"] if input_full and detected["annee"] else 2019
+    annee = st.number_input("Année", 1990, datetime.now().year, default_annee, key=f"annee_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    finition = st.text_input("Finition", key=f"finition_{rid}")
+    default_finition = detected["finition"] if input_full and detected["finition"] else ""
+    finition = st.text_input("Finition", value=default_finition, key=f"finition_{rid}")
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
-    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
+    default_motorisation = detected["motorisation"] if input_full and detected["motorisation"] else ""
+    motorisation = st.text_input("Motorisation", value=default_motorisation, key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
@@ -883,7 +882,8 @@ with col1:
         "Hayon électrique","Attelage","Toit panoramique"
     ], key=f"options_{rid}")
 with col2:
-    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
+    default_km = detected["km"] if input_full and detected["km"] else 90000
+    km = st.number_input("Kilométrage", 0, 300000, default_km, key=f"km_{rid}")
 
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
