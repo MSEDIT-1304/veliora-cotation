@@ -9,7 +9,6 @@ import unicodedata
 
 SCRAPER_API_KEY = None
 
-
 import json
 
 LEARNING_FILE = "learning_data.json"
@@ -32,7 +31,6 @@ def save_learning_data(data):
 
 LEARNING_DATA = {}
 
-
 try:
     get_leboncoin_prices = None  # scraper désactivé
 except:
@@ -48,8 +46,6 @@ except:
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
 
-
-
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
@@ -63,17 +59,6 @@ ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
 
 # 🔥 DATASET PREMIUM COMPLET
-
-
-
-
-
-
-
-
-
-
-
 
 # 🔥 BASE MULTI-ANNÉES PRO
 BASE_PRICES_V2 = {
@@ -159,22 +144,13 @@ BASE_PRICES_V2 = {
     "peugeot boxer": {2025: 31000, 2024: 29000, 2023: 27000, 2022: 25000, 2021: 23000, 2020: 21000, 2019: 19000, 2018: 17000, 2017: 15500, 2016: 14000, 2015: 13000, 2014: 11000},
     "citroen berlingo": {2025: 21000, 2024: 19000, 2023: 17000, 2022: 15000, 2021: 13000, 2020: 12000, 2019: 10500, 2018: 9000, 2017: 8500, 2016: 8000, 2015: 7500, 2014: 7000},
 }
-        BASE_PRICES_V2[model] = data
-    else:
-        # NE PAS écraser les valeurs existantes
-        for year, price in data.items():
-            if year not in BASE_PRICES_V2[model]:
-                BASE_PRICES_V2[model][year] = price
-
 
 # DATASET 100+ MODELES SANS DOUBLONS
-
 
 # 🔥 MERGE DATASET SANS DOUBLONS
 for model, data in EXTRA_BASE_PRICES_V2.items():
     if model not in BASE_PRICES_V2:
         BASE_PRICES_V2[model] = data
-
 
 # 🔥 KM ADJUST PRO (90k référence)
 KM_ADJUST = {
@@ -190,10 +166,6 @@ KM_ADJUST = {
     "xc60":4000,
     "x5":5500,"q7":5500
 }
-
-
-
-
 
 # 🔥 GLOBAL YEAR ADJUST (PRO 2025)
 GLOBAL_YEAR = {
@@ -224,9 +196,6 @@ YEAR_ADJUST = {
     "twingo": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
 }
 
-
-
-
 # 🔥 FINITION ADJUST PRO
 FINITION_ADJUST = {
     "c1": (0.12,0.18),"i10": (0.12,0.18),"twingo": (0.12,0.18),
@@ -245,9 +214,6 @@ FINITION_ADJUST = {
     "serie 3": (0.20,0.30),"x3": (0.25,0.35),"q5": (0.25,0.35),
     "x5": (0.20,0.28),"q7": (0.20,0.28)
 }
-
-
-
 
 # 🔥 OPTIONS LUXE ADJUST PRO
 OPTIONS_ADJUST = {
@@ -269,9 +235,6 @@ OPTIONS_ADJUST = {
     "suspension pilotee": (0.05,0.10)
 }
 
-
-
-
 # 🔥 OPTIONS YEAR ADJUST PRO
 OPTIONS_YEAR = {
     "toit panoramique": {"2019":0.04,"2021":0.07,"2023":0.10},
@@ -291,17 +254,6 @@ OPTIONS_YEAR = {
     "hud": {"2019":0.02,"2021":0.04,"2023":0.06},
     "suspension pilotee": {"2019":0.04,"2021":0.07,"2023":0.10}
 }
-
-
-
-
-
-
-
-
-
-
-
 
 # 🔥 AWD / 4x4 ADJUST PRO
 AWD_ADJUST = {
@@ -365,10 +317,6 @@ FUEL_ADJUST = {
     "x5": 0.08,"q7": 0.08
 }
 
-
-
-
-
 # ===============================
 # 🔥 TABLEAU MARCHE INTEGRE PRO
 # ===============================
@@ -416,7 +364,6 @@ def detect_segment(key):
         return "premium"
     return "compacte"
 
-
 def interpolate_km(table_km, km):
     kms = sorted(table_km.keys())
     if km <= kms[0]:
@@ -430,8 +377,6 @@ def interpolate_km(table_km, km):
             ratio = (km - k1) / (k2 - k1)
             return int(v1 + (v2 - v1) * ratio)
     return None
-
-
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
@@ -456,7 +401,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 SECURITE PREMIUM
     if "q5" in key:
         segment = "premium"
-
 
     # 🔥 BASE = MARKET PRIORITAIRE
     base = None
@@ -533,24 +477,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     return int(max(4000, min(price, 120000)))
 
-
-
     
-
-
-
-
-
-
-
-
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
-
-
-
-
 
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
@@ -698,7 +628,6 @@ if not st.session_state.logged:
 
     st.stop()
 
-
 st.title("🚗 VELIORA COTATION PRO")
 
 col1, col2 = st.columns(2)
@@ -727,8 +656,6 @@ with col2b:
         buffer_hist.write("-----------------------------\n")
     st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
 
-
-
 if st.session_state.show_history:
     st.subheader("📊 Historique des estimations")
 
@@ -753,8 +680,6 @@ if st.button("Se déconnecter", key="logout_main"):
 
 # Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
-
-
 
 # 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
 def parse_title(title):
@@ -798,7 +723,6 @@ def parse_title(title):
     elif "allure" in t: result["finition"] = "allure"
 
     return result
-
 
 rid = st.session_state.reset_id
 
@@ -883,8 +807,6 @@ if calcul:
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
 
-
-
     st.session_state.historique.insert(0, {
         "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "marque": marque,
@@ -951,7 +873,6 @@ if calcul:
         "prix_marche_estime": prix_marche
     }
 
-
     
 
     buffer = io.StringIO()
@@ -970,8 +891,6 @@ if calcul:
     buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
     buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
-
-
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
@@ -1000,6 +919,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
-
 
