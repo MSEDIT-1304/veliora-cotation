@@ -982,7 +982,6 @@ if "resultat" in st.session_state:
         st.success(f"{ia_min} € → {ia_max} €")
 
         ecart = prix_ia - r['prix_marche_estime']
-        st.caption(f"Écart IA vs moteur : {ecart:+} €")
         st.caption("⚠️ Estimation IA indicative (beta)")
 
   
