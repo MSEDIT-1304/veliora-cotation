@@ -957,7 +957,8 @@ if "resultat" in st.session_state:
 
         col_price.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
         ia_click = col_btn.button("🔎 IA", key="btn_ia")
-
+        col_price.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
+        col_price.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
     # affichage IA
     if ia_click:
         prix_ia = ai_price_engine(
@@ -984,9 +985,8 @@ if "resultat" in st.session_state:
         st.caption(f"Écart IA vs moteur : {ecart:+} €")
         st.caption("⚠️ Estimation IA indicative (beta)")
 
-    # on remet tes lignes normales
-    st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
-    st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
+  
+       
 
     with col_right:
         st.markdown("### 🧮 Calculateur")
