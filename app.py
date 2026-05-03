@@ -418,6 +418,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     coef = 1.0
 
+    # 🔥 KM V17 (non linéaire)
+    km_ref = 90000
+    if km < km_ref:
+        coef += (km_ref - km) / 200000
+    else:
+        coef -= (km - km_ref) / 150000
+
     # KM FIX
     km_delta = (km - 90000) / 120000
 
@@ -442,15 +449,32 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # FINITION léger
-    if any(x in finition for x in ["line","allure","intens","shine"]):
-        coef += 0.025
-    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
-        coef += 0.035
+    # 🔥 FINITION V17
+    finition_bonus = 0
 
-    # OPTIONS léger
+    if any(x in finition for x in ["line","allure","intens","shine"]):
+        finition_bonus = 0.05
+    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
+        finition_bonus = 0.15
+
+    for m, (low, high) in FINITION_ADJUST.items():
+        if m in key:
+            finition_bonus = max(finition_bonus, (low + high) / 2)
+
+    coef += finition_bonus
+
+    # 🔥 OPTIONS V17
     for opt in options:
-        coef += 0.005
+        o = opt.lower()
+        matched = False
+
+        for ref, (low, high) in OPTIONS_ADJUST.items():
+            if ref in o:
+                coef += (low + high) / 2
+                matched = True
+
+        if not matched:
+            coef += 0.01
 
     # AWD
     if transmission in ["4x4","AWD","4WD"]:
@@ -464,12 +488,27 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = base * coef
 
-    # CLAMP PRO
-    min_price = base * 0.92
-    max_price = base * 1.12
+    # 🔥 CLAMP V17
+    if segment == "premium":
+        min_price = base * 0.90
+        max_price = base * 1.25
+    else:
+        min_price = base * 0.92
+        max_price = base * 1.15
+
     price = max(min_price, min(price, max_price))
 
-    return int(max(4000, min(price, 120000)))
+    # 🔥 SCORE CONFIANCE
+    confidence = 80
+    if base == 15000:
+        confidence -= 20
+    if len(options) >= 3:
+        confidence += 5
+    if km == 0:
+        confidence -= 10
+    confidence = max(50, min(95, confidence))
+
+    return int(max(4000, min(price, 120000))), confidence
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
@@ -784,7 +823,7 @@ with col_txt:
 
 if calcul:
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
+    prix_ai, confidence = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
 
     prix_comparables = []
 
@@ -798,6 +837,7 @@ if calcul:
 
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
+    st.success(f"🎯 Fiabilité estimation : {confidence}%")
 
     st.session_state.historique.insert(0, {
         "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
