@@ -786,7 +786,7 @@ col1, col2 = st.columns(2)
 with col1:
     mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 with col2:
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}").year, default_annee, key=f"annee_{rid}")
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
 col1, col2 = st.columns(2)
 with col1:
