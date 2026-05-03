@@ -400,16 +400,18 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     coef = 1.0
 
-    km_delta = (km - 90000) / 100000
-    km_delta = max(min(km_delta, 0.03), -0.03)
-    coef -= km_delta
+    # 🔥 KM PLUS IMPACTANT
+    km_ref = 60000
+    km_diff = (km - km_ref) / 100000
+    km_diff = max(min(km_diff, 0.08), -0.08)
+    coef -= km_diff
 
     if any(x in motorisation for x in ["150","160","180"]):
         coef += 0.02
     elif any(x in motorisation for x in ["130","140"]):
         coef += 0.01
     elif any(x in motorisation for x in ["90","100"]):
-        coef -= 0.015
+        coef -= 0.02
 
     if carburant == "Diesel":
         coef += 0.01
@@ -443,8 +445,9 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = base * coef
 
-    min_price = base * 0.97
-    max_price = base * 1.03
+    # 🔥 clamp élargi pour laisser vivre le km
+    min_price = base * 0.94
+    max_price = base * 1.06
 
     price = max(min_price, min(price, max_price))
 
