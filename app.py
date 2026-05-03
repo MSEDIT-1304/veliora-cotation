@@ -951,10 +951,45 @@ if "resultat" in st.session_state:
     col_left, col_right = st.columns(2)
 
     with col_left:
-        st.markdown("### 💰 PRIX MARCHÉ")
+    st.markdown("### 💰 PRIX MARCHÉ")
+
+    col_price, col_btn = st.columns([2,1])
+
+    with col_price:
         st.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
-        st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
-        st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
+
+    with col_btn:
+        ia_click = st.button("🔎 IA", key="btn_ia")
+
+    # affichage IA
+    if ia_click:
+        prix_ia = ai_price_engine(
+            marque,
+            modele,
+            finition,
+            motorisation,
+            annee,
+            km,
+            carburant,
+            boite,
+            departement,
+            options,
+            transmission
+        )
+
+        ia_min = int(prix_ia * 0.98)
+        ia_max = int(prix_ia * 1.02)
+
+        st.info("🤖 Estimation IA marché pro")
+        st.success(f"{ia_min} € → {ia_max} €")
+
+        ecart = prix_ia - r['prix_marche_estime']
+        st.caption(f"Écart IA vs moteur : {ecart:+} €")
+        st.caption("⚠️ Estimation IA indicative (beta)")
+
+    # on remet tes lignes normales
+    st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
+    st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
 
     with col_right:
         st.markdown("### 🧮 Calculateur")
