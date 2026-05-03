@@ -149,18 +149,11 @@ EXTRA_BASE_PRICES_V2 = {
     "mercedes glc": {2020: 30000, 2021: 32400, 2022: 34800, 2023: 37200, 2024: 39600},
     "volvo xc90": {2020: 40000, 2021: 43200, 2022: 46400, 2023: 49600, 2024: 52800},
     "volvo v40": {2020: 15000, 2021: 16200, 2022: 17400, 2023: 18600, 2024: 19800},
+    "hyundai ix35": {2014: 9000, 2015: 9500, 2016: 10000, 2017: 10500},
     "volvo v90": {2020: 28000, 2021: 30240, 2022: 32479, 2023: 34720, 2024: 36960},
     "kia picanto": {2020: 9000, 2021: 9720, 2022: 10440, 2023: 11160, 2024: 11880},
     "kia rio": {2020: 11000, 2021: 11880, 2022: 12760, 2023: 13640, 2024: 14520},
     "hyundai i40": {2020: 14000, 2021: 15120, 2022: 16239, 2023: 17360, 2024: 18480},
-    "hyundai i40": {2020: 14000, 2021: 15120, 2022: 16239, 2023: 17360, 2024: 18480},
-
-    "hyundai ix35": {
-    2014: 9000,
-    2015: 9500,
-    2016: 10000,
-    2017: 10500
-},
     "hyundai veloster": {2020: 15000, 2021: 16200, 2022: 17400, 2023: 18600, 2024: 19800},
     "nissan leaf": {2020: 15000, 2021: 16200, 2022: 17400, 2023: 18600, 2024: 19800},
     "nissan x-trail": {2020: 20000, 2021: 21600, 2022: 23200, 2023: 24800, 2024: 26400},
@@ -960,38 +953,9 @@ if "resultat" in st.session_state:
 
     with col_left:
         st.markdown("### 💰 PRIX MARCHÉ")
-
-        col_price, col_btn = st.columns([2,1])
-
-        col_price.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
-        ia_click = col_btn.button("🔎 IA", key="btn_ia")
-        col_price.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
-        col_price.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
-    # affichage IA
-        if ia_click:
-
-    key = f"{marque.lower()} {modele.lower()}"
-
-    # vraie logique marché corrigée
-    if "ix35" in key:
-        prix_ia = 9500
-    elif "qashqai" in key:
-        prix_ia = 15000
-    elif "3008" in key:
-        prix_ia = 18000
-    else:
-        prix_ia = int(r['prix_marche_estime'] * 0.9)
-
-    ia_min = int(prix_ia * 0.95)
-    ia_max = int(prix_ia * 1.05)
-
-    st.info("🤖 Estimation IA marché réel")
-    st.success(f"{ia_min} € → {ia_max} €")
-
-    st.caption("⚠️ Estimation basée sur logique marché corrigée")
-
-  
-       
+        st.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
+        st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
+        st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
 
     with col_right:
         st.markdown("### 🧮 Calculateur")
