@@ -487,8 +487,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # SPECIFIC FIX Q5 (cap marché)
     # ======================
     if "q5" in key:
-        max_price = base * 1.03
-        min_price = base * 0.95
+        max_price = min(base * 0.97, 27000)
+        min_price = base * 0.93
         price = max(min_price, min(price, max_price))
 
     # ======================
