@@ -397,6 +397,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if "q5" in key:
         segment = "premium"
 
+    # 🔥 BOOST SUV PREMIUM
+    if segment == "premium" and any(x in key for x in ["q5","x3","glc","xc60"]):
+        coef += 0.05
+
     # 🔥 BASE = MARKET PRIORITAIRE
     base = None
     if segment and annee in MARKET_TABLE.get(segment, {}):
@@ -417,13 +421,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         base = 15000
 
     coef = 1.0
-
-    # 🔥 KM V17 (non linéaire)
-    km_ref = 90000
-    if km < km_ref:
-        coef += (km_ref - km) / 200000
-    else:
-        coef -= (km - km_ref) / 150000
 
     # KM FIX
     km_delta = (km - 90000) / 120000
@@ -449,43 +446,23 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # 🔥 FINITION V17.1 (mapping marché réel)
-
+    # 🔥 FINITION PRO V16
     finition_bonus = 0
-    f = finition.lower()
 
-    # BASIC (-7%)
-    if any(x in f for x in [
-        "life","access","like","trendline","visia","reference","standard","active"
-    ]):
-        finition_bonus = -0.07
+    if any(x in finition for x in ["line","allure","intens","shine"]):
+        finition_bonus = 0.04
+    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
+        finition_bonus = 0.12
 
-    # LUXE (+14%)
-    elif any(x in f for x in [
-        "gt","gt pack","shine","r-line","carat","s line","avus","m sport",
-        "tekna","executive","fr","xcellence","inscription","ultimate","luxury"
-    ]):
-        finition_bonus = 0.14
-
-    # fallback dataset existant
     for m, (low, high) in FINITION_ADJUST.items():
         if m in key:
             finition_bonus = max(finition_bonus, (low + high) / 2)
 
     coef += finition_bonus
 
-    # 🔥 OPTIONS V17
+    # OPTIONS léger
     for opt in options:
-        o = opt.lower()
-        matched = False
-
-        for ref, (low, high) in OPTIONS_ADJUST.items():
-            if ref in o:
-                coef += (low + high) / 2
-                matched = True
-
-        if not matched:
-            coef += 0.01
+        coef += 0.005
 
     # AWD
     if transmission in ["4x4","AWD","4WD"]:
@@ -499,27 +476,16 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     price = base * coef
 
-    # 🔥 CLAMP V17
+    # 🔥 CLAMP V16 PREMIUM
     if segment == "premium":
         min_price = base * 0.90
         max_price = base * 1.25
     else:
         min_price = base * 0.92
         max_price = base * 1.15
-
     price = max(min_price, min(price, max_price))
 
-    # 🔥 SCORE CONFIANCE
-    confidence = 80
-    if base == 15000:
-        confidence -= 20
-    if len(options) >= 3:
-        confidence += 5
-    if km == 0:
-        confidence -= 10
-    confidence = max(50, min(95, confidence))
-
-    return int(max(4000, min(price, 120000))), confidence
+    return int(max(4000, min(price, 120000)))
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
@@ -834,7 +800,7 @@ with col_txt:
 
 if calcul:
 
-    prix_ai, confidence = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
 
     prix_comparables = []
 
@@ -848,7 +814,6 @@ if calcul:
 
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
-    st.success(f"🎯 Fiabilité estimation : {confidence}%")
 
     st.session_state.historique.insert(0, {
         "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
