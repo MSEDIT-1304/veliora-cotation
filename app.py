@@ -107,7 +107,10 @@ for model, data in VW_DATASET.items():
     if model not in BASE_PRICES_V2:
         BASE_PRICES_V2[model] = data
     else:
-        BASE_PRICES_V2[model].update(data)
+        # NE PAS écraser les valeurs existantes
+        for year, price in data.items():
+            if year not in BASE_PRICES_V2[model]:
+                BASE_PRICES_V2[model][year] = price
 
 
 # DATASET 100+ MODELES SANS DOUBLONS
@@ -425,6 +428,7 @@ def interpolate_km(table_km, km):
     return None
 
 
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
@@ -443,96 +447,83 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     motorisation = norm(motorisation)
 
     key = f"{marque} {modele}".strip()
-
     segment = detect_segment(key)
 
-    # 🔥 PRIORITÉ 1 : DATASET
+    # 🔥 BASE = MARKET PRIORITAIRE
     base = None
-    for m, years in BASE_PRICES_V2.items():
-        if key == m or key.startswith(m):
-            if annee in years:
-                base = years[annee]
-            else:
-                closest = min(years.keys(), key=lambda x: abs(x - annee))
-                base = years[closest]
-            break
-
-    # 🔥 PRIORITÉ 2 : TABLEAU MARCHÉ
-    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+    if segment and annee in MARKET_TABLE.get(segment, {}):
         base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # 🔥 FALLBACK
+    # fallback dataset
+    if base is None:
+        for m, years in BASE_PRICES_V2.items():
+            if key == m or key.startswith(m):
+                if annee in years:
+                    base = years[annee]
+                else:
+                    closest = min(years.keys(), key=lambda x: abs(x - annee))
+                    base = years[closest]
+                break
+
     if base is None:
         base = 15000
 
     coef = 1.0
 
-    # 🔥 KM PRO (utilise KM_ADJUST)
-    for k, val in KM_ADJUST.items():
-        if k in key:
-            km_delta = (km - 90000) / 90000
-            coef -= km_delta * (val / 10000)
-            break
+    # KM FIX
+    km_delta = (km - 90000) / 120000
+    coef -= km_delta * 0.08
 
-    # 🔥 YEAR PRO
-    if annee in GLOBAL_YEAR:
-        coef += GLOBAL_YEAR[annee]
+    # YEAR FIX
+    if annee >= 2021:
+        coef += min((annee - 2020) * 0.02, 0.08)
+    elif annee < 2020:
+        coef -= min((2020 - annee) * 0.03, 0.15)
 
-    if any(k in key for k in YEAR_ADJUST):
-        for k, years in YEAR_ADJUST.items():
-            if k in key and str(annee) in years:
-                coef += years[str(annee)]
-
-    # 🔥 DEPRECIATION
-    if annee < 2020:
-        coef += DEPRECIATION_THERMIQUE.get(annee, -0.20)
-
-    # 🔥 MOTORISATION
+    # MOTOR
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
         if p >= 180:
-            coef += 0.03
-        elif p >= 130:
-            coef += 0.015
+            coef += 0.02
         elif p <= 100:
-            coef -= 0.03
+            coef -= 0.02
 
-    # 🔥 FUEL ADJUST
-    for k, val in FUEL_ADJUST.items():
-        if k in key:
-            if carburant == "Essence":
-                coef += val
-            break
+    # FUEL
+    if carburant == "Essence":
+        coef += 0.01
+    elif carburant == "Diesel":
+        coef -= 0.005
 
-    # 🔥 FINITION PRO
-    for k, (low, high) in FINITION_ADJUST.items():
-        if k in key:
-            coef += (low + high) / 2
-            break
+    # FINITION léger
+    if any(x in finition for x in ["line","allure","intens","shine"]):
+        coef += 0.025
+    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
+        coef += 0.035
 
-    # 🔥 OPTIONS PRO
+    # OPTIONS léger
     for opt in options:
-        o = norm(opt)
-        if o in OPTIONS_ADJUST:
-            coef += sum(OPTIONS_ADJUST[o]) / 2
+        coef += 0.005
 
-    # 🔥 AWD
-    if transmission in ["4x4","AWD","4WD"] and segment in AWD_ADJUST:
-        coef += sum(AWD_ADJUST[segment]) / 2
+    # AWD
+    if transmission in ["4x4","AWD","4WD"]:
+        coef += 0.02
 
-    # 🔥 GEO
-    if departement in GEO_ADJUST and segment in GEO_ADJUST[departement]:
-        coef += GEO_ADJUST[departement][segment]
+    # GEO
+    if departement in ["75","92"]:
+        coef += 0.02
+    elif departement in ["08","23"]:
+        coef -= 0.015
 
     price = base * coef
 
-    # 🔥 CLAMP INTELLIGENT
-    min_price = base * 0.90
-    max_price = base * 1.20
+    # CLAMP PRO
+    min_price = base * 0.96
+    max_price = base * 1.06
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
+
 
 
     
