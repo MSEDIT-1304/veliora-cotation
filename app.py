@@ -951,15 +951,12 @@ if "resultat" in st.session_state:
     col_left, col_right = st.columns(2)
 
     with col_left:
-    st.markdown("### 💰 PRIX MARCHÉ")
+        st.markdown("### 💰 PRIX MARCHÉ")
 
-    col_price, col_btn = st.columns([2,1])
+        col_price, col_btn = st.columns([2,1])
 
-    with col_price:
-        st.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
-
-    with col_btn:
-        ia_click = st.button("🔎 IA", key="btn_ia")
+        col_price.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
+        ia_click = col_btn.button("🔎 IA", key="btn_ia")
 
     # affichage IA
     if ia_click:
