@@ -420,7 +420,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # KM FIX
     km_delta = (km - 90000) / 120000
-    coef -= km_delta * 0.08
+    coef -= km_delta * 0.04
 
     # YEAR FIX
     if annee >= 2021:
@@ -466,8 +466,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price = base * coef
 
     # CLAMP PRO
-    min_price = base * 0.96
-    max_price = base * 1.06
+    min_price = base * 0.92
+    max_price = base * 1.12
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
@@ -914,3 +914,4 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
