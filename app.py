@@ -421,12 +421,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 KM V17 (non linéaire)
     km_ref = 90000
     if km < km_ref:
-        coef += min((km_ref - km) / 300000, 0.08)
+        coef += (km_ref - km) / 200000
     else:
-        coef -= min((km - km_ref) / 250000, 0.12)
+        coef -= (km - km_ref) / 150000
 
     # KM FIX
-    
+    km_delta = (km - 90000) / 120000
 
     # YEAR FIX
     if annee >= 2021:
@@ -766,19 +766,14 @@ def parse_title(title):
 
     return result
 
-
-
-
 rid = st.session_state.reset_id
 
-
+# champ titre supprimé
 parsed = {}
 
 col1, col2 = st.columns(2)
-
 with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
-
 with col2:
     modele = st.text_input("Modèle", key=f"modele_{rid}")
 
@@ -822,7 +817,7 @@ with col1:
         "Hayon électrique","Attelage","Toit panoramique"
     ], key=f"options_{rid}")
 with col2:
-    km = st.number_input("Kilométrage", 0, 300000, 90000, key=f"km_{rid}")
+    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
 
 departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 
