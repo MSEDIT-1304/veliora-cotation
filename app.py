@@ -972,12 +972,4 @@ if "resultat" in st.session_state:
 
         st.success(f"💶 Net vendeur : {net_calc} €")
 
-    st.markdown("---")
-    if st.button("🔎 Voir estimation IA (beta)", key="btn_ia_safe"):
-        base = r["prix_marche_estime"]
-        low = int(base * 0.98)
-        high = int(base * 1.02)
-        st.info(f"Estimation IA marché pro : {low} € – {high} €")
-
-
 
