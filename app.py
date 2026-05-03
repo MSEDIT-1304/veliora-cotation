@@ -766,14 +766,80 @@ def parse_title(title):
 
     return result
 
+
+# 🔥 AUTO DETECTION V18
+import re
+import unicodedata
+
+def auto_detect_full(text):
+
+    t = unicodedata.normalize('NFD', text.lower()).encode('ascii','ignore').decode('utf-8')
+
+    result = {
+        "modele": "",
+        "motorisation": "",
+        "carburant": "",
+        "finition": "",
+        "annee": None,
+        "km": None
+    }
+
+    for m in BASE_PRICES_V2.keys():
+        if m in t:
+            result["modele"] = m
+            break
+
+    if any(x in t for x in ["tdi","dci","hdi","diesel"]):
+        result["carburant"] = "Diesel"
+    elif any(x in t for x in ["tce","tsi","essence"]):
+        result["carburant"] = "Essence"
+    elif "hybride" in t:
+        result["carburant"] = "Hybride"
+    elif "electrique" in t:
+        result["carburant"] = "Électrique"
+
+    power = re.findall(r"\b\d{2,3}\b", t)
+    if power:
+        result["motorisation"] = power[0]
+
+    if "s line" in t: result["finition"] = "s line"
+    elif "m sport" in t: result["finition"] = "m sport"
+    elif "amg" in t: result["finition"] = "amg"
+    elif "gt" in t: result["finition"] = "gt"
+    elif "allure" in t: result["finition"] = "allure"
+    elif "life" in t: result["finition"] = "life"
+
+    year = re.findall(r"20\d{2}", t)
+    if year:
+        result["annee"] = int(year[0])
+
+    km = re.findall(r"\d{4,6}", t)
+    if km:
+        result["km"] = int(km[-1])
+
+    return result
+
+
 rid = st.session_state.reset_id
 
-# champ titre supprimé
+# 🔥 SAISIE AUTO V18
+input_full = st.text_input("Saisie rapide (ex: Q5 s line 2020 86000 km)")
+
+if input_full:
+    detected = auto_detect_full(input_full)
+
 parsed = {}
 
 col1, col2 = st.columns(2)
 with col1:
     marque = st.text_input("Marque", key=f"marque_{rid}")
+with col2:
+    modele = st.text_input("Modèle", key=f"modele_{rid}")
+
+if input_full:
+    if detected["modele"]:
+        modele = detected["modele"]
+
 with col2:
     modele = st.text_input("Modèle", key=f"modele_{rid}")
 
