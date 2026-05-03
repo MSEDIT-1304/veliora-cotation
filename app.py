@@ -400,19 +400,27 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     coef = 1.0
 
-    # 🔥 KM PLUS IMPACTANT
-    km_ref = 60000
-    km_diff = (km - km_ref) / 100000
-    km_diff = max(min(km_diff, 0.08), -0.08)
+    # KM corrigé (réaliste)
+    km_ref = 90000
+    km_diff = (km - km_ref) / 120000
+    km_diff = max(min(km_diff, 0.05), -0.05)
     coef -= km_diff
 
+    # 🔥 AJUSTEMENT ANNEE (corrige ton bug principal)
+    if annee > 2020:
+        coef += min((annee - 2020) * 0.015, 0.05)
+    elif annee < 2020:
+        coef -= min((2020 - annee) * 0.02, 0.08)
+
+    # MOTORISATION
     if any(x in motorisation for x in ["150","160","180"]):
         coef += 0.02
     elif any(x in motorisation for x in ["130","140"]):
         coef += 0.01
     elif any(x in motorisation for x in ["90","100"]):
-        coef -= 0.02
+        coef -= 0.015
 
+    # CARBURANT
     if carburant == "Diesel":
         coef += 0.01
     elif carburant == "Hybride":
@@ -420,9 +428,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Électrique":
         coef += 0.02
 
+    # BOITE
     if boite == "Automatique":
         coef += 0.015
 
+    # FINITION
     if any(x in finition for x in ["base","life","access"]):
         coef -= 0.02
     elif any(x in finition for x in ["gt","line","allure","intens","shine"]):
@@ -430,24 +440,28 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
         coef += 0.03
 
+    # OPTIONS
     coef += min(len(options) * 0.008, 0.05)
 
+    # TRANSMISSION
     if transmission in ["4x4","AWD","4WD"]:
         coef += 0.02
 
+    # GEO
     if departement in ["75","92"]:
         coef += 0.02
     elif departement in ["08","23"]:
         coef -= 0.015
 
+    # PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes"]):
         coef += 0.015
 
     price = base * coef
 
-    # 🔥 clamp élargi pour laisser vivre le km
-    min_price = base * 0.94
-    max_price = base * 1.06
+    # clamp équilibré
+    min_price = base * 0.95
+    max_price = base * 1.05
 
     price = max(min_price, min(price, max_price))
 
