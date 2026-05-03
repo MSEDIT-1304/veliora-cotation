@@ -421,12 +421,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # 🔥 KM V17 (non linéaire)
     km_ref = 90000
     if km < km_ref:
-        coef += (km_ref - km) / 200000
+        coef += min((km_ref - km) / 300000, 0.08)
     else:
-        coef -= (km - km_ref) / 150000
+        coef -= min((km - km_ref) / 250000, 0.12)
 
     # KM FIX
-    km_delta = (km - 90000) / 120000
+    
 
     # YEAR FIX
     if annee >= 2021:
@@ -813,9 +813,9 @@ def auto_detect_full(text):
     if year:
         result["annee"] = int(year[0])
 
-    km = re.findall(r"\d{4,6}", t)
-    if km:
-        result["km"] = int(km[-1])
+    km_match = re.findall(r"\b\d{4,6}\s?km\b", t)
+    if km_match:
+        result["km"] = int(re.findall(r"\d+", km_match[0])[0])
 
     return result
 
