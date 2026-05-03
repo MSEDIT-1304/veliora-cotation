@@ -1,4 +1,4 @@
-import streamlit as st
+mport streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -440,7 +440,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     segment = detect_segment(key)
 
-    # 🔥 PRIORITÉ 1 : DATASET
+    # PRIORITE DATASET
     base = None
     for m, years in BASE_PRICES_V2.items():
         if key == m or key.startswith(m):
@@ -451,79 +451,78 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 base = years[closest]
             break
 
-    # 🔥 PRIORITÉ 2 : TABLEAU MARCHÉ
+    # MARKET TABLE
     if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
         base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # 🔥 FALLBACK
     if base is None:
         base = 15000
 
     coef = 1.0
 
-    # 🔥 KM PRO (utilise KM_ADJUST)
+    # KM CALIBRE
     for k, val in KM_ADJUST.items():
         if k in key:
-            km_delta = (km - 90000) / 90000
-            coef -= km_delta * (val / 10000)
+            km_delta = (km - 90000) / 120000
+            coef -= km_delta * (val / 12000)
             break
 
-    # 🔥 YEAR PRO
-    if annee in GLOBAL_YEAR:
-        coef += GLOBAL_YEAR[annee]
+    # YEAR CALIBRE (corrigé)
+    YEAR_FIX = {2021:0.06, 2022:0.10, 2023:0.14, 2024:0.18, 2025:0.22}
+    if annee in YEAR_FIX:
+        coef += YEAR_FIX[annee]
 
     if any(k in key for k in YEAR_ADJUST):
         for k, years in YEAR_ADJUST.items():
             if k in key and str(annee) in years:
-                coef += years[str(annee)]
+                coef += years[str(annee)] * 0.6
 
-    # 🔥 DEPRECIATION
+    # DEPRECIATION ADOUCIE
     if annee < 2020:
-        coef += DEPRECIATION_THERMIQUE.get(annee, -0.20)
+        coef += DEPRECIATION_THERMIQUE.get(annee, -0.20) * 0.7
 
-    # 🔥 MOTORISATION
+    # MOTORISATION
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
         if p >= 180:
-            coef += 0.03
+            coef += 0.025
         elif p >= 130:
-            coef += 0.015
+            coef += 0.012
         elif p <= 100:
-            coef -= 0.03
+            coef -= 0.02
 
-    # 🔥 FUEL ADJUST
+    # FUEL
     for k, val in FUEL_ADJUST.items():
-        if k in key:
-            if carburant == "Essence":
-                coef += val
+        if k in key and carburant == "Essence":
+            coef += val * 0.6
             break
 
-    # 🔥 FINITION PRO
+    # FINITION REDUITE
     for k, (low, high) in FINITION_ADJUST.items():
         if k in key:
-            coef += (low + high) / 2
+            coef += ((low + high) / 2) * 0.6
             break
 
-    # 🔥 OPTIONS PRO
+    # OPTIONS REDUITES
     for opt in options:
         o = norm(opt)
         if o in OPTIONS_ADJUST:
-            coef += sum(OPTIONS_ADJUST[o]) / 2
+            coef += (sum(OPTIONS_ADJUST[o]) / 2) * 0.5
 
-    # 🔥 AWD
+    # AWD
     if transmission in ["4x4","AWD","4WD"] and segment in AWD_ADJUST:
-        coef += sum(AWD_ADJUST[segment]) / 2
+        coef += (sum(AWD_ADJUST[segment]) / 2) * 0.7
 
-    # 🔥 GEO
+    # GEO ADOUCI
     if departement in GEO_ADJUST and segment in GEO_ADJUST[departement]:
-        coef += GEO_ADJUST[departement][segment]
+        coef += GEO_ADJUST[departement][segment] * 0.7
 
     price = base * coef
 
-    # 🔥 CLAMP INTELLIGENT
-    min_price = base * 0.90
-    max_price = base * 1.20
+    # CLAMP AJUSTE
+    min_price = base * 0.92
+    max_price = base * 1.18
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
