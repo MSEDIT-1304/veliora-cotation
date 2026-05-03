@@ -409,9 +409,12 @@ def detect_segment(key):
         return "compacte"
     elif any(x in key for x in ["3008","qashqai","tucson","kuga"]):
         return "suv"
+    elif any(x in key for x in ["q5","x3","x5","q7","glc","xc60"]):
+        return "premium"
     elif any(x in key for x in ["audi","bmw","mercedes","tesla","volvo"]):
         return "premium"
-    return None
+    return "compacte"
+
 
 def interpolate_km(table_km, km):
     kms = sorted(table_km.keys())
@@ -448,6 +451,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     key = f"{marque} {modele}".strip()
     segment = detect_segment(key)
+
+    # 🔥 SECURITE PREMIUM
+    if "q5" in key:
+        segment = "premium"
+
 
     # 🔥 BASE = MARKET PRIORITAIRE
     base = None
