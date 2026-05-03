@@ -397,6 +397,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if "q5" in key:
         segment = "premium"
 
+    coef = 1.0
+
     # 🔥 BOOST SUV PREMIUM
     if segment == "premium" and any(x in key for x in ["q5","x3","glc","xc60"]):
         coef += 0.05
@@ -419,8 +421,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if base is None:
         base = 15000
-
-    coef = 1.0
 
     # KM FIX
     km_delta = (km - 90000) / 120000
