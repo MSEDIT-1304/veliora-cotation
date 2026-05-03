@@ -449,14 +449,25 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # 🔥 FINITION V17
+    # 🔥 FINITION V17.1 (mapping marché réel)
+
     finition_bonus = 0
+    f = finition.lower()
 
-    if any(x in finition for x in ["line","allure","intens","shine"]):
-        finition_bonus = 0.05
-    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
-        finition_bonus = 0.15
+    # BASIC (-7%)
+    if any(x in f for x in [
+        "life","access","like","trendline","visia","reference","standard","active"
+    ]):
+        finition_bonus = -0.07
 
+    # LUXE (+14%)
+    elif any(x in f for x in [
+        "gt","gt pack","shine","r-line","carat","s line","avus","m sport",
+        "tekna","executive","fr","xcellence","inscription","ultimate","luxury"
+    ]):
+        finition_bonus = 0.14
+
+    # fallback dataset existant
     for m, (low, high) in FINITION_ADJUST.items():
         if m in key:
             finition_bonus = max(finition_bonus, (low + high) / 2)
