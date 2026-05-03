@@ -400,17 +400,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     coef = 1.0
 
-    # KM corrigé (réaliste)
+    # KM
     km_ref = 90000
     km_diff = (km - km_ref) / 120000
     km_diff = max(min(km_diff, 0.05), -0.05)
     coef -= km_diff
 
-    # 🔥 AJUSTEMENT ANNEE (corrige ton bug principal)
+    # ANNEE
     if annee > 2020:
-        coef += min((annee - 2020) * 0.015, 0.05)
+        coef += min((annee - 2020) * 0.02, 0.08)
     elif annee < 2020:
-        coef -= min((2020 - annee) * 0.02, 0.08)
+        coef -= min((2020 - annee) * 0.025, 0.12)
 
     # MOTORISATION
     if any(x in motorisation for x in ["150","160","180"]):
@@ -440,28 +440,31 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif any(x in finition for x in ["amg","rs","m sport","s line","vignale"]):
         coef += 0.03
 
-    # OPTIONS
     coef += min(len(options) * 0.008, 0.05)
 
-    # TRANSMISSION
     if transmission in ["4x4","AWD","4WD"]:
         coef += 0.02
 
-    # GEO
     if departement in ["75","92"]:
         coef += 0.02
     elif departement in ["08","23"]:
         coef -= 0.015
 
-    # PREMIUM
     if any(x in key for x in ["bmw","audi","mercedes"]):
         coef += 0.015
 
     price = base * coef
 
-    # clamp équilibré
-    min_price = base * 0.95
-    max_price = base * 1.05
+    # 🔥 CLAMP SUR BASE REFERENCE 2020
+    ref_base = base
+    for m, years in BASE_PRICES_V2.items():
+        if m == key or m in key:
+            if 2020 in years:
+                ref_base = years[2020]
+            break
+
+    min_price = ref_base * 0.90
+    max_price = ref_base * 1.15
 
     price = max(min_price, min(price, max_price))
 
