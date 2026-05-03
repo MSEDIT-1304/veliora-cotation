@@ -103,6 +103,24 @@ BASE_PRICES_V2 = {
     "ford kuga": {2020:17880,2021:19500,2022:21500,2023:22800,2024:24000},
 
     }
+# ===== VOLKSWAGEN DATASET PRO (AJOUT) =====
+VW_DATASET = {
+    "volkswagen golf": {2014:7200,2015:7800,2016:8500,2017:9000,2018:10000,2019:11000,2020:12000,2021:13000,2022:14200,2023:16200,2024:18200,2025:20500},
+    "volkswagen polo": {2014:4400,2015:4800,2016:5400,2017:5900,2018:6800,2019:7700,2020:8700,2021:9500,2022:10800,2023:12000,2024:14000,2025:15800},
+    "volkswagen tiguan": {2014:9000,2015:9500,2016:10000,2017:11500,2018:13000,2019:14500,2020:16000,2021:18000,2022:20000,2023:22500,2024:25500,2025:28000},
+    "volkswagen passat": {2014:8500,2015:9000,2016:10000,2017:11000,2018:12000,2019:13500,2020:15000,2021:16500,2022:18500,2023:20500,2024:23500,2025:26000},
+    "volkswagen t-roc": {2017:9500,2018:10500,2019:11500,2020:13000,2021:14500,2022:16000,2023:18000,2024:20000,2025:22500},
+    "volkswagen t-cross": {2019:10500,2020:11500,2021:13000,2022:14000,2023:15500,2024:17500,2025:20000},
+    "volkswagen taigo": {2022:14500,2023:16000,2024:17500,2025:19500},
+    "volkswagen touareg": {2014:14000,2015:15000,2016:17000,2017:19000,2018:22000,2019:25000,2020:28000,2021:30000,2022:34000,2023:38000,2024:42000,2025:45000}
+}
+
+for model, data in VW_DATASET.items():
+    if model not in BASE_PRICES_V2:
+        BASE_PRICES_V2[model] = data
+    else:
+        BASE_PRICES_V2[model].update(data)
+
 
 # DATASET 100+ MODELES SANS DOUBLONS
 EXTRA_BASE_PRICES_V2 = {
@@ -437,83 +455,93 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     motorisation = norm(motorisation)
 
     key = f"{marque} {modele}".strip()
-    segment = detect_segment(key) or "compacte"
 
-    # 🔥 BASE = MARCHE REEL PRIORITAIRE
+    segment = detect_segment(key)
+
+    # 🔥 PRIORITÉ 1 : DATASET
     base = None
-    if segment and annee in MARKET_TABLE.get(segment, {}):
+    for m, years in BASE_PRICES_V2.items():
+        if key == m or key.startswith(m):
+            if annee in years:
+                base = years[annee]
+            else:
+                closest = min(years.keys(), key=lambda x: abs(x - annee))
+                base = years[closest]
+            break
+
+    # 🔥 PRIORITÉ 2 : TABLEAU MARCHÉ
+    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
         base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # fallback dataset si besoin
-    if base is None:
-        for m, years in BASE_PRICES_V2.items():
-            if key == m or key.startswith(m):
-                if annee in years:
-                    base = years[annee]
-                else:
-                    closest = min(years.keys(), key=lambda x: abs(x - annee))
-                    base = years[closest]
-                break
-
+    # 🔥 FALLBACK
     if base is None:
         base = 15000
 
     coef = 1.0
 
-    # 🔧 KM léger (ajustement fin uniquement)
-    km_delta = (km - 90000) / 150000
-    coef -= km_delta * 0.05
+    # 🔥 KM PRO (utilise KM_ADJUST)
+    for k, val in KM_ADJUST.items():
+        if k in key:
+            km_delta = (km - 90000) / 90000
+            coef -= km_delta * (val / 10000)
+            break
 
-    # 🔧 ANNÉE léger
-    if annee >= 2021:
-        coef += min((annee - 2020) * 0.02, 0.08)
-    elif annee < 2020:
-        coef -= min((2020 - annee) * 0.025, 0.12)
+    # 🔥 YEAR PRO
+    if annee in GLOBAL_YEAR:
+        coef += GLOBAL_YEAR[annee]
 
-    # 🔧 MOTORISATION léger
+    if any(k in key for k in YEAR_ADJUST):
+        for k, years in YEAR_ADJUST.items():
+            if k in key and str(annee) in years:
+                coef += years[str(annee)]
+
+    # 🔥 DEPRECIATION
+    if annee < 2020:
+        coef += DEPRECIATION_THERMIQUE.get(annee, -0.20)
+
+    # 🔥 MOTORISATION
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
         if p >= 180:
+            coef += 0.03
+        elif p >= 130:
             coef += 0.015
         elif p <= 100:
-            coef -= 0.015
+            coef -= 0.03
 
-    # 🔧 CARBURANT léger
-    if carburant == "Essence":
-        coef += 0.01
-    elif carburant == "Diesel":
-        coef -= 0.005
+    # 🔥 FUEL ADJUST
+    for k, val in FUEL_ADJUST.items():
+        if k in key:
+            if carburant == "Essence":
+                coef += val
+            break
 
-    # 🔧 FINITION (micro impact)
-    if any(x in finition for x in ["gt","line","allure","intens","shine"]):
-        coef += 0.03
-    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
-        coef += 0.04
+    # 🔥 FINITION PRO
+    for k, (low, high) in FINITION_ADJUST.items():
+        if k in key:
+            coef += (low + high) / 2
+            break
 
-    # 🔧 OPTIONS (micro cumul)
+    # 🔥 OPTIONS PRO
     for opt in options:
         o = norm(opt)
-        if any(x in o for x in ["cuir","panoramique"]):
-            coef += 0.015
-        else:
-            coef += 0.005
+        if o in OPTIONS_ADJUST:
+            coef += sum(OPTIONS_ADJUST[o]) / 2
 
-    # 🔧 AWD
-    if transmission in ["4x4","AWD","4WD"]:
-        coef += 0.02
+    # 🔥 AWD
+    if transmission in ["4x4","AWD","4WD"] and segment in AWD_ADJUST:
+        coef += sum(AWD_ADJUST[segment]) / 2
 
-    # 🔧 GEO léger
-    if departement in ["75","92"]:
-        coef += 0.02
-    elif departement in ["08","23"]:
-        coef -= 0.015
+    # 🔥 GEO
+    if departement in GEO_ADJUST and segment in GEO_ADJUST[departement]:
+        coef += GEO_ADJUST[departement][segment]
 
     price = base * coef
 
-    # 🔥 CLAMP ULTRA PRECIS
-    min_price = base * 0.96
-    max_price = base * 1.06
+    # 🔥 CLAMP INTELLIGENT
+    min_price = base * 0.90
+    max_price = base * 1.20
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
@@ -984,5 +1012,6 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
 
