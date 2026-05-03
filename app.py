@@ -420,7 +420,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # KM FIX
     km_delta = (km - 90000) / 120000
-    coef -= km_delta * 0.04
 
     # YEAR FIX
     if annee >= 2021:
@@ -471,8 +470,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
-
-    
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
@@ -867,8 +864,6 @@ if calcul:
         "prix_haut_max": prix_haut_max,
         "prix_marche_estime": prix_marche
     }
-
-    
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
