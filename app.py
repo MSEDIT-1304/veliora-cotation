@@ -607,12 +607,16 @@ if not st.session_state.logged:
     """, unsafe_allow_html=True)
 
     # 🔥 ESSAI GRATUIT (corrigé + propre)
-    st.markdown("### 🎁 Essai gratuit 1 jour")
+    st.markdown("## Essai gratuit 1 jour")
 
     st.warning("Accès réservé aux professionnels de l’automobile")
     st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+
+    # ESPACE VISUEL IMPORTANT
+    st.markdown("---")
+
     st.markdown("### 👤 Accès professionnel uniquement")
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
