@@ -819,6 +819,18 @@ if calcul:
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
 
+    # 🔥 LOGIQUE PRO FOURCHETTE
+    base = int(round(prix_marche / 100) * 100)
+
+    prix_bas_min = max(3000, base - 2000)
+    prix_bas_max = base - 1000
+
+    prix_marche_affiche = base
+
+    prix_haut_min = base + 1000
+    prix_haut_max = min(120000, base + 2000)
+
+    # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
         "prix_marche": prix_marche_affiche,
         "prix_bas_min": prix_bas_min,
@@ -836,6 +848,9 @@ if calcul:
     })
 
     st.session_state.historique = st.session_state.historique[:20]
+
+
+    
 
     prix_vente = prix_psy(prix_marche)
 
