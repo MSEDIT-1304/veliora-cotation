@@ -873,7 +873,7 @@ if calcul:
     # DUPLICATE DISPLAY REMOVED
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
-    st.success(f"{prix_marche_affiche} €")
+    st.success(f"{prix_marche_affiche} €")} €")
     st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
 
     st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
