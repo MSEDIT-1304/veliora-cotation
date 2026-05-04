@@ -920,12 +920,7 @@ if "resultat" in st.session_state:
 
     col_left, col_right = st.columns(2)
 
-    with col_left:
-        st.markdown("### 💰 PRIX MARCHÉ")
-        st.markdown(f"Prix marché estimé : {r['prix_marche_estime']} €")
-        st.markdown(f"📉 BAS : {r['prix_bas_min']} € → {r['prix_bas_max']} €")
-        st.markdown(f"📈 HAUT : {r['prix_haut_min']} € → {r['prix_haut_max']} €")
-
+    
     with col_right:
         st.markdown("### 🧮 Calculateur")
         prix_choisi = st.number_input("Prix choisi", value=0)
