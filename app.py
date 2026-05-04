@@ -832,20 +832,28 @@ if calcul:
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
-        "prix_marche": prix_marche_affiche,
-        "prix_bas_min": prix_bas_min,
-        "prix_bas_max": prix_bas_max,
-        "prix_haut_min": prix_haut_min,
-        "prix_haut_max": prix_haut_max,
-        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
-        "marque": marque,
-        "modele": modele,
-        "finition": finition,
-        "motorisation": motorisation,
-        "annee": annee,
-        "km": km,
-        "prix": prix_marche
-    })
+    "prix_marche": prix_marche_affiche,
+    "prix_bas_min": prix_bas_min,
+    "prix_bas_max": prix_bas_max,
+    "prix_haut_min": prix_haut_min,
+    "prix_haut_max": prix_haut_max,
+    "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+
+    "marque": marque,
+    "modele": modele,
+    "finition": finition,
+    "sous_version": sous_version,
+    "motorisation": motorisation,
+
+    "carburant": carburant,
+    "boite": boite,
+    "transmission": transmission,
+    "options": ", ".join(options) if options else "Aucune",
+    "departement": departement,
+
+    "annee": annee,
+    "km": km
+})
 
     st.session_state.historique = st.session_state.historique[:20]
 
