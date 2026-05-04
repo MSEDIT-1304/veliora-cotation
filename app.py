@@ -854,24 +854,7 @@ if calcul:
 
     prix_vente = prix_psy(prix_marche)
 
-    # 🔥 LOGIQUE PRO DEMANDÉE (FOURCHETTE MAX 2000€)
-
-    base = int(round(prix_marche / 100) * 100)
-
-    # BAS (écart max 2000€)
-    prix_bas_min = base - 2000
-    prix_bas_max = base - 1000
-
-    # MARCHÉ
-    prix_marche_affiche = base
-
-    # HAUT (écart max 2000€)
-    prix_haut_min = base + 1000
-    prix_haut_max = base + 2000
-
-    # sécurité
-    prix_bas_min = max(3000, prix_bas_min)
-    prix_haut_max = min(120000, prix_haut_max)
+    )
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
