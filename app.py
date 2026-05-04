@@ -663,7 +663,7 @@ with col2b:
         buffer_hist.write(f"{item['marque']} {item['modele']} {item['finition']}\n")
         buffer_hist.write(f"{item['motorisation']}\n")
         buffer_hist.write(f"{item['annee']} • {item['km']} km\n")
-        buffer_hist.write(f"Prix : {item['prix']} €\n")
+        buffer_hist.write(f"Prix marché : {item['prix_marche']} €\n")
         buffer_hist.write(f"Date : {item['date']}\n")
         buffer_hist.write("-----------------------------\n")
     st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
