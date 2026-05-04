@@ -577,7 +577,7 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.title("🚗 Veliora Pro")
-    st.subheader("🎁 Essai gratuit 1 jour")
+    st.markdown("### Essai gratuit 1 jour")
 
     st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
     st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
