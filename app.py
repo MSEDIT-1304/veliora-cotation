@@ -576,7 +576,7 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.title("🚗 Veliora Pro")
+    st.markdown("<h2 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     st.markdown("### Essai gratuit 1 jour")
 
     st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
