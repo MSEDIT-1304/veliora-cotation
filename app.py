@@ -659,13 +659,23 @@ with col2a:
 with col2b:
     buffer_hist = io.StringIO()
     buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
-    for item in st.session_state.historique:
-        buffer_hist.write(f"{item['marque']} {item['modele']} {item['finition']}\n")
-        buffer_hist.write(f"{item['motorisation']}\n")
-        buffer_hist.write(f"{item['annee']} • {item['km']} km\n")
-        buffer_hist.write(f"Prix marché : {item['prix_marche']} €\n")
-        buffer_hist.write(f"Date : {item['date']}\n")
-        buffer_hist.write("-----------------------------\n")
+for item in st.session_state.historique:
+    buffer_hist.write(f"{item.get('marque','')} {item.get('modele','')} {item.get('finition','')}\n")
+    buffer_hist.write(f"{item.get('motorisation','')}\n")
+    buffer_hist.write(f"{item.get('annee','')} • {item.get('km','')} km\n")
+
+    buffer_hist.write(f"Carburant : {item.get('carburant','')}\n")
+    buffer_hist.write(f"Boîte : {item.get('boite','')}\n")
+    buffer_hist.write(f"Transmission : {item.get('transmission','')}\n")
+    buffer_hist.write(f"Options : {item.get('options','')}\n")
+    buffer_hist.write(f"Département : {item.get('departement','')}\n")
+
+    buffer_hist.write(f"Prix marché : {item.get('prix_marche','')} €\n")
+    buffer_hist.write(f"Bas : {item.get('prix_bas_min','')} € → {item.get('prix_bas_max','')} €\n")
+    buffer_hist.write(f"Haut : {item.get('prix_haut_min','')} € → {item.get('prix_haut_max','')} €\n")
+
+    buffer_hist.write(f"Date : {item.get('date','')}\n")
+    buffer_hist.write("-----------------------------\n")
     st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
 
 if st.session_state.show_history:
