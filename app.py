@@ -640,12 +640,53 @@ if not st.session_state.logged:
 
     st.stop()
 
-st.title("🚗 VELIORA COTATION PRO")
+col_header_left, col_header_right = st.columns([4,1])
 
-col1, col2 = st.columns(2)
+with col_header_left:
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px;">
+        <div style="
+            width:38px;
+            height:38px;
+            border-radius:8px;
+            background:linear-gradient(135deg,#1f2937,#111827);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            color:white;
+        ">
+            V
+        </div>
+        <div>
+            <div style="font-size:22px; font-weight:600;">VELIORA</div>
+            <div style="font-size:13px; color:#9CA3AF;">
+                Cotation automobile intelligente
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_header_right:
+    if st.button("🚪 Déconnexion"):
+        st.session_state.logged = False
+        st.session_state.admin_logged = False
+        st.rerun()
+
+col1, col2 = st.columns([3,1])
 
 with col1:
     if st.button("🔄 Nouvelle cotation (reset)"):
+        st.session_state.reset_id += 1
+        if "resultat" in st.session_state:
+            del st.session_state["resultat"]
+        st.rerun()
+
+with col2:
+    if st.button("🚪 Se déconnecter"):
+        st.session_state.logged = False
+        st.session_state.admin_logged = False
+        st.rerun()
         st.session_state.reset_id += 1
         if "resultat" in st.session_state:
             del st.session_state["resultat"]
