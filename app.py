@@ -881,7 +881,6 @@ if calcul:
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
     st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
-    st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
     
 
 
@@ -912,7 +911,7 @@ if calcul:
     buffer.write(f"\n===== PRIX =====\n")
     buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
     buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
-    buffer.write(f"Prix marché : {prix_marche_min} € à {prix_marche_max} €\n")
+    buffer.write(f"Prix marché : {prix_bas_min} € à {prix_haut_max} €\n")
     buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
