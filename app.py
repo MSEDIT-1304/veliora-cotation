@@ -884,7 +884,7 @@ if calcul:
     st.caption("(2015 à 2018/95000-130000 km peu importe la finition)")
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")")
+    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
     st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
 
     st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
