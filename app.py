@@ -679,7 +679,7 @@ if st.session_state.show_history:
 **{item['marque']} {item['modele']} {item['finition']}**  
 {item['motorisation']}  
 {item['annee']} • {item['km']} km  
-➡️ **{item['prix']} € (marché)**  
+➡️ **{item['prix_marche']} € (marché)**  
 🕒 {item['date']}  
 
 ---
