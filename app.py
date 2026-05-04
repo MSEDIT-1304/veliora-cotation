@@ -576,42 +576,43 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-   st.markdown("""
-<div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
-    
-    <div style="
-        width:42px;
-        height:42px;
-        border-radius:10px;
-        background:linear-gradient(135deg,#0f172a,#1e293b);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:700;
-        font-size:18px;
-        color:white;
-    ">
-        V
-    </div>
-
-    <div>
-        <div style="font-size:26px; font-weight:700;">
-            VELIORA
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+        
+        <div style="
+            width:42px;
+            height:42px;
+            border-radius:10px;
+            background:linear-gradient(135deg,#0f172a,#1e293b);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:18px;
+            color:white;
+        ">
+            V
         </div>
-        <div style="font-size:14px; color:#9CA3AF;">
-            Cotation automobile intelligente
+
+        <div>
+            <div style="font-size:26px; font-weight:700;">
+                VELIORA
+            </div>
+            <div style="font-size:14px; color:#9CA3AF;">
+                Cotation automobile intelligente
+            </div>
         </div>
+
     </div>
+    """, unsafe_allow_html=True)
 
-</div>
-""", unsafe_allow_html=True)
-    st.markdown("### Essai gratuit 1 jour")
+    # 🔥 ESSAI GRATUIT (corrigé + propre)
+    st.markdown("### 🎁 Essai gratuit 1 jour")
 
-    st.warning("⚠️ Accès réservé aux professionnels de l’automobile")
+    st.warning("Accès réservé aux professionnels de l’automobile")
     st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
 
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
     st.markdown("### 👤 Accès professionnel uniquement")
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
