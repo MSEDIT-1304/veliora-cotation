@@ -397,11 +397,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if "q5" in key:
         segment = "premium"
 
-    coef = 1.0
-
-    # 🔥 BOOST SUV PREMIUM
-    if segment == "premium" and any(x in key for x in ["q5","x3","glc","xc60"]):
-        coef += 0.05
+    
 
     # 🔥 BASE = MARKET PRIORITAIRE
     base = None
@@ -421,6 +417,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     if base is None:
         base = 15000
+
+    # 🔥 correction premium réaliste
+    if segment == "premium":
+        base *= 0.92
+
+    coef = 1.0
 
     # KM FIX
     km_delta = (km - 90000) / 120000
@@ -446,17 +448,19 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # 🔥 FINITION PRO V16
+    # 🔥 FINITION PRO CLEAN
     finition_bonus = 0
 
-    if any(x in finition for x in ["line","allure","intens","shine"]):
-        finition_bonus = 0.04
-    elif any(x in finition for x in ["amg","rs","m sport","s line"]):
+    if any(x in finition for x in ["amg","rs","m sport","s line"]):
         finition_bonus = 0.12
+    elif any(x in finition for x in ["line","allure","intens","shine"]):
+        finition_bonus = 0.04
 
-    for m, (low, high) in FINITION_ADJUST.items():
-        if m in key:
-            finition_bonus = max(finition_bonus, (low + high) / 2)
+    # dataset uniquement si finition renseignée
+    if finition:
+        for m, (low, high) in FINITION_ADJUST.items():
+            if m in key:
+                finition_bonus = max(finition_bonus, (low + high) / 2)
 
     coef += finition_bonus
 
@@ -830,25 +834,24 @@ if calcul:
 
     prix_vente = prix_psy(prix_marche)
 
-    # 🔥 LOGIQUE PRIX COHÉRENTE FIXÉE (stable)
+    # 🔥 LOGIQUE PRO DEMANDÉE (FOURCHETTE MAX 2000€)
 
-    def arrondi_10(x):
-        return int(round(x / 10) * 10)
+    base = int(round(prix_marche / 100) * 100)
 
-    base = prix_marche
-    base = int(round(base / 100) * 100)
+    # BAS (écart max 2000€)
+    prix_bas_min = base - 2000
+    prix_bas_max = base - 1000
 
-    # BAS
-    prix_bas_min = arrondi_10(base * 0.88)
-    prix_bas_max = arrondi_10(base * 0.94)
+    # MARCHÉ
+    prix_marche_affiche = base
 
-    # MARCHÉ (plage cohérente fixe)
-    prix_marche_min = arrondi_10(base * 0.95)
-    prix_marche_max = arrondi_10(base * 1.05)
+    # HAUT (écart max 2000€)
+    prix_haut_min = base + 1000
+    prix_haut_max = base + 2000
 
-    # HAUT
-    prix_haut_min = prix_marche_max + 1
-    prix_haut_max = arrondi_10(base * 1.12)
+    # sécurité
+    prix_bas_min = max(3000, prix_bas_min)
+    prix_haut_max = min(120000, prix_haut_max)
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
@@ -867,6 +870,16 @@ if calcul:
         net_marche = prix_vente
 
     # DUPLICATE DISPLAY REMOVED
+
+    st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
+    st.success(f"{prix_marche_affiche} €")
+    st.caption("(2019/2020/80-90000 km/finition basic ou sans finition.)")
+
+    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
+    st.caption("(2015 à 2018/95000-130000 km peu importe la finition)")
+
+    st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
+    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
