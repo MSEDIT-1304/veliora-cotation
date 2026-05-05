@@ -907,6 +907,21 @@ if calcul:
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
 
+# 🔥 PRIX MARCHE
+prix_marche = ai_price_engine(
+    marque,
+    modele,
+    finition,
+    motorisation,
+    annee,
+    km,
+    carburant,
+    boite,
+    departement,
+    options,
+    transmission
+)
+
 # 🔥 PRIX MARCHE = FOURCHETTE PRO
 prix_marche_min = max(3000, prix_marche - 500)
 prix_marche_max = min(120000, prix_marche + 500)
@@ -915,10 +930,6 @@ prix_marche_max = min(120000, prix_marche + 500)
     # ✅ historique (après calcul)
 st.session_state.historique.insert(0, {
     "prix_marche": f"{prix_marche_min} → {prix_marche_max}",
-    "prix_bas_min": prix_bas_min,
-    "prix_bas_max": prix_bas_max,
-    "prix_haut_min": prix_haut_min,
-    "prix_haut_max": prix_haut_max,
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
     "marque": marque,
