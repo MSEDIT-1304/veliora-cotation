@@ -348,7 +348,7 @@ FUEL_ADJUST = {
 # ===============================
 MARKET_TABLE = {
     "citadine": {
-        2020: {45000:9500, 55000:9000, 75000:8200, 90000:7700},
+        2020: {45000:9500, 55000:9000, 75000:8200, 90000:9500},
         2021: {45000:10500, 55000:10000, 75000:9200, 90000:8700},
         2022: {45000:11800, 55000:11200, 75000:10300, 90000:9700},
         2023: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
@@ -494,6 +494,13 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 finition_bonus = max(finition_bonus, (low + high) / 2)
 
     coef += finition_bonus
+
+    # 🔥 BONUS OPEL SPECIFIQUE
+    if "gs line" in finition:
+        coef += 0.06
+    if boite == "Automatique":
+        coef += 0.04
+
 
     # OPTIONS léger
     for opt in options:
