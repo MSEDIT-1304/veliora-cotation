@@ -942,7 +942,7 @@ st.session_state.historique = st.session_state.historique[:20]
 
     
 
-    prix_vente = prix_psy(prix_marche)
+prix_vente = prix_psy(prix_marche)
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
