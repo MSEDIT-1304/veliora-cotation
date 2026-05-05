@@ -399,8 +399,37 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
 
-    # 🔥 BASE = MARKET PRIORITAIRE
+    
+# ===============================
+# 🔥 PRIORITÉ DATASET OPEL
+# ===============================
+def get_opel_price(modele, annee, km):
+    try:
+        lines = OPEL_DATASET_RAW.strip().split("\n")
+        for line in lines:
+            parts = line.split(";")
+            if len(parts) < 3:
+                continue
+
+            m = parts[0].strip().lower()
+            y = int(parts[1])
+
+            if m == modele and y == annee:
+                prices = list(map(int, parts[2:]))
+                km_steps = [20000, 40000, 60000, 80000, 100000, 120000, 140000]
+                return interpolate_km(dict(zip(km_steps, prices)), km)
+    except:
+        pass
+    return None
+
+# 🔥 BASE = MARKET PRIORITAIRE
     base = None
+    # 🔥 ACTIVATION OPEL
+    if "opel" in marque:
+        opel_price = get_opel_price(modele, annee, km)
+        if opel_price:
+            base = opel_price
+
     if segment and annee in MARKET_TABLE.get(segment, {}):
         base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
@@ -984,4 +1013,424 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+OPEL_DATASET_RAW = """
+Corsa;2025;19000;18200;17500;16200;15200;14300;13800
+Corsa;2024;17000;16200;15500;14300;13300;12500;11800
+Corsa;2023;15500;14700;14000;13000;12000;11300;10800
+Corsa;2022;14000;13200;12500;11500;10800;10000;9500
+Corsa;2021;12500;11800;11200;10200;9500;8800;8300
+Corsa;2020;11000;10500;10000;9200;8700;8000;7600
+Corsa;2019;10000;9500;9000;8200;7700;7000;6600
+Corsa;2018;9000;8500;8000;7300;6800;6200;5800
+Corsa;2017;8000;7500;7000;6400;5900;5400;5000
+Corsa;2016;7200;6800;6400;5800;5400;4900;4600
+Corsa;2015;6500;6000;5600;5200;4800;4400;4000
+Corsa;2014;6000;5500;5200;4800;4400;4000;3600
 
+Astra;2025;25000;24000;23000;21500;20500;19500;18800
+Astra;2024;22500;21500;20500;19200;18200;17000;16200
+Astra;2023;20000;19000;18000;16800;15800;14800;14000
+Astra;2022;18000;17000;16000;14800;13800;12800;12000
+Astra;2021;16500;15500;14800;13500;12500;11500;10800
+Astra;2020;15000;14200;13500;12500;11500;10500;10000
+Astra;2019;14000;13200;12500;11500;10500;9500;9000
+Astra;2018;12500;11800;11000;10000;9200;8500;8000
+Astra;2017;11000;10300;9700;8800;8000;7200;6800
+Astra;2016;10000;9500;9000;8200;7500;6800;6400
+Astra;2015;9000;8500;8000;7200;6500;6000;5500
+Astra;2014;8200;7800;7300;6600;6000;5500;5000
+
+Mokka;2025;26000;25000;24000;22500;21500;20500;19500
+Mokka;2024;24000;23000;22000;20500;19500;18500;17500
+Mokka;2023;22000;21000;20000;18500;17500;16500;15500
+Mokka;2022;20000;19000;18000;16500;15500;14500;13500
+Mokka;2021;18000;17000;16200;15000;14000;13000;12000
+Mokka;2020;16500;15500;14800;13500;12500;11500;10500
+Mokka;2019;15000;14200;13500;12500;11500;10500;9800
+Mokka;2018;13500;12800;12000;11000;10000;9200;8800
+Mokka;2017;12000;11300;10500;9500;8800;8000;7500
+Mokka;2016;11000;10300;9500;8800;8000;7200;6800
+Mokka;2015;10000;9500;9000;8200;7500;6800;6400
+Mokka;2014;9500;9000;8500;7800;7200;6500;6000
+
+Crossland;2025;23000;22000;21000;19500;18500;17500;16500
+Crossland;2024;21000;20000;19000;17500;16500;15500;14500
+Crossland;2023;19000;18000;17000;15500;14500;13500;12500
+Crossland;2022;17500;16500;15500;14000;13000;12000;11000
+Crossland;2021;16000;15000;14200;13000;12000;11000;10000
+Crossland;2020;14500;13800;13000;12000;11000;10000;9500
+Crossland;2019;13500;12800;12000;11000;10000;9000;8500
+Crossland;2018;12000;11300;10500;9500;8800;8000;7500
+Crossland;2017;11000;10300;9500;8800;8000;7200;6800
+
+Grandland;2025;30000;29000;28000;26000;24000;22000;21000
+Grandland;2024;28000;27000;26000;24000;22000;20000;19000
+Grandland;2023;26000;25000;24000;22000;20000;18000;17000
+Grandland;2022;24000;23000;22000;20000;18000;16500;15500
+Grandland;2021;22000;21000;20000;18000;16500;15000;14000
+Grandland;2020;20000;19000;18000;16500;15000;13500;12500
+Grandland;2019;18500;17500;16500;15000;13500;12000;11000
+Grandland;2018;17000;16000;15000;13500;12000;10500;9500
+Grandland;2017;15000;14000;13000;12000;11000;9500;9000
+
+Grandland X;2021;24000;23000;22000;20000;18500;17000;16000
+Grandland X;2020;22000;21000;20000;18500;17000;15500;14500
+Grandland X;2019;20500;19500;18500;17000;15500;14000;13000
+Grandland X;2018;19000;18000;17000;15500;14000;12500;11500
+Grandland X;2017;18000;17000;16000;14500;13000;11500;10500
+
+Insignia;2025;30000;29000;28000;26000;24000;22000;21000
+Insignia;2024;28000;27000;26000;24000;22000;20000;19000
+Insignia;2023;26000;25000;24000;22000;20000;18000;17000
+Insignia;2022;24000;23000;22000;20000;18000;16500;15500
+Insignia;2021;22000;21000;20000;18000;16500;15000;14000
+Insignia;2020;20000;19000;18000;16500;15000;13500;12500
+Insignia;2019;18500;17500;16500;15000;13500;12000;11000
+Insignia;2018;17000;16000;15000;13500;12000;10500;9500
+Insignia;2017;15500;14500;13500;12000;11000;9500;9000
+Insignia;2016;14000;13000;12000;11000;10000;9000;8500
+Insignia;2015;13000;12000;11000;10000;9000;8500;8000
+Insignia;2014;12000;11000;10000;9000;8500;8000;7500
+"""
+    <div style="display:flex; align-items:center; gap:12px;">
+        <div style="
+            width:38px;
+            height:38px;
+            border-radius:8px;
+            background:linear-gradient(135deg,#1f2937,#111827);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            color:white;
+        ">
+            V
+        </div>
+        <div>
+            <div style="font-size:22px; font-weight:600;">VELIORA</div>
+            <div style="font-size:13px; color:#9CA3AF;">
+                Cotation automobile intelligente
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+col1, col2 = st.columns([3,1])
+
+with col1:
+    if st.button("🔄 Nouvelle cotation (reset)"):
+        st.session_state.reset_id += 1
+        if "resultat" in st.session_state:
+            del st.session_state["resultat"]
+        st.rerun()
+
+with col2:
+    if st.button("🚪 Se déconnecter"):
+        st.session_state.logged = False
+        st.session_state.admin_logged = False
+        st.rerun()
+        st.session_state.reset_id += 1
+        if "resultat" in st.session_state:
+            del st.session_state["resultat"]
+        st.rerun()
+
+col2a, col2b = st.columns(2)
+
+with col2a:
+    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
+
+with col2b:
+    buffer_hist = io.StringIO()
+    buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
+for item in st.session_state.historique:
+    buffer_hist.write(f"{item.get('marque','')} {item.get('modele','')} {item.get('finition','')}\n")
+    buffer_hist.write(f"{item.get('motorisation','')}\n")
+    buffer_hist.write(f"{item.get('annee','')} • {item.get('km','')} km\n")
+
+    buffer_hist.write(f"Carburant : {item.get('carburant','')}\n")
+    buffer_hist.write(f"Boîte : {item.get('boite','')}\n")
+    buffer_hist.write(f"Transmission : {item.get('transmission','')}\n")
+    buffer_hist.write(f"Options : {item.get('options','')}\n")
+    buffer_hist.write(f"Département : {item.get('departement','')}\n")
+
+    buffer_hist.write(f"Prix marché : {item.get('prix_marche','')} €\n")
+    buffer_hist.write(f"Bas : {item.get('prix_bas_min','')} € → {item.get('prix_bas_max','')} €\n")
+    buffer_hist.write(f"Haut : {item.get('prix_haut_min','')} € → {item.get('prix_haut_max','')} €\n")
+
+    buffer_hist.write(f"Date : {item.get('date','')}\n")
+    buffer_hist.write("-----------------------------\n")
+    st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
+
+if st.session_state.show_history:
+    st.subheader("📊 Historique des estimations")
+
+    if len(st.session_state.historique) == 0:
+        st.info("Aucune estimation pour le moment")
+    else:
+        for item in st.session_state.historique:
+            st.markdown(f"""
+**{item['marque']} {item['modele']} {item['finition']}**  
+{item['motorisation']}  
+{item['annee']} • {item['km']} km  
+➡️ **{item['prix_marche']} € (marché)**  
+🕒 {item['date']}  
+
+---
+""")
+
+
+# Lien Argus en haut
+st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
+
+# 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
+def parse_title(title):
+    t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
+
+    result = {
+        "modele": "",
+        "motorisation": "",
+        "finition": "",
+        "carburant": ""
+    }
+
+    # MODELES
+    if "ds4" in t: result["modele"] = "ds4 crossback"
+    elif "ds3" in t: result["modele"] = "ds3 crossback"
+    elif "clio" in t: result["modele"] = "clio"
+    elif "golf" in t: result["modele"] = "golf"
+    elif "q5" in t: result["modele"] = "q5"
+    elif "x3" in t: result["modele"] = "x3"
+
+    # CARBURANT + MOTORISATION
+    if "ethanol" in t or "e85" in t:
+        result["motorisation"] = "ethanol"
+        result["carburant"] = "Essence"
+    elif "diesel" in t or "tdi" in t or "dci" in t:
+        result["motorisation"] = "diesel"
+        result["carburant"] = "Diesel"
+    elif "essence" in t or "tce" in t or "tsi" in t:
+        result["motorisation"] = "essence"
+        result["carburant"] = "Essence"
+    elif "hybride" in t:
+        result["carburant"] = "Hybride"
+    elif "electrique" in t:
+        result["carburant"] = "Électrique"
+
+    # FINITION
+    if "crossback" in t: result["finition"] = "crossback"
+    elif "s line" in t: result["finition"] = "s line"
+    elif "m sport" in t: result["finition"] = "m sport"
+    elif "intens" in t: result["finition"] = "intens"
+    elif "allure" in t: result["finition"] = "allure"
+
+    return result
+
+rid = st.session_state.reset_id
+
+# champ titre supprimé
+parsed = {}
+
+col1, col2 = st.columns(2)
+with col1:
+    marque = st.text_input("Marque", key=f"marque_{rid}")
+with col2:
+    modele = st.text_input("Modèle", key=f"modele_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
+with col2:
+    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    finition = st.text_input("Finition", key=f"finition_{rid}")
+with col2:
+    sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
+with col2:
+    carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
+
+transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
+with col2:
+    boite_tech = st.selectbox("Technologie boîte", ["", "BVA6","BVA7","BVA8","BVM5","BVM6"], key=f"boite_tech_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    portes = st.text_input("Nombre de portes (ex: -, 0, 5)", key=f"portes_{rid}")
+with col2:
+    places = st.text_input("Nombre de places (ex: -, 0, 5)", key=f"places_{rid}")
+
+col1, col2 = st.columns(2)
+with col1:
+    options = st.multiselect("Options", [
+        "Caméra recul","Bip avant","Bip arrière",
+        "Sièges chauffants avant","Sièges chauffants arrière",
+        "Hayon électrique","Attelage","Toit panoramique"
+    ], key=f"options_{rid}")
+with col2:
+    km = st.number_input("Kilométrage", 0, 400000, 0, key=f"km_{rid}")
+
+departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
+
+commission = 0
+commission_pct = 0.0
+
+col_btn, col_txt = st.columns([1,2])
+
+with col_btn:
+    calcul = st.button("Calculer l'estimation")
+
+with col_txt:
+    st.caption("Estimation basée sur algorithme marché — non contractuel")
+
+if calcul:
+
+    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
+
+    prix_comparables = []
+
+    if get_leboncoin_prices:
+        try:
+            query = f"{marque} {modele} {motorisation} {annee}"
+            prix_comparables = get_leboncoin_prices(query, km, carburant, boite)
+            st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
+        except:
+            pass
+
+    # 🔥 MODE STABLE (désactivation learning / scraping)
+    prix_marche = prix_ai
+
+    # 🔥 LOGIQUE PRO FOURCHETTE
+    base = int(round(prix_marche / 100) * 100)
+
+    prix_bas_min = max(3000, base - 2000)
+    prix_bas_max = base - 1000
+
+    prix_marche_affiche = base
+
+    prix_haut_min = base + 1000
+    prix_haut_max = min(120000, base + 2000)
+
+    # ✅ historique (après calcul)
+    st.session_state.historique.insert(0, {
+    "prix_marche": prix_marche_affiche,
+    "prix_bas_min": prix_bas_min,
+    "prix_bas_max": prix_bas_max,
+    "prix_haut_min": prix_haut_min,
+    "prix_haut_max": prix_haut_max,
+    "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+
+    "marque": marque,
+    "modele": modele,
+    "finition": finition,
+    "sous_version": sous_version,
+    "motorisation": motorisation,
+
+    "carburant": carburant,
+    "boite": boite,
+    "transmission": transmission,
+    "options": ", ".join(options) if options else "Aucune",
+    "departement": departement,
+
+    "annee": annee,
+    "km": km
+})
+
+    st.session_state.historique = st.session_state.historique[:20]
+
+
+    
+
+    prix_vente = prix_psy(prix_marche)
+
+    # 🔥 CORRECTION % + NET VENDEUR JUSTE
+
+    if commission_pct > 0:
+        commission_calc = round(prix_vente * (commission_pct / 100))
+    else:
+        commission_calc = commission
+
+    net_marche = prix_vente - commission_calc
+
+    # arrondi cohérent (comme prix affiché)
+    net_marche = int(round(net_marche / 10) * 10)
+
+    # sécurité si 0 commission
+    if commission == 0 and commission_pct == 0:
+        net_marche = prix_vente
+
+    # DUPLICATE DISPLAY REMOVED
+
+    st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
+    st.success(f"{prix_marche_affiche} €")
+    st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
+
+    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
+    st.caption("(2015 à 2018/95000-130000 km peu importe la finition)")
+
+    st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
+    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
+    
+
+
+    # 🔥 STOCKAGE RESULTAT (pour éviter reset)
+    st.session_state.resultat = {
+        "prix_vente": prix_vente,
+        "net_marche": net_marche,
+        "prix_bas_min": prix_bas_min,
+        "prix_bas_max": prix_bas_max,
+        
+        
+        "prix_haut_min": prix_haut_min,
+        "prix_haut_max": prix_haut_max,
+        "prix_marche_estime": prix_marche
+    }
+
+    buffer = io.StringIO()
+    buffer.write("===== ESTIMATION VÉHICULE =====\n")
+    buffer.write(f"Marque : {marque}\n")
+    buffer.write(f"Modèle : {modele}\n")
+    buffer.write(f"Sous-version : {sous_version}\n")
+    buffer.write(f"Finition : {finition}\n")
+    buffer.write(f"Motorisation : {motorisation}\n")
+    buffer.write(f"Année : {annee}\n")
+    buffer.write(f"Kilométrage : {km} km\n")
+    buffer.write(f"Carburant : {carburant}\n")
+    buffer.write(f"Boîte : {boite}\n")
+    buffer.write(f"\n===== PRIX =====\n")
+    buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
+    buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
+    buffer.write(f"Prix marché : {prix_bas_min} € à {prix_haut_max} €\n")
+    buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
+
+# ===== AFFICHAGE STABLE (hors bouton) =====
+if "resultat" in st.session_state:
+    r = st.session_state.resultat
+
+    col_left, col_right = st.columns(2)
+
+    
+    with col_right:
+        st.markdown("### 🧮 Calculateur")
+        prix_choisi = st.number_input("Prix choisi", value=0)
+        commission_user = st.number_input("Commission (€)", value=0)
+        commission_pct_user = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
+
+        if commission_pct_user > 0:
+            commission_calc_user = round(prix_choisi * (commission_pct_user / 100))
+        else:
+            commission_calc_user = commission_user
+
+        net_calc = prix_choisi - commission_calc_user
+        net_calc = int(round(net_calc / 10) * 10)
+
+        st.success(f"💶 Net vendeur : {net_calc} €")
