@@ -908,8 +908,8 @@ if calcul:
     base = int(round(prix_marche / 100) * 100)
 
 # 🔥 PRIX MARCHE = FOURCHETTE PRO
-prix_marche_min = max(3000, base - 500)
-prix_marche_max = min(120000, base + 500)
+prix_marche_min = max(3000, prix_marche - 500)
+prix_marche_max = min(120000, prix_marche + 500)
 
 
     # ✅ historique (après calcul)
