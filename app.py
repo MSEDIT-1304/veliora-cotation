@@ -961,10 +961,10 @@ if calcul:
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
 
     st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
-    st.caption("(km élevés/véhicule ancien.)")
+    st.caption("(fourchette prix moyen marché garage/km élevés/véhicule ancien.)")
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(véhicule récent/peu de km/finition luxe.)")
+    st.caption("(fourchette prix moyen marché garage/véhicule récent/peu de km/finition luxe.)")
     
 
 
