@@ -951,7 +951,7 @@ if commission_pct > 0:
 else:
         commission_calc = commission
 
-    net_marche = prix_vente - commission_calc
+net_marche = prix_vente - commission_calc
 
     # arrondi cohérent (comme prix affiché)
     net_marche = int(round(net_marche / 10) * 10)
