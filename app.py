@@ -931,13 +931,13 @@ if calcul:
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
     st.success(f"{prix_marche_affiche} €")
-    st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
+    st.caption("(Prix marché estimé basé sur moyenne prix garage/suivant champs remplis.)")
 
     st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
-    st.caption("(2015 à 2018/95000-130000 km peu importe la finition)")
+    st.caption("(véhicule plus anciens/sans entretiens réguliers/pocs/bosses/km élevés.)")
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
+    st.caption("(véhicules plus récents/avec entretiens réguliers/finition luxe/options supplémentaires/km faibles.)")
     
 
 
