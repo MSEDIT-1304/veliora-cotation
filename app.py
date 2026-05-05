@@ -712,8 +712,7 @@ with col1:
         st.rerun()
 
 with col2:
-    if st.button("🚪 Se déconnecter"):
-        st.session_state.logged = False
+    if  st.session_state.logged = False
         st.session_state.admin_logged = False
         st.rerun()
         st.session_state.reset_id += 1
