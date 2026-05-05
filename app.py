@@ -977,7 +977,7 @@ if commission == 0 and commission_pct == 0:
     st.success(f"{prix_marche_min} € → {prix_marche_max} €")
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
 
-    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
+    st.markdown(f"📉 Bas : {prix_bas_min} € → {prix_bas_max} €")
     st.caption("(fourchette prix moyen marché garage/km élevés/véhicule ancien.)")
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
