@@ -400,6 +400,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     
 
     
+
 # ===============================
 # 🔥 PRIORITÉ DATASET OPEL
 # ===============================
@@ -410,30 +411,46 @@ def get_opel_price(modele, annee, km):
             parts = line.split(";")
             if len(parts) < 3:
                 continue
-
             m = parts[0].strip().lower()
             y = int(parts[1])
-
             if m == modele and y == annee:
                 prices = list(map(int, parts[2:]))
-                km_steps = [20000, 40000, 60000, 80000, 100000, 120000, 140000]
+                km_steps = [20000,40000,60000,80000,100000,120000,140000]
                 return interpolate_km(dict(zip(km_steps, prices)), km)
     except:
         pass
     return None
 
-    # 🔥 BASE = MARKET PRIORITAIRE
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
+
+    if options is None:
+        options = []
+
+    import unicodedata, re
+
+    def norm(s):
+        if not s:
+            return ""
+        return unicodedata.normalize('NFD', s.lower()).encode('ascii','ignore').decode('utf-8')
+
+    marque = norm(marque)
+    modele = norm(modele)
+    finition = norm(finition)
+    motorisation = norm(motorisation)
+
+    key = f"{marque} {modele}".strip()
+    segment = detect_segment(key)
+
     base = None
-        # 🔥 ACTIVATION OPEL
+
     if "opel" in marque:
         opel_price = get_opel_price(modele, annee, km)
         if opel_price:
             base = opel_price
 
-    if segment and annee in MARKET_TABLE.get(segment, {}):
+    if base is None and segment in MARKET_TABLE and annee in MARKET_TABLE[segment]:
         base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # fallback dataset
     if base is None:
         for m, years in BASE_PRICES_V2.items():
             if key == m or key.startswith(m):
@@ -447,22 +464,14 @@ def get_opel_price(modele, annee, km):
     if base is None:
         base = 15000
 
-    # 🔥 correction premium réaliste
-    if segment == "premium":
-        base *= 0.92
-
     coef = 1.0
+    coef += (km - 90000) / 120000
 
-    # KM FIX
-    km_delta = (km - 90000) / 120000
-
-    # YEAR FIX
     if annee >= 2021:
         coef += min((annee - 2020) * 0.02, 0.08)
-    elif annee < 2020:
+    else:
         coef -= min((2020 - annee) * 0.03, 0.15)
 
-    # MOTOR
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
@@ -471,37 +480,16 @@ def get_opel_price(modele, annee, km):
         elif p <= 100:
             coef -= 0.02
 
-    # FUEL
     if carburant == "Essence":
         coef += 0.01
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # 🔥 FINITION PRO CLEAN
-    finition_bonus = 0
+    coef += len(options) * 0.005
 
-    if any(x in finition for x in ["amg","rs","m sport","s line"]):
-        finition_bonus = 0.12
-    elif any(x in finition for x in ["line","allure","intens","shine"]):
-        finition_bonus = 0.04
-
-    # dataset uniquement si finition renseignée
-    if finition:
-        for m, (low, high) in FINITION_ADJUST.items():
-            if m in key:
-                finition_bonus = max(finition_bonus, (low + high) / 2)
-
-    coef += finition_bonus
-
-    # OPTIONS léger
-    for opt in options:
-        coef += 0.005
-
-    # AWD
     if transmission in ["4x4","AWD","4WD"]:
         coef += 0.02
 
-    # GEO
     if departement in ["75","92"]:
         coef += 0.02
     elif departement in ["08","23"]:
@@ -509,17 +497,12 @@ def get_opel_price(modele, annee, km):
 
     price = base * coef
 
-    # 🔥 CLAMP V16 PREMIUM
     if segment == "premium":
-        min_price = base * 0.90
-        max_price = base * 1.25
+        price = max(base * 0.90, min(price, base * 1.25))
     else:
-        min_price = base * 0.92
-        max_price = base * 1.15
-    price = max(min_price, min(price, max_price))
+        price = max(base * 0.92, min(price, base * 1.15))
 
     return int(max(4000, min(price, 120000)))
-
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
 
@@ -1434,4 +1417,3 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-
