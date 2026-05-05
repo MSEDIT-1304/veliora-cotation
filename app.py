@@ -907,17 +907,14 @@ if calcul:
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
 
-    prix_bas_min = max(3000, base - 2000)
-    prix_bas_max = base - 1000
+# 🔥 PRIX MARCHE = FOURCHETTE PRO
+prix_marche_min = max(3000, base - 500)
+prix_marche_max = min(120000, base + 500)
 
-    prix_marche_affiche = base
-
-    prix_haut_min = base + 1000
-    prix_haut_max = min(120000, base + 2000)
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
-    "prix_marche": prix_marche_affiche,
+    "prix_marche": f"{prix_marche_min} → {prix_marche_max}",
     "prix_bas_min": prix_bas_min,
     "prix_bas_max": prix_bas_max,
     "prix_haut_min": prix_haut_min,
@@ -966,7 +963,7 @@ if calcul:
     # DUPLICATE DISPLAY REMOVED
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
-    st.success(f"{prix_marche_affiche} €")
+    st.success(f"{prix_marche_min} € → {prix_marche_max} €")
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
 
     st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
