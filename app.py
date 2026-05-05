@@ -1039,3 +1039,21 @@ if "resultat" in st.session_state:
         st.success(f"💶 Net vendeur : {net_calc} €")
 
 
+
+
+# ==== FIX AUTO PRIX (AJOUT) ====
+try:
+    prix_marche
+except:
+    prix_marche = 0
+
+try:
+    prix_marche_min
+except:
+    prix_marche_min = 0
+    prix_marche_max = 0
+    prix_bas_min = 0
+    prix_bas_max = 0
+    prix_haut_min = 0
+    prix_haut_max = 0
+# ==== FIN FIX ====
