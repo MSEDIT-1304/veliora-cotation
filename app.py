@@ -948,7 +948,7 @@ prix_vente = prix_psy(prix_marche)
 
 if commission_pct > 0:
         commission_calc = round(prix_vente * (commission_pct / 100))
-    else:
+else:
         commission_calc = commission
 
     net_marche = prix_vente - commission_calc
@@ -957,7 +957,7 @@ if commission_pct > 0:
     net_marche = int(round(net_marche / 10) * 10)
 
     # sécurité si 0 commission
-    if commission == 0 and commission_pct == 0:
+if commission == 0 and commission_pct == 0:
         net_marche = prix_vente
 
     # DUPLICATE DISPLAY REMOVED
