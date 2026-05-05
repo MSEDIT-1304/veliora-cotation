@@ -946,7 +946,7 @@ prix_vente = prix_psy(prix_marche)
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
-    if commission_pct > 0:
+if commission_pct > 0:
         commission_calc = round(prix_vente * (commission_pct / 100))
     else:
         commission_calc = commission
