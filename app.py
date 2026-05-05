@@ -766,10 +766,7 @@ if st.session_state.show_history:
 ---
 """)
 
-if st.button("Se déconnecter", key="logout_main"):
-    st.session_state.logged = False
-    st.session_state.admin_logged = False
-    st.rerun()
+
 
 # Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
