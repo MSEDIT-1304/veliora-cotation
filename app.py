@@ -145,37 +145,6 @@ BASE_PRICES_V2 = {
     "citroen berlingo": {2025: 21000, 2024: 19000, 2023: 17000, 2022: 15000, 2021: 13000, 2020: 12000, 2019: 10500, 2018: 9000, 2017: 8500, 2016: 8000, 2015: 7500, 2014: 7000},
 }
 
-# ===============================
-# 🔥 DATASET OPEL CSV (AJOUT USER)
-# ===============================
-OPEL_DATASET_RAW = """
-Corsa;2025;19000;18200;17500;16200;15200;14300;13800
-Corsa;2024;17000;16200;15500;14300;13300;12500;11800
-Corsa;2023;15500;14700;14000;13000;12000;11300;10800
-Corsa;2022;14000;13200;12500;11500;10800;10000;9500
-Corsa;2021;12500;11800;11200;10200;9500;8800;8300
-Corsa;2020;11000;10500;10000;9200;8700;8000;7600
-Corsa;2019;10000;9500;9000;8200;7700;7000;6600
-Corsa;2018;9000;8500;8000;7300;6800;6200;5800
-Corsa;2017;8000;7500;7000;6400;5900;5400;5000
-Corsa;2016;7200;6800;6400;5800;5400;4900;4600
-Corsa;2015;6500;6000;5600;5200;4800;4400;4000
-Corsa;2014;6000;5500;5200;4800;4400;4000;3600
-
-Astra;2025;25000;24000;23000;21500;20500;19500;18800
-Astra;2024;22500;21500;20500;19200;18200;17000;16200
-Astra;2023;20000;19000;18000;16800;15800;14800;14000
-Astra;2022;18000;17000;16000;14800;13800;12800;12000
-Astra;2021;16500;15500;14800;13500;12500;11500;10800
-Astra;2020;15000;14200;13500;12500;11500;10500;10000
-Astra;2019;14000;13200;12500;11500;10500;9500;9000
-Astra;2018;12500;11800;11000;10000;9200;8500;8000
-Astra;2017;11000;10300;9700;8800;8000;7200;6800
-Astra;2016;10000;9500;9000;8200;7500;6800;6400
-Astra;2015;9000;8500;8000;7200;6500;6000;5500
-Astra;2014;8200;7800;7300;6600;6000;5500;5000
-"""
-
 # DATASET 100+ MODELES SANS DOUBLONS
 
 # 🔥 KM ADJUST PRO (90k référence)
@@ -348,7 +317,7 @@ FUEL_ADJUST = {
 # ===============================
 MARKET_TABLE = {
     "citadine": {
-        2020: {45000:9500, 55000:9000, 75000:8200, 90000:9500},
+        2020: {45000:9500, 55000:9000, 75000:8200, 90000:7700},
         2021: {45000:10500, 55000:10000, 75000:9200, 90000:8700},
         2022: {45000:11800, 55000:11200, 75000:10300, 90000:9700},
         2023: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
@@ -494,13 +463,6 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                 finition_bonus = max(finition_bonus, (low + high) / 2)
 
     coef += finition_bonus
-
-    # 🔥 BONUS OPEL SPECIFIQUE
-    if "gs line" in finition:
-        coef += 0.06
-    if boite == "Automatique":
-        coef += 0.04
-
 
     # OPTIONS léger
     for opt in options:
@@ -704,7 +666,6 @@ with col_header_left:
     """, unsafe_allow_html=True)
 
 
-
 col1, col2 = st.columns([3,1])
 
 with col1:
@@ -732,29 +693,24 @@ with col2a:
 with col2b:
     buffer_hist = io.StringIO()
     buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
-
 for item in st.session_state.historique:
     buffer_hist.write(f"{item.get('marque','')} {item.get('modele','')} {item.get('finition','')}\n")
     buffer_hist.write(f"{item.get('motorisation','')}\n")
     buffer_hist.write(f"{item.get('annee','')} • {item.get('km','')} km\n")
+
     buffer_hist.write(f"Carburant : {item.get('carburant','')}\n")
     buffer_hist.write(f"Boîte : {item.get('boite','')}\n")
     buffer_hist.write(f"Transmission : {item.get('transmission','')}\n")
     buffer_hist.write(f"Options : {item.get('options','')}\n")
     buffer_hist.write(f"Département : {item.get('departement','')}\n")
+
     buffer_hist.write(f"Prix marché : {item.get('prix_marche','')} €\n")
     buffer_hist.write(f"Bas : {item.get('prix_bas_min','')} € → {item.get('prix_bas_max','')} €\n")
     buffer_hist.write(f"Haut : {item.get('prix_haut_min','')} € → {item.get('prix_haut_max','')} €\n")
+
     buffer_hist.write(f"Date : {item.get('date','')}\n")
     buffer_hist.write("-----------------------------\n")
-
-st.download_button(
-    "📥 Télécharger historique",
-    buffer_hist.getvalue(),
-    "historique.txt",
-    key="download_history"
-)
-
+    st.download_button("📥 Télécharger historique", buffer_hist.getvalue(), "historique.txt")
 
 if st.session_state.show_history:
     st.subheader("📊 Historique des estimations")
@@ -772,7 +728,6 @@ if st.session_state.show_history:
 
 ---
 """)
-
 
 
 # Lien Argus en haut
@@ -907,29 +862,21 @@ if calcul:
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
 
-# 🔥 PRIX MARCHE
-prix_marche = ai_price_engine(
-    marque,
-    modele,
-    finition,
-    motorisation,
-    annee,
-    km,
-    carburant,
-    boite,
-    departement,
-    options,
-    transmission
-)
+    prix_bas_min = max(3000, base - 2000)
+    prix_bas_max = base - 1000
 
-# 🔥 PRIX MARCHE = FOURCHETTE PRO
-prix_marche_min = max(3000, prix_marche - 500)
-prix_marche_max = min(120000, prix_marche + 500)
+    prix_marche_affiche = base
 
+    prix_haut_min = base + 1000
+    prix_haut_max = min(120000, base + 2000)
 
     # ✅ historique (après calcul)
-st.session_state.historique.insert(0, {
-    "prix_marche": f"{prix_marche_min} → {prix_marche_max}",
+    st.session_state.historique.insert(0, {
+    "prix_marche": prix_marche_affiche,
+    "prix_bas_min": prix_bas_min,
+    "prix_bas_max": prix_bas_max,
+    "prix_haut_min": prix_haut_min,
+    "prix_haut_max": prix_haut_max,
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
     "marque": marque,
@@ -948,40 +895,40 @@ st.session_state.historique.insert(0, {
     "km": km
 })
 
-st.session_state.historique = st.session_state.historique[:20]
+    st.session_state.historique = st.session_state.historique[:20]
 
 
     
 
-prix_vente = prix_psy(prix_marche)
+    prix_vente = prix_psy(prix_marche)
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
-if commission_pct > 0:
+    if commission_pct > 0:
         commission_calc = round(prix_vente * (commission_pct / 100))
-else:
+    else:
         commission_calc = commission
 
-net_marche = prix_vente - commission_calc
+    net_marche = prix_vente - commission_calc
 
     # arrondi cohérent (comme prix affiché)
-net_marche = int(round(net_marche / 10) * 10)
+    net_marche = int(round(net_marche / 10) * 10)
 
     # sécurité si 0 commission
-if commission == 0 and commission_pct == 0:
-    net_marche = prix_vente
+    if commission == 0 and commission_pct == 0:
+        net_marche = prix_vente
 
     # DUPLICATE DISPLAY REMOVED
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
-    st.success(f"{prix_marche_min} € → {prix_marche_max} €")
-    st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
+    st.success(f"{prix_marche_affiche} €")
+    st.caption("(Prix marché estimé basé sur modèle, année et configuration du véhicule.)")
 
-    st.markdown(f"📉 Bas : {prix_bas_min} € → {prix_bas_max} €")
-    st.caption("(fourchette prix moyen marché garage/km élevés/véhicule ancien.)")
+    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
+    st.caption("(2015 à 2018/95000-130000 km peu importe la finition)")
 
     st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(fourchette prix moyen marché garage/véhicule récent/peu de km/finition luxe.)")
+    st.caption("(2021 à 2025/de 30 à 75000km/ finition luxe.)")
     
 
 
@@ -1038,22 +985,3 @@ if "resultat" in st.session_state:
 
         st.success(f"💶 Net vendeur : {net_calc} €")
 
-
-
-
-# ==== FIX AUTO PRIX (AJOUT) ====
-try:
-    prix_marche
-except:
-    prix_marche = 0
-
-try:
-    prix_marche_min
-except:
-    prix_marche_min = 0
-    prix_marche_max = 0
-    prix_bas_min = 0
-    prix_bas_max = 0
-    prix_haut_min = 0
-    prix_haut_max = 0
-# ==== FIN FIX ====
