@@ -402,22 +402,24 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 🔥 BASE = MARKET PRIORITAIRE
     base = None
-    if segment and annee in MARKET_TABLE.get(segment, {}):
-        base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-    # fallback dataset
-    if base is None:
-        for m, years in BASE_PRICES_V2.items():
-            if key == m or key.startswith(m):
-                if annee in years:
-                    base = years[annee]
-                else:
-                    closest = min(years.keys(), key=lambda x: abs(x - annee))
-                    base = years[closest]
-                break
+# ✅ PRIORITÉ DATASET MODÈLE
+for m, years in BASE_PRICES_V2.items():
+    if key == m or key.startswith(m):
+        if annee in years:
+            base = years[annee]
+        else:
+            closest = min(years.keys(), key=lambda x: abs(x - annee))
+            base = years[closest]
+        break
 
-    if base is None:
-        base = 15000
+# ✅ FALLBACK MARKET (seulement si modèle inconnu)
+if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+    base = interpolate_km(MARKET_TABLE[segment][annee], km)
+
+# fallback final
+if base is None:
+    base = 12000
 
     # 🔥 correction premium réaliste
     if segment == "premium":
