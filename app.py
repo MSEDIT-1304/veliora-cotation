@@ -696,11 +696,7 @@ with col_header_left:
     </div>
     """, unsafe_allow_html=True)
 
-with col_header_right:
-    if st.button("🚪 Déconnexion"):
-        st.session_state.logged = False
-        st.session_state.admin_logged = False
-        st.rerun()
+
 
 col1, col2 = st.columns([3,1])
 
