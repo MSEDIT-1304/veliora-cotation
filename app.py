@@ -954,11 +954,11 @@ else:
 net_marche = prix_vente - commission_calc
 
     # arrondi cohérent (comme prix affiché)
-    net_marche = int(round(net_marche / 10) * 10)
+net_marche = int(round(net_marche / 10) * 10)
 
     # sécurité si 0 commission
 if commission == 0 and commission_pct == 0:
-        net_marche = prix_vente
+net_marche = prix_vente
 
     # DUPLICATE DISPLAY REMOVED
 
