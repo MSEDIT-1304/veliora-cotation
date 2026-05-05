@@ -913,7 +913,7 @@ prix_marche_max = min(120000, base + 500)
 
 
     # ✅ historique (après calcul)
-    st.session_state.historique.insert(0, {
+st.session_state.historique.insert(0, {
     "prix_marche": f"{prix_marche_min} → {prix_marche_max}",
     "prix_bas_min": prix_bas_min,
     "prix_bas_max": prix_bas_max,
