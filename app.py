@@ -1,4 +1,4 @@
-import streamlit as st
+impoimport streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -394,49 +394,36 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     key = f"{marque} {modele}".strip()
     segment = detect_segment(key)
 
-    # 🔥 SECURITE PREMIUM
     if "q5" in key:
         segment = "premium"
 
-    
-
-    # 🔥 BASE = MARKET PRIORITAIRE
     base = None
 
-# ✅ PRIORITÉ DATASET MODÈLE
-for m, years in BASE_PRICES_V2.items():
-    if key == m or key.startswith(m):
-        if annee in years:
-            base = years[annee]
-        else:
-            closest = min(years.keys(), key=lambda x: abs(x - annee))
-            base = years[closest]
-        break
+    for m, years in BASE_PRICES_V2.items():
+        if key == m or key.startswith(m):
+            if annee in years:
+                base = years[annee]
+            else:
+                closest = min(years.keys(), key=lambda x: abs(x - annee))
+                base = years[closest]
+            break
 
-# ✅ FALLBACK MARKET (seulement si modèle inconnu)
-if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
-    base = interpolate_km(MARKET_TABLE[segment][annee], km)
+    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+        base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-# fallback final
-if base is None:
-    base = 12000
+    if base is None:
+        base = 12000
 
-    # 🔥 correction premium réaliste
     if segment == "premium":
         base *= 0.92
 
     coef = 1.0
 
-    # KM FIX
-    km_delta = (km - 90000) / 120000
-
-    # YEAR FIX
     if annee >= 2021:
         coef += min((annee - 2020) * 0.02, 0.08)
     elif annee < 2020:
         coef -= min((2020 - annee) * 0.03, 0.15)
 
-    # MOTOR
     power = re.findall(r'[0-9]{2,3}', motorisation)
     if power:
         p = int(power[0])
@@ -445,13 +432,11 @@ if base is None:
         elif p <= 100:
             coef -= 0.02
 
-    # FUEL
     if carburant == "Essence":
         coef += 0.01
     elif carburant == "Diesel":
         coef -= 0.005
 
-    # 🔥 FINITION PRO CLEAN
     finition_bonus = 0
 
     if any(x in finition for x in ["amg","rs","m sport","s line"]):
@@ -459,7 +444,6 @@ if base is None:
     elif any(x in finition for x in ["line","allure","intens","shine"]):
         finition_bonus = 0.04
 
-    # dataset uniquement si finition renseignée
     if finition:
         for m, (low, high) in FINITION_ADJUST.items():
             if m in key:
@@ -467,15 +451,12 @@ if base is None:
 
     coef += finition_bonus
 
-    # OPTIONS léger
     for opt in options:
         coef += 0.005
 
-    # AWD
     if transmission in ["4x4","AWD","4WD"]:
         coef += 0.02
 
-    # GEO
     if departement in ["75","92"]:
         coef += 0.02
     elif departement in ["08","23"]:
@@ -483,16 +464,17 @@ if base is None:
 
     price = base * coef
 
-    # 🔥 CLAMP V16 PREMIUM
     if segment == "premium":
         min_price = base * 0.90
         max_price = base * 1.25
     else:
         min_price = base * 0.92
         max_price = base * 1.15
+
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
+
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
