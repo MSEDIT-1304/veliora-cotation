@@ -712,7 +712,8 @@ with col1:
         st.rerun()
 
 with col2:
-    if  st.session_state.logged = False
+    if st.button("🚪 Se déconnecter"):
+        st.session_state.logged = False
         st.session_state.admin_logged = False
         st.rerun()
         st.session_state.reset_id += 1
@@ -1023,4 +1024,5 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+
 
