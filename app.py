@@ -445,14 +445,6 @@ OPTIONS_DETAIL_ADJUST={
 }
 
 
-
-price *= KM_ADJUST[km]
-price *= YEAR_ADJUST[annee]
-price *= MOTOR_ADJUST[moteur]
-price *= FUEL_ADJUST[energie]
-price *= FINISH_ADJUST[finition]
-price *= OPTIONS_ADJUST[options]
-
 GEO_ADJUST={
 "01":{"citadine":0.02,"compacte":0.03,"suv":0.04,"premium":0.06,"electrique":0.08},
 "02":{"citadine":-0.04,"compacte":-0.04,"suv":-0.02,"premium":0.00,"electrique":0.01},
