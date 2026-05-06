@@ -896,7 +896,51 @@ departement = st.text_input("Département (ex: 08)", key=f"dep_{rid}")
 commission = 0
 commission_pct = 0.0
 
-col_btn, col_txt = st.columns([1,2])
+# ================================
+# MOTEUR DE CALCUL IA
+# ================================
+
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission):
+
+    try:
+        base = BASE_PRICES_V2[modele][annee]
+    except:
+        return None
+
+    price = base
+
+    if km < 50000:
+        price *= 1.1
+    elif km < 100000:
+        price *= 1.0
+    elif km < 150000:
+        price *= 0.9
+    else:
+        price *= 0.8
+
+    if carburant == "Diesel":
+        price *= 1.05
+    elif carburant == "Hybride":
+        price *= 1.1
+    elif carburant == "Électrique":
+        price *= 1.15
+
+    if transmission in ["4x4", "AWD", "4WD"]:
+        price *= 1.1
+
+    if options:
+        price *= 1.05
+
+    if finition:
+        price *= 1.05
+
+    prix_min = int(price * 0.95)
+    prix_max = int(price * 1.05)
+
+    return prix_min, prix_max
+
+
+    col_btn, col_txt = st.columns([1,2])
 
 with col_btn:
     calcul = st.button("Calculer l'estimation")
@@ -908,6 +952,12 @@ with col_txt:
 if calcul:
 
     prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
+
+if prix_ai:
+    prix_min, prix_max = prix_ai
+    st.success(f"💰 Prix estimé : {prix_min}€ - {prix_max}€")
+else:
+    st.error("Impossible d’estimer le prix")
 
     prix_comparables = []
 
