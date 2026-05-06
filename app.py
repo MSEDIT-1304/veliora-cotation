@@ -45,6 +45,7 @@ except:
     model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
+categorie = st.selectbox("Catégorie", ["citadine","compacte","suv","premium"])
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
@@ -730,8 +731,6 @@ for item in st.session_state.historique:
     buffer_hist.write(f"Département : {item.get('departement','')}\n")
 
     buffer_hist.write(f"Prix marché : {item.get('prix_marche','')} €\n")
-    buffer_hist.write(f"Bas : {item.get('prix_bas_min','')} € → {item.get('prix_bas_max','')} €\n")
-    buffer_hist.write(f"Haut : {item.get('prix_haut_min','')} € → {item.get('prix_haut_max','')} €\n")
 
     buffer_hist.write(f"Date : {item.get('date','')}\n")
     buffer_hist.write("-----------------------------\n")
@@ -888,21 +887,13 @@ if calcul:
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
 
-    prix_bas_min = max(3000, base - 2000)
-    prix_bas_max = base - 1000
 
     prix_marche_affiche = base
 
-    prix_haut_min = base + 1000
-    prix_haut_max = min(120000, base + 2000)
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
     "prix_marche": prix_marche_affiche,
-    "prix_bas_min": prix_bas_min,
-    "prix_bas_max": prix_bas_max,
-    "prix_haut_min": prix_haut_min,
-    "prix_haut_max": prix_haut_max,
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
     "marque": marque,
@@ -948,13 +939,8 @@ if calcul:
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
     st.success(f"{prix_marche_affiche} €")
-    st.caption("(Prix marché estimé basé sur moyenne prix garage/suivant champs remplis.)")
+    st.caption("(prix marché estimé est une fourchette basée sur moyenne prix garage/suivant champs remplis/état du véhicule/entretiens.)")
 
-    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
-    st.caption("(véhicule plus anciens/sans entretiens réguliers/pocs/bosses/km élevés.)")
-
-    st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(véhicules plus récents/avec entretiens réguliers/finition luxe/options supplémentaires/km faibles.)")
     
 
 
@@ -962,12 +948,8 @@ if calcul:
     st.session_state.resultat = {
         "prix_vente": prix_vente,
         "net_marche": net_marche,
-        "prix_bas_min": prix_bas_min,
-        "prix_bas_max": prix_bas_max,
         
         
-        "prix_haut_min": prix_haut_min,
-        "prix_haut_max": prix_haut_max,
         "prix_marche_estime": prix_marche
     }
 
@@ -984,9 +966,6 @@ if calcul:
     buffer.write(f"Boîte : {boite}\n")
     buffer.write(f"\n===== PRIX =====\n")
     buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
-    buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
-    buffer.write(f"Prix marché : {prix_bas_min} € à {prix_haut_max} €\n")
-    buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
@@ -1011,3 +990,12 @@ if "resultat" in st.session_state:
 
         st.success(f"💶 Net vendeur : {net_calc} €")
 
+
+
+try:
+    price_market = int(price)
+    price_min = max(0, price_market - 1000)
+    price_max = price_market + 1000
+    st.success(f"Prix marché estimé : {price_min}€ → {price_max}€")
+except:
+    pass
