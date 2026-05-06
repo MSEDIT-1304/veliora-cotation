@@ -939,7 +939,6 @@ else:
 
     prix_comparables = []
 
-    if                     pass
 
     # 🔥 MODE STABLE (désactivation learning / scraping)
 
