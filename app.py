@@ -318,31 +318,25 @@ BASE_PRICES_V2 = {
 # ========================
 # MOTEUR CENTRAL (ajout)
 # ========================
-def calcul_prix_marche(modele, annee, km, categorie,
-                      coef_carburant=0.0,
-                      coef_options=0.0,
-                      coef_geo=0.0):
+def calcul_prix_marche(modele, annee, km, categorie, coef_carburant=0.0, coef_options=0.0, coef_geo=0.0):
     try:
         price = BASE_PRICES_V2[modele][annee]
     except:
         return None
 
-    # KM base 90000
     km_ref = 90000
     diff_km = km - km_ref
-    coef_km = (diff_km / 10000.0) * -0.02
+    coef_km = (diff_km / 10000) * -0.02
     price *= (1 + coef_km)
 
-    # Catégorie
     CAT = {
         "citadine": -0.05,
         "compacte": 0.0,
         "suv": 0.05,
         "premium": 0.10
     }
-    price *= (1 + CAT.get(categorie, 0.0))
 
-    # autres
+    price *= (1 + CAT.get(categorie, 0))
     price *= (1 + coef_carburant)
     price *= (1 + coef_options)
     price *= (1 + coef_geo)
