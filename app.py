@@ -901,6 +901,10 @@ commission_pct = 0.0
 # ================================
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission):
+    modele = str(modele).lower().strip()
+    marque = str(marque).lower().strip()
+    st.write("DEBUG MODELE:", modele)
+    st.write("DEBUG ANNEE:", annee)
 
     try:
         base = BASE_PRICES_V2[modele][annee]
