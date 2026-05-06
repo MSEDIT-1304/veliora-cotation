@@ -1001,15 +1001,41 @@ else:
 
    # 🔥 LOGIQUE PRO FOURCHETTE
 
-if 'prix_min' in locals() and 'prix_max' in locals():
+# 🔥 CALCUL PRIX SIMPLE ET FIABLE
+
+modele = str(modele).lower().strip()
+annee = int(annee)
+
+prix_min = None
+prix_max = None
+
+modele_trouve = None
+
+for key in BASE_PRICES_V2:
+    if key in modele:
+        modele_trouve = key
+        break
+
+if modele_trouve:
+    if annee in BASE_PRICES_V2[modele_trouve]:
+        prix_base = BASE_PRICES_V2[modele_trouve][annee]
+
+        prix_min = prix_base * 0.95
+        prix_max = prix_base * 1.05
+
+
+if prix_min is not None and prix_max is not None:
     prix_marche = (prix_min + prix_max) / 2
-    st.info(f"📊 Prix marché : {int(prix_marche)}€")
 
     base = int(round(prix_marche / 100) * 100)
 
+    prix_final_min = base - 500
+    prix_final_max = base + 500
+
+    st.success(f"💰 Prix marché estimé : {prix_final_min}€ - {prix_final_max}€")
+
 else:
     st.error("Impossible d’estimer le prix")
-    st.stop()
 
 
     prix_marche_affiche = base
