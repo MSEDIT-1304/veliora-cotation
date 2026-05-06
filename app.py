@@ -861,7 +861,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     st.write("DEBUG MODELE:", modele)
     st.write("DEBUG ANNEE:", annee)
 
-            return None
+    return None
 
     price = base
 
