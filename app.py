@@ -7,40 +7,16 @@ import io
 import os
 import unicodedata
 
-SCRAPER_API_KEY = None
 
 import json
 
-LEARNING_FILE = "learning_data.json"
 
-def load_learning_data():
-    if os.path.exists(LEARNING_FILE):
-        try:
-            with open(LEARNING_FILE, "r") as f:
-                return json.load(f)
-        except:
-            return {}
-    return {}
-
-def save_learning_data(data):
-    try:
-        with open(LEARNING_FILE, "w") as f:
-            json.dump(data, f)
-    except:
-        pass
-
-LEARNING_DATA = {}
-
-try:
-    get_leboncoin_prices = None  # scraper désactivé
 except:
     get_leboncoin_prices = None
 
 try:
-    import joblib
     model = None
     if os.path.exists("model.pkl"):
-        model = joblib.load("model.pkl")
 except:
     model = None
 
@@ -325,35 +301,6 @@ BASE_PRICES_V2 = {
 
 
 # MOTEUR CENTRAL (ajout)
-def calcul_prix_marche(modele, annee, km, categorie, coef_carburant=0.0, coef_options=0.0, coef_geo=0.0):
-    try:
-        price = BASE_PRICES_V2[modele][annee]
-    except:
-        return None
-
-    km_ref = 90000
-    diff_km = km - km_ref
-    coef_km = (diff_km / 10000) * -0.02
-    price *= (1 + coef_km)
-
-    CAT = {
-        "citadine": -0.05,
-        "compacte": 0.0,
-        "suv": 0.05,
-        "premium": 0.10
-    }
-
-    price *= (1 + CAT.get(categorie, 0))
-    price *= (1 + coef_carburant)
-    price *= (1 + coef_options)
-    price *= (1 + coef_geo)
-
-    return int(price)
-
-
-
-
-AWD_ADJUST={
 "base":"2020_90000km",
 "citadine":{30000:{2014:0.05,2016:0.08,2018:0.12,2021:0.18,2023:0.22,2024:0.25,2025:0.28},45000:{2014:0.02,2016:0.05,2018:0.08,2021:0.14,2023:0.18,2024:0.2,2025:0.22},60000:{2014:"-2%",2016:0.0,2018:0.03,2021:0.08,2023:0.12,2024:0.14,2025:0.16},75000:{2014:"-5%",2016:"-3%",2018:0.0,2021:0.05,2023:0.08,2024:0.1,2025:0.12},105000:{2014:"-10%",2016:"-8%",2018:"-5%",2021:"-2%",2023:0.02,2024:0.04,2025:0.06},120000:{2014:"-15%",2016:"-12%",2018:"-10%",2021:"-6%",2023:"-2%",2024:0.0,2025:0.02}},
 "compacte":{30000:{2014:0.08,2016:0.12,2018:0.16,2021:0.22,2023:0.26,2024:0.3,2025:0.35},45000:{2014:0.05,2016:0.08,2018:0.12,2021:0.18,2023:0.22,2024:0.25,2025:0.28},60000:{2014:0.0,2016:0.03,2018:0.06,2021:0.12,2023:0.16,2024:0.18,2025:0.2},75000:{2014:"-5%",2016:"-2%",2018:0.02,2021:0.08,2023:0.12,2024:0.14,2025:0.16},105000:{2014:"-10%",2016:"-7%",2018:"-5%",2021:0.0,2023:0.05,2024:0.07,2025:0.1},120000:{2014:"-15%",2016:"-12%",2018:"-10%",2021:"-5%",2023:0.0,2024:0.03,2025:0.05}},
@@ -555,205 +502,6 @@ GEO_ADJUST={
 
 
 
-def load_users():
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-    df = pd.read_csv(url)
-
-    df["username"] = df["username"].astype(str).str.strip()
-    df["password"] = df["password"].astype(str).str.strip()
-    df["expire"] = pd.to_datetime(df["expire"], errors="coerce")
-
-    return df
-
-def check_login(username, password):
-    df = load_users()
-
-    user = df[
-        (df["username"] == username.strip()) &
-        (df["password"] == password.strip())
-    ]
-
-    if not user.empty:
-        expire = user.iloc[0]["expire"]
-
-        if datetime.now() > expire:
-            return "expired"
-
-        return "ok"
-
-    return "error"
-
-def send_to_webhook(username, password, societe, siret):
-    expire = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-
-    data = {
-        "username": username,
-        "password": password,
-        "societe": societe,
-        "siret": siret,
-        "expire": expire,
-        "trial": True
-    }
-
-    try:
-        requests.post(WEBHOOK_URL, json=data, timeout=10)
-    except:
-        pass
-
-def clean_prices(prices):
-    if len(prices) < 5:
-        return prices
-
-    prices = sorted(prices)
-    median = statistics.median(prices)
-
-    filtered = [
-        p for p in prices
-        if (median * 0.6) <= p <= (median * 1.4)
-    ]
-
-    if len(filtered) < 3:
-        return prices
-
-    return filtered
-
-if "logged" not in st.session_state:
-    st.session_state.logged = False
-
-if "admin_logged" not in st.session_state:
-    st.session_state.admin_logged = False
-
-if "reset_id" not in st.session_state:
-    st.session_state.reset_id = 0
-
-if "historique" not in st.session_state:
-    st.session_state.historique = []
-
-if "show_history" not in st.session_state:
-    st.session_state.show_history = False
-
-if st.session_state.admin_logged:
-    st.session_state.logged = True
-
-if not st.session_state.logged:
-
-    st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
-    st.markdown("<h4>Essai gratuit 1 jour</h4>", unsafe_allow_html=True)
-
-    st.info(f"Après 1 jour d'essai : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
-
-    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
-    type_client = "Professionnel auto"
-    st.success("Compte professionnel requis")
-
-    email = st.text_input("Adresse email")
-    new_user = email
-    new_pass = st.text_input("Créer un mot de passe", type="password")
-
-    societe = st.text_input("Nom de la société")
-    siret = st.text_input("Numéro SIRET")
-
-    if st.button("Créer compte"):
-        if not societe or not siret:
-            st.error("SIRET obligatoire pour créer un compte")
-        elif new_user and new_pass:
-            send_to_webhook(new_user, new_pass, societe, siret)
-            st.session_state["temp_user"] = new_user.strip()
-            st.session_state["temp_pass"] = new_pass.strip()
-            st.success("Compte professionnel créé (connexion immédiate possible)")
-        else:
-            st.error("Remplir tous les champs")
-
-    st.markdown("---")
-
-    st.subheader("🔐 Connexion")
-
-    user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
-
-    if st.button("Se connecter"):
-
-        if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
-            st.session_state.logged = True
-            st.session_state.admin_logged = True
-            st.rerun()
-
-        # priorité utilisateur fraîchement créé
-        if "temp_user" in st.session_state and user.strip() == st.session_state["temp_user"] and pwd.strip() == st.session_state["temp_pass"]:
-            st.session_state.logged = True
-            st.rerun()
-
-        result = check_login(user, pwd)
-
-        if result == "ok":
-            st.session_state.logged = True
-            st.rerun()
-
-        elif result == "expired":
-            st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
-        else:
-            st.error("Identifiant incorrect")
-
-    st.stop()
-
-col_header_left, col_header_right = st.columns([4,1])
-
-with col_header_left:
-    st.markdown("""
-    <div style="display:flex; align-items:center; gap:12px;">
-        <div style="
-            width:38px;
-            height:38px;
-            border-radius:8px;
-            background:linear-gradient(135deg,#1f2937,#111827);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-weight:700;
-            color:white;
-        ">
-            V
-        </div>
-        <div>
-            <div style="font-size:22px; font-weight:600;">VELIORA</div>
-            <div style="font-size:13px; color:#9CA3AF;">
-                Cotation automobile intelligente
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-col1, col2 = st.columns([3,1])
-
-with col1:
-    if st.button("🔄 Nouvelle cotation (reset)"):
-        st.session_state.reset_id += 1
-        if "resultat" in st.session_state:
-            del st.session_state["resultat"]
-        st.rerun()
-
-with col2:
-    if st.button("🚪 Se déconnecter"):
-        st.session_state.logged = False
-        st.session_state.admin_logged = False
-        st.rerun()
-        st.session_state.reset_id += 1
-        if "resultat" in st.session_state:
-            del st.session_state["resultat"]
-        st.rerun()
-
-col2a, col2b = st.columns(2)
-
-with col2a:
-    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
-
-with col2b:
-    buffer_hist = io.StringIO()
-    buffer_hist.write("===== HISTORIQUE ESTIMATIONS =====\n\n")
 for item in st.session_state.historique:
     buffer_hist.write(f"{item.get('marque','')} {item.get('modele','')} {item.get('finition','')}\n")
     buffer_hist.write(f"{item.get('motorisation','')}\n")
@@ -794,51 +542,6 @@ if st.session_state.show_history:
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
 # 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
-def parse_title(title):
-    t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
-
-    result = {
-        "modele": "",
-        "motorisation": "",
-        "finition": "",
-        "carburant": ""
-    }
-
-    # MODELES
-    if "ds4" in t: result["modele"] = "ds4 crossback"
-    elif "ds3" in t: result["modele"] = "ds3 crossback"
-    elif "clio" in t: result["modele"] = "clio"
-    elif "golf" in t: result["modele"] = "golf"
-    elif "q5" in t: result["modele"] = "q5"
-    elif "x3" in t: result["modele"] = "x3"
-
-    # CARBURANT + MOTORISATION
-    if "ethanol" in t or "e85" in t:
-        result["motorisation"] = "ethanol"
-        result["carburant"] = "Essence"
-    elif "diesel" in t or "tdi" in t or "dci" in t:
-        result["motorisation"] = "diesel"
-        result["carburant"] = "Diesel"
-    elif "essence" in t or "tce" in t or "tsi" in t:
-        result["motorisation"] = "essence"
-        result["carburant"] = "Essence"
-    elif "hybride" in t:
-        result["carburant"] = "Hybride"
-    elif "electrique" in t:
-        result["carburant"] = "Électrique"
-
-    # FINITION
-    if "crossback" in t: result["finition"] = "crossback"
-    elif "s line" in t: result["finition"] = "s line"
-    elif "m sport" in t: result["finition"] = "m sport"
-    elif "intens" in t: result["finition"] = "intens"
-    elif "allure" in t: result["finition"] = "allure"
-
-    return result
-
-rid = st.session_state.reset_id
-
-# champ titre supprimé
 parsed = {}
 
 col1, col2 = st.columns(2)
@@ -900,55 +603,6 @@ commission_pct = 0.0
 # MOTEUR DE CALCUL IA
 # ================================
 
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission):
-    modele = str(modele).lower().strip()
-    marque = str(marque).lower().strip()
-    st.write("DEBUG MODELE:", modele)
-    st.write("DEBUG ANNEE:", annee)
-
-    try:
-        base = BASE_PRICES_V2[modele][annee]
-    except:
-        return None
-
-    price = base
-
-    if km < 50000:
-        price *= 1.1
-    elif km < 100000:
-        price *= 1.0
-    elif km < 150000:
-        price *= 0.9
-    else:
-        price *= 0.8
-
-    if carburant == "Diesel":
-        price *= 1.05
-    elif carburant == "Hybride":
-        price *= 1.1
-    elif carburant == "Électrique":
-        price *= 1.15
-
-    if transmission in ["4x4", "AWD", "4WD"]:
-        price *= 1.1
-
-    if options:
-        price *= 1.05
-
-    if finition:
-        price *= 1.05
-
-    prix_min = int(price * 0.95)
-    prix_max = int(price * 1.05)
-
-    return prix_min, prix_max
-
-
-    
-col_btn, col_txt = st.columns([1,2])
-
-with col_btn:
-    prix_ai = None
 prix_ai = None
 calcul = st.button("Calculer l'estimation")
 
@@ -997,7 +651,6 @@ else:
         except:
             pass
 
-    # 🔥 MODE STABLE (désactivation learning / scraping)
     
 
    # 🔥 LOGIQUE PRO FOURCHETTE
@@ -1107,72 +760,11 @@ if "resultat" in st.session_state:
 # 🔥 MOTEUR ESTIMATION PROPRE
 # =========================================
 
-def normalize(text):
-    if not text:
-        return ""
-    text = text.lower()
-    text = unicodedata.normalize('NFD', text)
-    return ''.join(c for c in text if unicodedata.category(c) != 'Mn')
-
-
-def get_base_price(modele, annee):
-    modele = normalize(modele)
-    return BASE_PRICES_V2.get(modele, {}).get(annee)
-
-
-def adjust_price(base_price, km):
-    if not base_price:
-        return None
-
-    if km < 50000:
-        coef = 1.05
-    elif km < 100000:
-        coef = 1.0
-    elif km < 150000:
-        coef = 0.9
-    else:
-        coef = 0.8
-
-    return int(base_price * coef)
-
-
-def estimate_price(modele, annee, km):
-    base = get_base_price(modele, annee)
-
-    if base:
-        return adjust_price(base, km), "base"
-
-    return None, "unknown"
-
-
-# =========================================
 # 🔥 HISTORIQUE CLEAN
 # =========================================
 
 HISTORY_FILE = "history.json"
 
-def load_history():
-    if os.path.exists(HISTORY_FILE):
-        try:
-            with open(HISTORY_FILE, "r") as f:
-                return json.load(f)
-        except:
-            return []
-    return []
-
-
-def save_history(entry):
-    data = load_history()
-    data.append(entry)
-
-    try:
-        with open(HISTORY_FILE, "w") as f:
-            json.dump(data, f)
-    except:
-        pass
-
-
-# =========================================
 # 🔥 UI SIMPLE
 # =========================================
 
@@ -1203,3 +795,15 @@ if st.button("Estimer"):
 
 
 
+
+
+# ===== CLEAN ENGINE =====
+def calculate_estimation(modele, annee, awd=0, finition=0, energie=0, options=0, km=0, motorisation=0):
+    modele = modele.lower().strip()
+    base_price = BASE_PRICES_V2.get(modele, {}).get(annee)
+
+    if base_price is None:
+        return None, None, None
+
+    estimation = base_price + awd + finition + energie + options + km + motorisation
+    return int(estimation), int(estimation - 500), int(estimation + 500)
