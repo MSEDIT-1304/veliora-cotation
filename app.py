@@ -45,7 +45,7 @@ except:
     model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
-categorie = st.selectbox("Catégorie", ["citadine","compacte","suv","premium"])
+
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
@@ -857,9 +857,11 @@ with col1:
     motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
-
-transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
-
+col1, col2 = st.columns(2)
+with col1:
+    transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
+with col2:
+    categorie = st.selectbox("Catégorie", ["citadine","compacte","suv","premium"], key=f"categorie_{rid}")
 col1, col2 = st.columns(2)
 with col1:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
