@@ -948,10 +948,30 @@ with col_btn:
 with col_txt:
     st.caption("Estimation basée sur algorithme marché — non contractuel")
 
-
 if calcul:
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
+    # 🔥 correction automatique du modèle
+    modele_clean = modele.lower()
+
+    for key in BASE_PRICES_V2:
+        if key in modele_clean:
+            modele_clean = key
+            break
+
+    # 🔥 appel corrigé
+    prix_ai = ai_price_engine(
+        marque,
+        modele_clean,
+        finition,
+        motorisation,
+        annee,
+        km,
+        carburant,
+        boite,
+        departement,
+        options,
+        transmission
+    )
 
 if prix_ai:
     prix_min, prix_max = prix_ai
@@ -970,10 +990,11 @@ else:
             pass
 
     # 🔥 MODE STABLE (désactivation learning / scraping)
-    prix_marche = prix_ai
+    
 
-    # 🔥 LOGIQUE PRO FOURCHETTE
-    base = int(round(prix_marche / 100) * 100)
+   # 🔥 LOGIQUE PRO FOURCHETTE
+   prix_marche = (prix_min + prix_max) / 2
+   base = int(round(prix_marche / 100) * 100)
 
 
     prix_marche_affiche = base
