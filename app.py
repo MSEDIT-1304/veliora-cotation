@@ -302,27 +302,29 @@ BASE_PRICES_V2 = {
 }
 
 # MOTEUR CENTRAL (ajout)
-def calcul_prix_marche(modele, annee, km, categorie, coef_carburant=0.0, coef_options=0.0, coef_geo=0.0):
-            return None
+def calculate_estimation(modele, annee, awd, finition, energie, options, km, motorisation):
+    modele = modele.lower().strip()
 
-    km_ref = 90000
-    diff_km = km - km_ref
-    coef_km = (diff_km / 10000) * -0.02
-    price *= (1 + coef_km)
+    base_price = BASE_PRICES_V2.get(modele, {}).get(annee)
 
-    CAT = {
-        "citadine": -0.05,
-        "compacte": 0.0,
-        "suv": 0.05,
-        "premium": 0.10
-    }
+    if base_price is None:
+        return None, None, None
 
-    price *= (1 + CAT.get(categorie, 0))
-    price *= (1 + coef_carburant)
-    price *= (1 + coef_options)
-    price *= (1 + coef_geo)
+    estimation = (
+        base_price
+        + awd
+        + finition
+        + energie
+        + options
+        + km
+        + motorisation
+    )
 
-    return int(price)
+    prix_min = estimation - 500
+    prix_max = estimation + 500
+
+    return int(estimation), int(prix_min), int(prix_max)
+    
 
 AWD_ADJUST={
 "base":"2020_90000km",
@@ -1051,22 +1053,6 @@ def get_base_price(modele, annee):
     modele = normalize(modele)
     return BASE_PRICES_V2.get(modele, {}).get(annee)
 
-def adjust_price(base_price, km):
-    if not base_price:
-        return None
-
-    if km < 50000:
-        coef = 1.05
-    elif km < 100000:
-        coef = 1.0
-    elif km < 150000:
-        coef = 0.9
-    else:
-        coef = 0.8
-
-    return int(base_price * coef)
-
-def estimate_price(modele, annee, km):
     base = get_base_price(modele, annee)
 
     if base:
