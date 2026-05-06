@@ -1,10 +1,4 @@
 import streamlit as st
-
-
-,
-    "208": {2020: 12500, 2019: 11500},
-    "golf": {2020: 18000, 2019: 17000}
-}
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
