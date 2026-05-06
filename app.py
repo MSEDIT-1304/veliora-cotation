@@ -444,7 +444,7 @@ OPTIONS_DETAIL_ADJUST={
 }
 }
 
-price = BASE_PRICES_V2[modele][annee]
+
 
 price *= KM_ADJUST[km]
 price *= YEAR_ADJUST[annee]
