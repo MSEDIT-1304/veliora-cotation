@@ -985,6 +985,7 @@ if calcul and prix_ai:
     st.success(f"💰 Prix estimé : {prix_min}€ - {prix_max}€")
 else:
     st.error("Impossible d’estimer le prix")
+    st.stop()
 
     prix_comparables = []
 
@@ -1000,45 +1001,6 @@ else:
     
 
    # 🔥 LOGIQUE PRO FOURCHETTE
-
-# 🔥 CALCUL PRIX SIMPLE ET FIABLE
-
-modele = str(modele).lower().strip()
-annee = int(annee)
-
-prix_min = None
-prix_max = None
-base = None
-
-modele_trouve = None
-
-for key in BASE_PRICES_V2:
-    if key in modele:
-        modele_trouve = key
-        break
-
-if modele_trouve:
-    if annee in BASE_PRICES_V2[modele_trouve]:
-        prix_base = BASE_PRICES_V2[modele_trouve][annee]
-
-        prix_min = prix_base * 0.95
-        prix_max = prix_base * 1.05
-
-
-if prix_min is not None and prix_max is not None:
-    prix_marche = (prix_min + prix_max) / 2
-
-    base = int(round(prix_marche / 100) * 100)
-
-    prix_final_min = base - 500
-    prix_final_max = base + 500
-
-    st.success(f"💰 Prix marché estimé : {prix_final_min}€ - {prix_final_max}€")
-    
-    prix_marche_affiche = base
-
-else:
-    st.error("Impossible d’estimer le prix")
     
 
 
@@ -1140,6 +1102,102 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
+        # =========================================
+# 🔥 MOTEUR ESTIMATION PROPRE
+# =========================================
+
+def normalize(text):
+    if not text:
+        return ""
+    text = text.lower()
+    text = unicodedata.normalize('NFD', text)
+    return ''.join(c for c in text if unicodedata.category(c) != 'Mn')
+
+
+def get_base_price(modele, annee):
+    modele = normalize(modele)
+    return BASE_PRICES_V2.get(modele, {}).get(annee)
+
+
+def adjust_price(base_price, km):
+    if not base_price:
+        return None
+
+    if km < 50000:
+        coef = 1.05
+    elif km < 100000:
+        coef = 1.0
+    elif km < 150000:
+        coef = 0.9
+    else:
+        coef = 0.8
+
+    return int(base_price * coef)
+
+
+def estimate_price(modele, annee, km):
+    base = get_base_price(modele, annee)
+
+    if base:
+        return adjust_price(base, km), "base"
+
+    return None, "unknown"
+
+
+# =========================================
+# 🔥 HISTORIQUE CLEAN
+# =========================================
+
+HISTORY_FILE = "history.json"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+
+def save_history(entry):
+    data = load_history()
+    data.append(entry)
+
+    try:
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(data, f)
+    except:
+        pass
+
+
+# =========================================
+# 🔥 UI SIMPLE
+# =========================================
+
+st.title("💰 Estimation véhicule")
+
+modele = st.text_input("Modèle (ex: Clio, Golf, A3)")
+annee = st.number_input("Année", min_value=2000, max_value=2025, step=1)
+km = st.number_input("Kilométrage", min_value=0, step=1000)
+
+if st.button("Estimer"):
+
+    prix, source = estimate_price(modele, annee, km)
+
+    if prix:
+        st.success(f"💸 Prix estimé : {prix} €")
+
+        save_history({
+            "date": str(datetime.now()),
+            "modele": modele,
+            "annee": annee,
+            "km": km,
+            "prix": prix
+        })
+
+    else:
+        st.error("❌ Modèle non reconnu")
 
 
 
