@@ -558,8 +558,6 @@ def send_to_webhook(username, password, societe, siret):
         "trial": True
     }
 
-            pass
-
 def clean_prices(prices):
     if len(prices) < 5:
         return prices
