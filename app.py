@@ -945,6 +945,7 @@ col_btn, col_txt = st.columns([1,2])
 
 with col_btn:
     prix_ai = None
+prix_ai = None
 calcul = st.button("Calculer l'estimation")
 
 with col_txt:
@@ -995,7 +996,9 @@ else:
     
 
     # 🔥 LOGIQUE PRO FOURCHETTE
-    prix_marche = (prix_min + prix_max) / 2
+    if 'prix_min' in locals() and 'prix_max' in locals():
+        prix_marche = (prix_min + prix_max) / 2
+        st.info(f"📊 Prix marché : {int(prix_marche)}€")
     base = int(round(prix_marche / 100) * 100)
 
 
