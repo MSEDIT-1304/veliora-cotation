@@ -1,4 +1,11 @@
 import streamlit as st
+
+
+BASE_PRICES_V2 = {
+    "clio": {2020: 12000, 2019: 11000},
+    "208": {2020: 12500, 2019: 11500},
+    "golf": {2020: 18000, 2019: 17000}
+}
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -940,7 +947,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     return prix_min, prix_max
 
 
-    col_btn, col_txt = st.columns([1,2])
+    
+col_btn, col_txt = st.columns([1,2])
 
 with col_btn:
     calcul = st.button("Calculer l'estimation")
