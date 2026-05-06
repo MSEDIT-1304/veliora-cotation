@@ -992,9 +992,9 @@ else:
     # 🔥 MODE STABLE (désactivation learning / scraping)
     
 
-   # 🔥 LOGIQUE PRO FOURCHETTE
-   prix_marche = (prix_min + prix_max) / 2
-   base = int(round(prix_marche / 100) * 100)
+    # 🔥 LOGIQUE PRO FOURCHETTE
+    prix_marche = (prix_min + prix_max) / 2
+    base = int(round(prix_marche / 100) * 100)
 
 
     prix_marche_affiche = base
