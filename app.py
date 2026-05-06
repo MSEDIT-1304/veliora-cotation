@@ -995,12 +995,14 @@ else:
     # 🔥 MODE STABLE (désactivation learning / scraping)
     
 
-    # 🔥 LOGIQUE PRO FOURCHETTE
-    if 'prix_min' in locals() and 'prix_max' in locals():
-        prix_marche = (prix_min + prix_max) / 2
-        st.info(f"📊 Prix marché : {int(prix_marche)}€")
-    if 'prix_marche' in locals() and prix_marche is not None:
+   # 🔥 LOGIQUE PRO FOURCHETTE
+
+if 'prix_min' in locals() and 'prix_max' in locals():
+    prix_marche = (prix_min + prix_max) / 2
+    st.info(f"📊 Prix marché : {int(prix_marche)}€")
+
     base = int(round(prix_marche / 100) * 100)
+
 else:
     st.error("Impossible d’estimer le prix")
     st.stop()
