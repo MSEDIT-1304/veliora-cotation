@@ -15,11 +15,11 @@ LEARNING_FILE = "learning_data.json"
 
 def load_learning_data():
     if os.path.exists(LEARNING_FILE):
-                    return {}
+        return {}
     return {}
 
 def save_learning_data(data):
-            pass
+    pass
 
 LEARNING_DATA = {}
 
