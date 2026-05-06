@@ -317,9 +317,8 @@ BASE_PRICES_V2 = {
 "toyota proace pickup":{2025:32000,2024:30000,2023:28000,2022:26000,2021:24000},
 }
 
-# ========================
+
 # MOTEUR CENTRAL (ajout)
-# ========================
 def calcul_prix_marche(modele, annee, km, categorie, coef_carburant=0.0, coef_options=0.0, coef_geo=0.0):
     try:
         price = BASE_PRICES_V2[modele][annee]
