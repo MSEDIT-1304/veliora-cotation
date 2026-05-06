@@ -1008,6 +1008,7 @@ annee = int(annee)
 
 prix_min = None
 prix_max = None
+base = None
 
 modele_trouve = None
 
@@ -1033,12 +1034,12 @@ if prix_min is not None and prix_max is not None:
     prix_final_max = base + 500
 
     st.success(f"💰 Prix marché estimé : {prix_final_min}€ - {prix_final_max}€")
+    
+    prix_marche_affiche = base
 
 else:
     st.error("Impossible d’estimer le prix")
-
-
-    prix_marche_affiche = base
+    
 
 
     # ✅ historique (après calcul)
