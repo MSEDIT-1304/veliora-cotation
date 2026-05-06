@@ -1071,8 +1071,7 @@ def load_history():
 def save_history(entry):
     data = load_history()
     data.append(entry)
-
-            pass
+    
 
 # =========================================
 # 🔥 UI SIMPLE
