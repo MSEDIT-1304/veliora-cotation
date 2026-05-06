@@ -861,7 +861,7 @@ col1, col2 = st.columns(2)
 with col1:
     transmission = st.selectbox("Transmission", ["", "4x2","Traction","Propulsion","4x4","AWD","4WD"], key=f"trans_{rid}")
 with col2:
-    categorie = st.selectbox("Catégorie", ["citadine","compacte","suv","premium"], key=f"categorie_{rid}")
+    categorie = st.selectbox("Catégorie", ["citadine","compacte","suv","premium","berline"], key=f"categorie_{rid}")
 col1, col2 = st.columns(2)
 with col1:
     boite = st.selectbox("Boîte", ["Manuelle","Automatique"], key=f"boite_{rid}")
