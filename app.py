@@ -1006,7 +1006,7 @@ else:
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
-    "prix_marche": prix_marche_affiche,
+    "prix_marche": base,
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
     "marque": marque,
@@ -1102,7 +1102,8 @@ if "resultat" in st.session_state:
         net_calc = int(round(net_calc / 10) * 10)
 
         st.success(f"💶 Net vendeur : {net_calc} €")
-        # =========================================
+        
+# =========================================
 # 🔥 MOTEUR ESTIMATION PROPRE
 # =========================================
 
