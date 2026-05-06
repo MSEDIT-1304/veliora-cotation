@@ -1,4 +1,10 @@
 import streamlit as st
+
+
+,
+    "208": {2020: 12500, 2019: 11500},
+    "golf": {2020: 18000, 2019: 17000}
+}
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
@@ -944,7 +950,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 col_btn, col_txt = st.columns([1,2])
 
 with col_btn:
-    calcul = st.button("Calculer l'estimation")
+    prix_ai = None
+calcul = st.button("Calculer l'estimation")
 
 with col_txt:
     st.caption("Estimation basée sur algorithme marché — non contractuel")
@@ -974,7 +981,7 @@ if calcul:
         transmission
     )
 
-if prix_ai:
+if calcul and prix_ai:
     prix_min, prix_max = prix_ai
     st.success(f"💰 Prix estimé : {prix_min}€ - {prix_max}€")
 else:
