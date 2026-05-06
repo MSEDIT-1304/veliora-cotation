@@ -1080,6 +1080,7 @@ def save_history(entry):
 st.title("💰 Estimation véhicule")
 
 modele = st.text_input("Modèle (ex: Clio, Golf, A3)")
+modele = modele.lower().strip()
 annee = st.number_input("Année", min_value=2000, max_value=2025, step=1)
 km = st.number_input("Kilométrage", min_value=0, step=1000)
 
