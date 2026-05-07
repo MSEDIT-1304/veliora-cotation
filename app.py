@@ -571,7 +571,7 @@ if base is None:
         
     price = max(min_price, min(price, max_price))
 
-return int(max(4000, min(price, 120000)))
+    return int(max(4000, min(price, 120000)))
 
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
