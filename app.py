@@ -669,7 +669,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # KM FIX
     km_delta = (km - 90000) / 120000
-
+    coef -= km_delta * 0.12
     # YEAR FIX
     if annee >= 2021:
         coef += min((annee - 2020) * 0.02, 0.08)
