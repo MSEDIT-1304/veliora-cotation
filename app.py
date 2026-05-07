@@ -426,6 +426,7 @@ def interpolate_km(table_km, km):
     return None
 
 import unicodedata, re
+
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
@@ -448,23 +449,21 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     if "q5" in key:
         segment = "premium"
 
-    
+    # =========================
+    # 🔥 BASE MULTI SOURCE PRO
+    # =========================
+    base = None
 
-# =========================
-# 🔥 BASE MULTI SOURCE PRO
-# =========================
-base = None
-
-# 1️⃣ PRIORITÉ DATASET OPEL
-if key:
-    for m, years in OPEL_DATASET.items():
-        if m in key:
-            if annee in years:
-                base = years[annee]
-            else:
-                closest = min(years.keys(), key=lambda x: abs(x - annee))
-                base = years[closest]
-            break
+    # 1️⃣ PRIORITÉ DATASET OPEL
+    if key:
+        for m, years in OPEL_DATASET.items():
+            if m in key:
+                if annee in years:
+                    base = years[annee]
+                else:
+                    closest = min(years.keys(), key=lambda x: abs(x - annee))
+                    base = years[closest]
+                break
 
 # 2️⃣ BASE V2
 if base is None:
@@ -502,16 +501,21 @@ if base is None:
 
     # MOTOR
     power = re.findall(r'[0-9]{2,3}', motorisation)
+    
     if power:
+        
         p = int(power[0])
+        
         if p >= 180:
             coef += 0.02
+            
         elif p <= 100:
             coef -= 0.02
 
     # FUEL
     if carburant == "Essence":
         coef += 0.01
+        
     elif carburant == "Diesel":
         coef -= 0.005
 
@@ -525,7 +529,9 @@ if base is None:
 
     # dataset uniquement si finition renseignée
     if finition:
+        
         for m, (low, high) in FINITION_ADJUST.items():
+            
             if m in key:
                 finition_bonus = max(finition_bonus, (low + high) / 2)
 
@@ -534,6 +540,7 @@ if base is None:
     # 🔥 BONUS OPEL SPECIFIQUE
     if "gs line" in finition:
         coef += 0.06
+        
     if boite == "Automatique":
         coef += 0.04
 
@@ -561,6 +568,7 @@ if base is None:
     else:
         min_price = base * 0.92
         max_price = base * 1.15
+        
     price = max(min_price, min(price, max_price))
 
     return int(max(4000, min(price, 120000)))
