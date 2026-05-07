@@ -637,7 +637,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     # 2️⃣ BASE V2
     if base is None:
-        for m, years in BASE_PRICES_V2.items():
+        for m, years in FULL_DATASET.items():
             if key == m or key.startswith(m):
                 if annee in years:
                    base = years[annee]
