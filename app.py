@@ -175,7 +175,28 @@ Astra;2016;10000;9500;9000;8200;7500;6800;6400
 Astra;2015;9000;8500;8000;7200;6500;6000;5500
 Astra;2014;8200;7800;7300;6600;6000;5500;5000
 """
+def build_opel_dataset(raw):
+    data = {}
+    for line in raw.strip().split("\n"):
+        parts = line.split(";")
+        if len(parts) < 3:
+            continue
 
+        model = parts[0].strip().lower()
+        year = int(parts[1])
+
+        prices = list(map(int, parts[2:]))
+        price = prices[len(prices)//2]
+
+        if model not in data:
+            data[model] = {}
+
+        data[model][year] = price
+
+    return data
+
+
+OPEL_DATASET = build_opel_dataset(OPEL_DATASET_RAW)
 # DATASET 100+ MODELES SANS DOUBLONS
 
 # 🔥 KM ADJUST PRO (90k référence)
@@ -430,24 +451,39 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
 
-    # 🔥 BASE = MARKET PRIORITAIRE
-    base = None
-    if segment and annee in MARKET_TABLE.get(segment, {}):
-        base = interpolate_km(MARKET_TABLE[segment][annee], km)
+    # =========================
+# 🔥 BASE MULTI SOURCE PRO
+# =========================
+base = None
 
-    # fallback dataset
-    if base is None:
-        for m, years in BASE_PRICES_V2.items():
-            if key == m or key.startswith(m):
-                if annee in years:
-                    base = years[annee]
-                else:
-                    closest = min(years.keys(), key=lambda x: abs(x - annee))
-                    base = years[closest]
-                break
+# 1️⃣ PRIORITÉ DATASET OPEL
+for m, years in OPEL_DATASET.items():
+    if m in key:
+        if annee in years:
+            base = years[annee]
+        else:
+            closest = min(years.keys(), key=lambda x: abs(x - annee))
+            base = years[closest]
+        break
 
-    if base is None:
-        base = 15000
+# 2️⃣ BASE V2
+if base is None:
+    for m, years in BASE_PRICES_V2.items():
+        if key == m or key.startswith(m):
+            if annee in years:
+                base = years[annee]
+            else:
+                closest = min(years.keys(), key=lambda x: abs(x - annee))
+                base = years[closest]
+            break
+
+# 3️⃣ MARKET fallback
+if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+    base = interpolate_km(MARKET_TABLE[segment][annee], km)
+
+# 4️⃣ DEFAULT
+if base is None:
+    base = 15000
 
     # 🔥 correction premium réaliste
     if segment == "premium":
