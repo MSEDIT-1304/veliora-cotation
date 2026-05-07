@@ -425,12 +425,11 @@ def interpolate_km(table_km, km):
             return int(v1 + (v2 - v1) * ratio)
     return None
 
+import unicodedata, re
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
         options = []
-
-    import unicodedata, re
 
     def norm(s):
         if not s:
@@ -451,20 +450,21 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
 
     
 
-    # =========================
+# =========================
 # 🔥 BASE MULTI SOURCE PRO
 # =========================
 base = None
 
 # 1️⃣ PRIORITÉ DATASET OPEL
-for m, years in OPEL_DATASET.items():
-    if m in key:
-        if annee in years:
-            base = years[annee]
-        else:
-            closest = min(years.keys(), key=lambda x: abs(x - annee))
-            base = years[closest]
-        break
+if key:
+    for m, years in OPEL_DATASET.items():
+        if m in key:
+            if annee in years:
+                base = years[annee]
+            else:
+                closest = min(years.keys(), key=lambda x: abs(x - annee))
+                base = years[closest]
+            break
 
 # 2️⃣ BASE V2
 if base is None:
