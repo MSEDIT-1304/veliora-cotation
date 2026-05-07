@@ -465,24 +465,24 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
                     base = years[closest]
                 break
 
-# 2️⃣ BASE V2
-if base is None:
-    for m, years in BASE_PRICES_V2.items():
-        if key == m or key.startswith(m):
-            if annee in years:
-                base = years[annee]
-            else:
-                closest = min(years.keys(), key=lambda x: abs(x - annee))
-                base = years[closest]
-            break
+    # 2️⃣ BASE V2
+    if base is None:
+        for m, years in BASE_PRICES_V2.items():
+            if key == m or key.startswith(m):
+                if annee in years:
+                   base = years[annee]
+                else:
+                    closest = min(years.keys(), key=lambda x: abs(x - annee))
+                    base = years[closest]
+                break
 
-# 3️⃣ MARKET fallback
-if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
-    base = interpolate_km(MARKET_TABLE[segment][annee], km)
+    # 3️⃣ MARKET fallback
+    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
+        base = interpolate_km(MARKET_TABLE[segment][annee], km)
 
-# 4️⃣ DEFAULT
-if base is None:
-    base = 15000
+    # 4️⃣ DEFAULT
+    if base is None:
+        base = 15000
 
     # 🔥 correction premium réaliste
     if segment == "premium":
