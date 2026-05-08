@@ -601,6 +601,41 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         if m in key:
             modele = m
             break
+    base = 10000
+
+    if modele in FULL_DATASET:
+        if annee in FULL_DATASET[modele]:
+            base = FULL_DATASET[modele][annee]
+
+    price = base
+
+    # correction km réaliste V2
+
+    if km > 250000:
+        price -= 5000
+
+    elif km > 200000:
+        price -= 4000
+
+    elif km > 170000:
+        price -= 3000
+
+    elif km > 140000:
+        price -= 2200
+
+    elif km > 110000:
+        price -= 1500
+
+    elif km > 90000:
+        price -= 800
+
+    elif km < 30000:
+        price += 2500
+
+    elif km < 60000:
+        price += 1500
+
+    return int(price)
 
     
 def prix_psy(prix):
@@ -817,8 +852,6 @@ for item in st.session_state.historique:
     buffer_hist.write(f"Options : {item.get('options','')}\n")
     buffer_hist.write(f"Département : {item.get('departement','')}\n")
     buffer_hist.write(f"Prix marché : {item.get('prix_marche','')} €\n")
-    buffer_hist.write(f"Bas : {item.get('prix_bas_min','')} € → {item.get('prix_bas_max','')} €\n")
-    buffer_hist.write(f"Haut : {item.get('prix_haut_min','')} € → {item.get('prix_haut_max','')} €\n")
     buffer_hist.write(f"Date : {item.get('date','')}\n")
     buffer_hist.write("-----------------------------\n")
 
@@ -986,10 +1019,7 @@ if calcul:
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
     "prix_marche": prix_marche_affiche,
-    "prix_bas_min": prix_bas_min,
-    "prix_bas_max": prix_bas_max,
-    "prix_haut_min": prix_haut_min,
-    "prix_haut_max": prix_haut_max,
+   
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
     "marque": marque,
@@ -1044,17 +1074,18 @@ if calcul:
     
     st.markdown(f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", "."))
 
-    
-    
-
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
+    
         "prix_vente": prix_vente,
         "net_marche": net_marche,
-        
-        "prix_marche_estime": prix_marche
-    }
+
+        "prix_marche_estime": prix_marche,
+
+        "bas_affiche": bas_affiche,
+        "haut_affiche": haut_affiche
+}
 
     buffer = io.StringIO()
     buffer.write("===== ESTIMATION VÉHICULE =====\n")
