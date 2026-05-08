@@ -575,18 +575,6 @@ MARKET_TABLE = {
     }
 }
 
-def detect_segment(key):
-    if any(x in key for x in ["clio","208","corsa","i20","polo"]):
-        return "citadine"
-    elif any(x in key for x in ["megane","308","golf","focus"]):
-        return "compacte"
-    elif any(x in key for x in ["3008","qashqai","tucson","kuga"]):
-        return "suv"
-    elif any(x in key for x in ["q5","x3","x5","q7","glc","xc60"]):
-        return "premium"
-    elif any(x in key for x in ["audi","bmw","mercedes","tesla","volvo"]):
-        return "premium"
-    return "compacte"
 
 def interpolate_km(table_km, km):
     kms = sorted(table_km.keys())
@@ -614,26 +602,7 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
             modele = m
             break
 
-    base = 10000
-
-    if modele in FULL_DATASET:
-        if annee in FULL_DATASET[modele]:
-            base = FULL_DATASET[modele][annee]
-
-    price = base
-
-    # correction kilométrage légère
-    if km > 180000:
-        price -= 700
-
-    elif km > 140000:
-        price -= 400
-
-    elif km < 60000:
-        price += 500
-
-    return int(price)
-
+    
 def prix_psy(prix):
     return int(prix / 100) * 100 - 10
 
@@ -884,6 +853,7 @@ if st.session_state.show_history:
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
 # 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
+
 def parse_title(title):
     t = unicodedata.normalize('NFD', title.lower()).encode('ascii','ignore').decode('utf-8')
 
@@ -1012,13 +982,6 @@ if calcul:
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
 
-    prix_bas_min = max(3000, base - 2000)
-    prix_bas_max = base - 1000
-
-    prix_marche_affiche = base
-
-    prix_haut_min = base + 1000
-    prix_haut_max = min(120000, base + 2000)
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
@@ -1047,8 +1010,6 @@ if calcul:
 
     st.session_state.historique = st.session_state.historique[:20]
 
-
-    
 
     prix_vente = prix_psy(prix_marche)
 
@@ -1091,12 +1052,7 @@ if calcul:
     st.session_state.resultat = {
         "prix_vente": prix_vente,
         "net_marche": net_marche,
-        "prix_bas_min": prix_bas_min,
-        "prix_bas_max": prix_bas_max,
         
-        
-        "prix_haut_min": prix_haut_min,
-        "prix_haut_max": prix_haut_max,
         "prix_marche_estime": prix_marche
     }
 
