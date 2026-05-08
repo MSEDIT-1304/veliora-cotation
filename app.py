@@ -399,17 +399,17 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     price = base
 
     # correction km réaliste (base dataset = 90 000 km)
-       if km > 90000:
-           correction_km = int((90000 - km) * 0.30)
+    if km > 90000:
+        correction_km = int((90000 - km) * 0.30)
 
-       else:
-           correction_km = int((90000 - km) * 0.03)
+    else:
+        correction_km = int((90000 - km) * 0.03)
 
-       price = base + correction_km
+    price = base + correction_km
 
    
 
-       return int(price)
+    return int(price)
 
     
 def prix_psy(prix):
