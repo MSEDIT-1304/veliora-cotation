@@ -696,15 +696,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif carburant == "Diesel":
 
         if annee <= 2018:
-            coef -= 0.06
+            coef = 0.02
         else:
-            coef -= 0.02
+            coef = 0.00
 
     # 🔥 FINITION PRO CLEAN
     finition_bonus = 0
 
     if any(x in finition for x in ["amg","rs","m sport","s line"]):
-        finition_bonus = 0.12
+        finition_bonus = 0.03
     elif any(x in finition for x in ["line","allure","intens","shine"]):
         finition_bonus = 0.04
 
@@ -1205,7 +1205,7 @@ if calcul:
     bas_affiche = prix_estime - 800
     haut_affiche = prix_estime + 800
     
-    st.markdown(f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €")
+    st.markdown(f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", "."))
 
     
     
