@@ -671,38 +671,7 @@ def parse_title(title):
         "carburant": ""
     }
 
-    # MODELES
-    if "ds4" in t: result["modele"] = "ds4 crossback"
-    elif "ds3" in t: result["modele"] = "ds3 crossback"
-    elif "clio" in t: result["modele"] = "clio"
-    elif "golf" in t: result["modele"] = "golf"
-    elif "q5" in t: result["modele"] = "q5"
-    elif "x3" in t: result["modele"] = "x3"
-
-    # CARBURANT + MOTORISATION
-    if "ethanol" in t or "e85" in t:
-        result["motorisation"] = "ethanol"
-        result["carburant"] = "Essence"
-    elif "diesel" in t or "tdi" in t or "dci" in t:
-        result["motorisation"] = "diesel"
-        result["carburant"] = "Diesel"
-    elif "essence" in t or "tce" in t or "tsi" in t:
-        result["motorisation"] = "essence"
-        result["carburant"] = "Essence"
-    elif "hybride" in t:
-        result["carburant"] = "Hybride"
-    elif "electrique" in t:
-        result["carburant"] = "Électrique"
-
-    # FINITION
-    if "crossback" in t: result["finition"] = "crossback"
-    elif "s line" in t: result["finition"] = "s line"
-    elif "m sport" in t: result["finition"] = "m sport"
-    elif "intens" in t: result["finition"] = "intens"
-    elif "allure" in t: result["finition"] = "allure"
-
-    return result
-
+    
 rid = st.session_state.reset_id
 
 # champ titre supprimé
@@ -774,8 +743,6 @@ if calcul:
     st.write("PRIX AI =", prix_ai)
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
-    prix_marche = prix_ai
-    st.write("PRIX MARCHE =", prix_marche)
    
     # 🔥 LOGIQUE PRO FOURCHETTE
     base = int(round(prix_marche / 100) * 100)
