@@ -604,54 +604,20 @@ def interpolate_km(table_km, km):
 
 import unicodedata, re
 
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
-    import unicodedata
+    def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
-    def norm(s):
-        if not s:
-            return ""
+    modele = modele.lower().strip()
 
-        return unicodedata.normalize(
-            'NFD',
-            s.lower()
-        ).encode('ascii', 'ignore').decode('utf-8')
+    base = 10000
 
-    modele = norm(modele)
-
-    # =========================
-    # DATASET UNIQUEMENT
-    # =========================
-
-    base = None
-
-    for m, years in FULL_DATASET.items():
-
-        if modele == m or modele.startswith(m):
-
-            if annee in years:
-                base = years[annee]
-
-            else:
-                closest = min(
-                    years.keys(),
-                    key=lambda x: abs(x - annee)
-                )
-
-                base = years[closest]
-
-            break
-
-    # sécurité
-    if base is None:
-        base = 10000
-
-    # =========================
-    # CORRECTION KM LEGERE
-    # =========================
+    if modele in FULL_DATASET:
+        if annee in FULL_DATASET[modele]:
+            base = FULL_DATASET[modele][annee]
 
     price = base
 
+    # correction kilométrage légère
     if km > 180000:
         price -= 700
 
