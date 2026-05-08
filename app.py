@@ -1018,7 +1018,7 @@ if calcul:
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
-    "prix_marche": prix_marche_affiche,
+    "prix_marche": prix_marche
    
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
@@ -1063,11 +1063,11 @@ if calcul:
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
     
-    st.success(f"{prix_marche_affiche} €")
+    st.success(f"{prix_marche} €")
     
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
     
-    prix_estime = round(prix_marche_affiche / 10) * 10
+    prix_estime = round(prix_marche / 10) * 10
 
     bas_affiche = prix_estime - 800
     haut_affiche = prix_estime + 800
@@ -1081,7 +1081,7 @@ if calcul:
         "prix_vente": prix_vente,
         "net_marche": net_marche,
 
-        "prix_marche_estime": prix_marche,
+        "prix_marche": prix_marche,
 
         "bas_affiche": bas_affiche,
         "haut_affiche": haut_affiche
@@ -1100,9 +1100,8 @@ if calcul:
     buffer.write(f"Boîte : {boite}\n")
     buffer.write(f"\n===== PRIX =====\n")
     buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
-    buffer.write(f"Prix bas : {prix_bas_min} € à {prix_bas_max} €\n")
-    buffer.write(f"Prix marché : {prix_bas_min} € à {prix_haut_max} €\n")
-    buffer.write(f"Prix haut : {prix_haut_min} € à {prix_haut_max} €\n")
+    buffer.write(f"Prix marché estimé : {prix_marche} €\n")
+    buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
