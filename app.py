@@ -377,7 +377,7 @@ OPEL_DATASET = build_opel_dataset(OPEL_DATASET_RAW)
 # DATASET 100+ MODELES SANS DOUBLONS
 
 
-}
+
 
 
 import unicodedata, re
