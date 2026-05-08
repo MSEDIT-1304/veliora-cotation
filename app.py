@@ -695,10 +695,10 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         
     elif carburant == "Diesel":
 
-    if annee <= 2018:
-        coef -= 0.06
-    else:
-        coef -= 0.02
+        if annee <= 2018:
+            coef -= 0.06
+        else:
+            coef -= 0.02
 
     # 🔥 FINITION PRO CLEAN
     finition_bonus = 0
