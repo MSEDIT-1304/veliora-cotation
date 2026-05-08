@@ -376,222 +376,11 @@ def build_opel_dataset(raw):
 OPEL_DATASET = build_opel_dataset(OPEL_DATASET_RAW)
 # DATASET 100+ MODELES SANS DOUBLONS
 
-# 🔥 KM ADJUST PRO (90k référence)
-KM_ADJUST = {
-    "i20":1500,
-    "twingo":1500,"c1":1500,"i10":1500,"corsa":1500,"fiesta":1500,"clio":1500,"208":1500,
-    "polo":1500,"ibiza":1500,"megane":1500,
-    "308":2000,"focus":2000,"ceed":2000,"i30":2000,"2008":2000,
-    "3008":2500,"5008":2500,"qashqai":2500,"karoq":2500,"ateca":2500,"golf":2500,
-    "x1":2500,"xc40":2500,
-    "tucson":3000,"sportage":3000,"kuga":3000,"c5 aircross":3000,
-    "a3":3000,"serie 1":3000,
-    "classe a":3500,"serie 3":3500,"x3":3500,"q5":3500,
-    "xc60":4000,
-    "x5":5500,"q7":5500
+
 }
 
-# 🔥 GLOBAL YEAR ADJUST (PRO 2025)
-GLOBAL_YEAR = {
-    2021: 0.08,
-    2022: 0.12,
-    2023: 0.22,
-    2024: 0.10,
-    2025: 0.12
-}
-
-# 🔥 YEAR ADJUST PRO (base 2020)
-YEAR_ADJUST = {
-    "x5": {"2019": -0.10, "2021": 0.15, "2023": 0.36},
-    "q7": {"2019": -0.10, "2021": 0.15, "2023": 0.36},
-
-    "corsa": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
-    "clio": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
-    "208": {"2019": -0.09, "2021": 0.17, "2023": 0.40},
-
-    "3008": {"2019": -0.08, "2021": 0.19, "2023": 0.42},
-    "5008": {"2019": -0.08, "2021": 0.19, "2023": 0.42},
-
-    "x3": {"2019": -0.11, "2021": 0.17, "2023": 0.42},
-    "q5": {"2019": -0.11, "2021": 0.17, "2023": 0.42},
-
-    "c1": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
-    "i10": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
-    "twingo": {"2019": -0.10, "2021": 0.15, "2023": 0.44},
-}
-
-# 🔥 FINITION ADJUST PRO
-FINITION_ADJUST = {
-    "c1": (0.12,0.18),"i10": (0.12,0.18),"twingo": (0.12,0.18),
-
-    "corsa": (0.15,0.22),"fiesta": (0.15,0.22),"c3": (0.15,0.22),"clio": (0.15,0.22),
-    "208": (0.15,0.22),"i20": (0.15,0.22),"ibiza": (0.15,0.22),"polo": (0.15,0.22),
-
-    "megane": (0.18,0.25),"308": (0.18,0.25),"focus": (0.18,0.25),
-    "ceed": (0.18,0.25),"i30": (0.18,0.25),"golf": (0.18,0.25),
-
-    "3008": (0.20,0.30),"5008": (0.22,0.32),"qashqai": (0.20,0.30),
-    "tucson": (0.20,0.30),"sportage": (0.20,0.30),
-
-    "a3": (0.18,0.28),"serie 1": (0.18,0.28),"classe a": (0.18,0.28),
-
-    "serie 3": (0.20,0.30),"x3": (0.25,0.35),"q5": (0.25,0.35),
-    "x5": (0.20,0.28),"q7": (0.20,0.28)
-}
-
-# 🔥 OPTIONS LUXE ADJUST PRO
-OPTIONS_ADJUST = {
-    "toit panoramique": (0.05,0.10),
-    "sieges chauffants": (0.03,0.06),
-    "sieges electriques": (0.04,0.08),
-    "cuir": (0.06,0.12),
-    "gps": (0.04,0.08),
-    "camera recul": (0.02,0.04),
-    "camera 360": (0.04,0.07),
-    "adas": (0.05,0.10),
-    "regulateur adaptatif": (0.04,0.08),
-    "audio premium": (0.03,0.06),
-    "jantes": (0.02,0.05),
-    "keyless": (0.03,0.06),
-    "hayon electrique": (0.03,0.06),
-    "sieges ventiles": (0.04,0.07),
-    "hud": (0.03,0.06),
-    "suspension pilotee": (0.05,0.10)
-}
-
-# 🔥 OPTIONS YEAR ADJUST PRO
-OPTIONS_YEAR = {
-    "toit panoramique": {"2019":0.04,"2021":0.07,"2023":0.10},
-    "sieges chauffants": {"2019":0.02,"2021":0.04,"2023":0.06},
-    "sieges electriques": {"2019":0.03,"2021":0.05,"2023":0.08},
-    "cuir": {"2019":0.05,"2021":0.08,"2023":0.12},
-    "gps": {"2019":0.03,"2021":0.06,"2023":0.09},
-    "camera recul": {"2019":0.01,"2021":0.03,"2023":0.04},
-    "camera 360": {"2019":0.03,"2021":0.05,"2023":0.07},
-    "adas": {"2019":0.04,"2021":0.07,"2023":0.10},
-    "regulateur adaptatif": {"2019":0.03,"2021":0.06,"2023":0.09},
-    "audio premium": {"2019":0.02,"2021":0.04,"2023":0.06},
-    "jantes": {"2019":0.01,"2021":0.03,"2023":0.05},
-    "keyless": {"2019":0.02,"2021":0.04,"2023":0.06},
-    "hayon electrique": {"2019":0.02,"2021":0.04,"2023":0.06},
-    "sieges ventiles": {"2019":0.03,"2021":0.05,"2023":0.07},
-    "hud": {"2019":0.02,"2021":0.04,"2023":0.06},
-    "suspension pilotee": {"2019":0.04,"2021":0.07,"2023":0.10}
-}
-
-# 🔥 AWD / 4x4 ADJUST PRO
-AWD_ADJUST = {
-    "citadine": (0.08,0.15),
-    "compacte": (0.06,0.12),
-    "suv": (0.07,0.15),
-    "premium": (0.08,0.12),
-    "electrique": (0.10,0.20)
-}
-
-# 🔥 GEO ADJUST (DEPARTEMENT)
-GEO_ADJUST = {
-    "75": {"citadine":0.12,"compacte":0.12,"suv":0.14,"premium":0.18,"electrique":0.20},
-    "92": {"citadine":0.10,"compacte":0.10,"suv":0.12,"premium":0.16,"electrique":0.18},
-    "69": {"citadine":0.06,"compacte":0.07,"suv":0.09,"premium":0.12,"electrique":0.14},
-    "13": {"citadine":0.06,"compacte":0.07,"suv":0.09,"premium":0.12,"electrique":0.15},
-    "33": {"citadine":0.05,"compacte":0.06,"suv":0.08,"premium":0.10,"electrique":0.13},
-    "44": {"citadine":0.04,"compacte":0.05,"suv":0.07,"premium":0.09,"electrique":0.11},
-    "01": {"citadine":0.03,"compacte":0.04,"suv":0.06,"premium":0.08,"electrique":0.10},
-    "08": {"citadine":-0.05,"compacte":-0.05,"suv":-0.07,"premium":-0.09,"electrique":-0.10},
-    "23": {"citadine":-0.08,"compacte":-0.07,"suv":-0.09,"premium":-0.12,"electrique":-0.15}
-}
-
-# 🔥 DEPRECIATION YEARS < 2020
-DEPRECIATION_THERMIQUE = {
-    2019: -0.07, 2018: -0.14, 2017: -0.30,
-    2016: -0.27, 2015: -0.35, 2014: -0.42
-}
-
-DEPRECIATION_ELECTRIC = {
-    2019: -0.10, 2018: -0.18, 2017: -0.28,
-    2016: -0.38, 2015: -0.48, 2014: -0.55
-}
-
-# 🔥 ELECTRIC VEHICLES DATASET (BASE PRIX PAR ANNEE)
-ELECTRIC_BASE = {
-    "tesla model 3": {"2019":24000,"2020":27000,"2021":29000,"2022":31000,"2023":30000,"2024":27000,"2025":25000},
-    "tesla model y": {"2021":38000,"2022":40000,"2023":38000,"2024":34000,"2025":30000},
-    "mg4": {"2022":22000,"2023":21000,"2024":19000,"2025":17000},
-    "mg zs ev": {"2019":16000,"2020":18000,"2021":19000,"2022":20000,"2023":19000,"2024":17000,"2025":15000},
-    "zoe": {"2019":12000,"2020":14000,"2021":15000,"2022":16000,"2023":15000,"2024":13000,"2025":11000},
-    "e-208": {"2020":17000,"2021":19000,"2022":20000,"2023":19000,"2024":17000,"2025":15000},
-    "id.3": {"2020":22000,"2021":24000,"2022":25000,"2023":24000,"2024":21000,"2025":18000},
-    "kona ev": {"2019":20000,"2020":22000,"2021":24000,"2022":25000,"2023":24000,"2024":22000,"2025":20000},
-    "e-niro": {"2019":21000,"2020":23000,"2021":25000,"2022":26000,"2023":25000,"2024":23000,"2025":21000}
-}
-
-# 🔥 ESSENCE vs DIESEL ADJUST PRO
-FUEL_ADJUST = {
-    "corsa": 0.03,"fiesta": 0.03,"c3": 0.03,"fabia": 0.03,"clio": 0.03,"208": 0.03,"i20": 0.03,"ibiza": 0.03,
-    "megane": 0.05,"308": 0.05,"polo": 0.04,"scala": 0.04,"c3 aircross": 0.05,"2008": 0.05,"captur": 0.05,
-    "arona": 0.04,"kamiq": 0.04,"juke": 0.05,
-    "3008": 0.06,"grandland": 0.06,"octavia": 0.05,"kona": 0.05,"xceed": 0.05,
-    "qashqai": 0.06,"karoq": 0.06,"5008": 0.07,"sportage": 0.06,"golf": 0.05,
-    "tucson": 0.06,"ateca": 0.06,"kuga": 0.06,"superb": 0.06,"arkana": 0.05,"cx-30": 0.05,
-    "c5 aircross": 0.06,
-    "a1": 0.04,"a3": 0.05,"serie 1": 0.06,"classe a": 0.05,"classe b": 0.05,
-    "serie 3": 0.06,"v60": 0.06,"x1": 0.06,"xc40": 0.06,"q3": 0.06,
-    "xc60": 0.07,"x3": 0.07,"q5": 0.07,
-    "koleos": 0.07,"kodiaq": 0.07,"cr-v": 0.07,"tarraco": 0.07,"santa fe": 0.07,
-    "x5": 0.08,"q7": 0.08
-}
-
-# ===============================
-# 🔥 TABLEAU MARCHE INTEGRE PRO
-# ===============================
-MARKET_TABLE = {
-    "citadine": {
-        2020: {45000:9500, 55000:9000, 75000:8200, 90000:9500},
-        2021: {45000:10500, 55000:10000, 75000:9200, 90000:8700},
-        2022: {45000:11800, 55000:11200, 75000:10300, 90000:9700},
-        2023: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
-        2024: {45000:14200, 55000:13500, 75000:12500, 90000:11500},
-    },
-    "compacte": {
-        2020: {45000:13000, 55000:12300, 75000:11300, 90000:10500},
-        2021: {45000:14200, 55000:13500, 75000:12500, 90000:11500},
-        2022: {45000:16000, 55000:15200, 75000:14000, 90000:13000},
-        2023: {45000:17500, 55000:16500, 75000:15000, 90000:14000},
-        2024: {45000:19000, 55000:18000, 75000:16500, 90000:15000},
-    },
-    "suv": {
-        2020: {45000:17000, 55000:16000, 75000:15000, 90000:14000},
-        2021: {45000:19500, 55000:18800, 75000:17500, 90000:16500},
-        2022: {45000:18500, 55000:17500, 75000:16000, 90000:15000},
-        2023: {45000:20500, 55000:19500, 75000:17500, 90000:16000},
-        2024: {45000:22500, 55000:21000, 75000:19000, 90000:17500},
-    },
-    "premium": {
-        2020: {45000:30000, 55000:28500, 75000:27000, 90000:26000},
-        2021: {45000:32000, 55000:30000, 75000:28000, 90000:27000},
-        2022: {45000:34000, 55000:32000, 75000:30000, 90000:28500},
-        2023: {45000:37000, 55000:34500, 75000:32000, 90000:30000},
-        2024: {45000:40000, 55000:37000, 75000:34000, 90000:32000},
-    }
-}
-
-
-def interpolate_km(table_km, km):
-    kms = sorted(table_km.keys())
-    if km <= kms[0]:
-        return table_km[kms[0]]
-    if km >= kms[-1]:
-        return table_km[kms[-1]]
-    for i in range(len(kms)-1):
-        if kms[i] <= km <= kms[i+1]:
-            k1, k2 = kms[i], kms[i+1]
-            v1, v2 = table_km[k1], table_km[k2]
-            ratio = (km - k1) / (k2 - k1)
-            return int(v1 + (v2 - v1) * ratio)
-    return None
 
 import unicodedata, re
-
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
@@ -932,7 +721,6 @@ def parse_title(title):
 rid = st.session_state.reset_id
 
 # champ titre supprimé
-parsed = {}
 
 col1, col2 = st.columns(2)
 with col1:
@@ -999,15 +787,6 @@ if calcul:
 
     prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
 
-    prix_comparables = []
-
-    if get_leboncoin_prices:
-        try:
-            query = f"{marque} {modele} {motorisation} {annee}"
-            prix_comparables = get_leboncoin_prices(query, km, carburant, boite)
-            st.info(f"Leboncoin PRO : {len(prix_comparables)} annonces")
-        except:
-            pass
 
     # 🔥 MODE STABLE (désactivation learning / scraping)
     prix_marche = prix_ai
@@ -1080,8 +859,7 @@ if calcul:
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
     
-        "prix_vente": prix_vente,
-        "net_marche": net_marche,
+       
 
         "prix_marche": prix_marche,
 
@@ -1101,7 +879,6 @@ if calcul:
     buffer.write(f"Carburant : {carburant}\n")
     buffer.write(f"Boîte : {boite}\n")
     buffer.write(f"\n===== PRIX =====\n")
-    buffer.write(f"Prix affiché (vente) : {prix_vente} €\n")
     buffer.write(f"Prix marché estimé : {prix_marche} €\n")
     buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
 
