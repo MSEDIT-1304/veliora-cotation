@@ -1018,7 +1018,7 @@ if calcul:
 
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
-    "prix_marche": prix_marche
+    "prix_marche": prix_marche,
    
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
@@ -1035,7 +1035,7 @@ if calcul:
     "departement": departement,
 
     "annee": annee,
-    "km": km
+    "km": km,
 })
 
     st.session_state.historique = st.session_state.historique[:20]
