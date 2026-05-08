@@ -606,161 +606,60 @@ import unicodedata, re
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
-    if options is None:
-        options = []
+    import unicodedata
 
     def norm(s):
         if not s:
             return ""
-        return unicodedata.normalize('NFD', s.lower()).encode('ascii','ignore').decode('utf-8')
 
-    marque = norm(marque)
+        return unicodedata.normalize(
+            'NFD',
+            s.lower()
+        ).encode('ascii', 'ignore').decode('utf-8')
+
     modele = norm(modele)
-    finition = norm(finition)
-    motorisation = norm(motorisation)
-
-    key = f"{marque} {modele}".strip()
-    segment = detect_segment(key)
-
-    # 🔥 SECURITE PREMIUM
-    if "q5" in key:
-        segment = "premium"
 
     # =========================
-    # 🔥 BASE MULTI SOURCE PRO
+    # DATASET UNIQUEMENT
     # =========================
+
     base = None
 
-    # 1️⃣ PRIORITÉ DATASET OPEL
-    if key:
-        for m, years in OPEL_DATASET.items():
-            if m in key:
-                if annee in years:
-                    base = years[annee]
-                else:
-                    closest = min(years.keys(), key=lambda x: abs(x - annee))
-                    base = years[closest]
-                break
+    for m, years in FULL_DATASET.items():
 
-    # 2️⃣ BASE V2
+        if modele == m or modele.startswith(m):
+
+            if annee in years:
+                base = years[annee]
+
+            else:
+                closest = min(
+                    years.keys(),
+                    key=lambda x: abs(x - annee)
+                )
+
+                base = years[closest]
+
+            break
+
+    # sécurité
     if base is None:
-        for m, years in FULL_DATASET.items():
-            if key == m or key.startswith(m):
-                if annee in years:
-                   base = years[annee]
-                else:
-                    closest = min(years.keys(), key=lambda x: abs(x - annee))
-                    base = years[closest]
-                break
+        base = 10000
 
-    # 3️⃣ MARKET fallback
-    if base is None and segment and annee in MARKET_TABLE.get(segment, {}):
-        base = interpolate_km(MARKET_TABLE[segment][annee], km)
-
-    # 4️⃣ DEFAULT
-    if base is None:
-        base = 15000
-
-    # 🔥 correction premium réaliste
-    if segment == "premium":
-        base *= 0.92
-
-    coef = 1.0
-
-    # KM FIX
-    km_delta = (km - 90000) / 120000
-    coef -= km_delta * 0.12
-    # YEAR FIX
-    if annee >= 2021:
-        coef += min((annee - 2020) * 0.02, 0.08)
-    elif annee < 2020:
-        coef -= min((2020 - annee) * 0.03, 0.15)
-
-    # MOTOR
-    power = re.findall(r'[0-9]{2,3}', motorisation)
-    
-    if power:
-        
-        p = int(power[0])
-        
-        if p >= 180:
-            coef += 0.02
-            
-        elif p <= 100:
-            coef -= 0.02
-
-    # FUEL
-    if carburant == "Essence":
-        coef += 0.01
-        
-    elif carburant == "Diesel":
-
-        if annee <= 2018:
-            coef = 0.02
-        else:
-            coef = 0.00
-
-    # 🔥 FINITION PRO CLEAN
-    finition_bonus = 0
-
-    if any(x in finition for x in ["amg","rs","m sport","s line"]):
-        finition_bonus = 0.03
-    elif any(x in finition for x in ["line","allure","intens","shine"]):
-        finition_bonus = 0.04
-
-    # dataset uniquement si finition renseignée
-    if finition:
-        
-        for m, (low, high) in FINITION_ADJUST.items():
-            
-            if m in key:
-                finition_bonus = max(finition_bonus, (low + high) / 2)
-
-    coef += finition_bonus
-
-    # 🔥 BONUS OPEL SPECIFIQUE
-    if "gs line" in finition:
-        coef += 0.06
-        
-    if boite == "Automatique":
-        coef += 0.04
-
-
-    # OPTIONS léger
-    for opt in options:
-        coef += 0.005
-
-    # AWD
-    if transmission in ["4x4", "AWD", "4WD"]:
-
-        if annee >= 2020:
-            coef += 0.02
-    else:
-        coef += 0.005
-
-    # GEO
-    if departement in ["75","92"]:
-        coef += 0.02
-    elif departement in ["08","23"]:
-        coef -= 0.015
+    # =========================
+    # CORRECTION KM LEGERE
+    # =========================
 
     price = base
-    
+
     if km > 180000:
         price -= 700
-        
+
     elif km > 140000:
         price -= 400
-        
+
     elif km < 60000:
         price += 500
-
-    # 🔥 CLAMP V16 PREMIUM
-    
-        min_price = price - 800
-        max_price = price + 800
-   
-        
 
     return int(price)
 
