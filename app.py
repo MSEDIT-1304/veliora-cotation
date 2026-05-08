@@ -694,7 +694,11 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         coef += 0.01
         
     elif carburant == "Diesel":
-        coef -= 0.005
+
+    if annee <= 2018:
+        coef -= 0.06
+    else:
+        coef -= 0.02
 
     # 🔥 FINITION PRO CLEAN
     finition_bonus = 0
@@ -727,8 +731,12 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         coef += 0.005
 
     # AWD
-    if transmission in ["4x4","AWD","4WD"]:
+    if transmission in ["4x4", "AWD", "4WD"]:
+
+    if annee >= 2020:
         coef += 0.02
+    else:
+        coef += 0.005
 
     # GEO
     if departement in ["75","92"]:
@@ -743,8 +751,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
         min_price = base * 0.90
         max_price = base * 1.25
     else:
-        min_price = base * 0.92
-        max_price = base * 1.15
+        min_price = base * 0.88
+        max_price = base * 1.08
         
     price = max(min_price, min(price, max_price))
 
