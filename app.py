@@ -605,7 +605,7 @@ def interpolate_km(table_km, km):
 import unicodedata, re
 
 
-    def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     modele = modele.lower().strip()
 
