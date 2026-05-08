@@ -604,7 +604,7 @@ def interpolate_km(table_km, km):
 
 import unicodedata, re
 
-def ai_price_engine(marque, modele, finition=None, motorisation=None, annee, km, carburant, boite=None, departement=None, options=None, transmission=None):
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
     if options is None:
         options = []
@@ -616,7 +616,8 @@ def ai_price_engine(marque, modele, finition=None, motorisation=None, annee, km,
 
     marque = norm(marque)
     modele = norm(modele)
-    
+    finition = norm(finition)
+    motorisation = norm(motorisation)
 
     key = f"{marque} {modele}".strip()
     segment = detect_segment(key)
