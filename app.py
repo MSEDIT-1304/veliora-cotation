@@ -607,7 +607,12 @@ import unicodedata, re
 
 def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement="", options=None, transmission=None):
 
-    modele = modele.lower().strip()
+    key = modele.lower().strip()
+
+    for m in FULL_DATASET.keys():
+        if m in key:
+            modele = m
+            break
 
     base = 10000
 
