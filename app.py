@@ -1195,14 +1195,19 @@ if calcul:
     # DUPLICATE DISPLAY REMOVED
 
     st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
+    
     st.success(f"{prix_marche_affiche} €")
+    
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
+    
+    prix_estime = round(prix_marche_affiche / 10) * 10
 
-    st.markdown(f"📉 Bas : {prix_bas_min} € -> {prix_bas_max} €")
-    st.caption("(fourchette prix moyen marché garage/km élevés/véhicule ancien.)")
+    bas_affiche = prix_estime - 800
+    haut_affiche = prix_estime + 800
+    
+    st.markdown(f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €")
 
-    st.markdown(f"📈 Haut : {prix_haut_min} € -> {prix_haut_max} €")
-    st.caption("(fourchette prix moyen marché garage/véhicule récent/peu de km/finition luxe.)")
+    
     
 
 
