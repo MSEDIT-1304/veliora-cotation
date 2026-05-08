@@ -733,8 +733,8 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     # AWD
     if transmission in ["4x4", "AWD", "4WD"]:
 
-    if annee >= 2020:
-        coef += 0.02
+        if annee >= 2020:
+            coef += 0.02
     else:
         coef += 0.005
 
