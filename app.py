@@ -1068,7 +1068,9 @@ if calcul:
     st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
     
     prix_estime = round(prix_marche / 10) * 10
-
+    
+    prix_marche = prix_estime
+    
     bas_affiche = prix_estime - 800
     haut_affiche = prix_estime + 800
     
