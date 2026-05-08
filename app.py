@@ -744,15 +744,15 @@ def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant
     elif departement in ["08","23"]:
         coef -= 0.015
 
-    price = base * coef
+    price = base + (base * (coef - 1))
 
     # 🔥 CLAMP V16 PREMIUM
     if segment == "premium":
-        min_price = base * 0.90
-        max_price = base * 1.25
+        min_price = price - 800
+        max_price = price + 800
     else:
-        min_price = base * 0.88
-        max_price = base * 1.08
+        min_price = price - 800
+        max_price = price + 800
         
     price = max(min_price, min(price, max_price))
 
