@@ -745,7 +745,7 @@ if calcul:
     # 🔥 MODE STABLE (désactivation learning / scraping)
    
     # 🔥 LOGIQUE PRO FOURCHETTE
-    base = int(round(prix_marche / 100) * 100))
+    
 
 
     # ✅ historique (après calcul)
