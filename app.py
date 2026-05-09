@@ -745,12 +745,7 @@ if calcul:
     # 🔥 MODE STABLE (désactivation learning / scraping)
    
     # 🔥 LOGIQUE PRO FOURCHETTE
-     prix_estime = round(prix_marche / 10) * 10
     
-     prix_marche = prix_estime
-    
-     bas_affiche = prix_estime - 800
-     haut_affiche = prix_estime + 800
 
 
     # ✅ historique (après calcul)
