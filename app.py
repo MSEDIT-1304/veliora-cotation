@@ -3150,7 +3150,10 @@ if "resultat" in st.session_state:
         commission_pct_user = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
 
         if commission_pct_user > 0:
-            commission_calc_user = round(prix_choisi * (commission_pct_user / 100))
+            commission_calc_user = round(
+                prix_choisi * (commission_pct_user / 100)
+            )
+        
         else:
             commission_calc_user = commission_user
 
