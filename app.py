@@ -3070,8 +3070,8 @@ with col_txt:
 
 if calcul:
 
-    prix_ai = ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission)
-    st.write("PRIX AI =", prix_ai)
+    prix_marche = FULL_DATASET[modele.lower()][annee][km]
+    
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
    
@@ -3104,7 +3104,7 @@ if calcul:
     st.session_state.historique = st.session_state.historique[:20]
 
 
-    prix_vente = prix_psy(prix_marche)
+    
 
     # 🔥 CORRECTION % + NET VENDEUR JUSTE
 
