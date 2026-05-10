@@ -3221,25 +3221,19 @@ if calcul:
     # ✅ historique (après calcul)
     st.session_state.historique.insert(0, {
     
-   
         "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
-
         "marque": marque,
         "modele": modele,
         "finition": finition,
-        
         "motorisation": motorisation,
         "carburant": carburant,
         "boite": boite,
         "transmission": transmission,
-
         "options": options,
         "departement": departement,
-
         "annee": annee,
         "km": km,
-
-    "prix_marche": prix_marche
+        "prix_marche": prix_marche
 
 })
 
