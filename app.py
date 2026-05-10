@@ -3121,20 +3121,20 @@ st.session_state.resultat = {
         "haut_affiche": haut_affiche
 }
 
-    buffer = io.StringIO()
-    buffer.write("===== ESTIMATION VÉHICULE =====\n")
-    buffer.write(f"Marque : {marque}\n")
-    buffer.write(f"Modèle : {modele}\n")
-    buffer.write(f"Sous-version : {sous_version}\n")
-    buffer.write(f"Finition : {finition}\n")
-    buffer.write(f"Motorisation : {motorisation}\n")
-    buffer.write(f"Année : {annee}\n")
-    buffer.write(f"Kilométrage : {km} km\n")
-    buffer.write(f"Carburant : {carburant}\n")
-    buffer.write(f"Boîte : {boite}\n")
-    buffer.write(f"\n===== PRIX =====\n")
-    buffer.write(f"Prix marché estimé : {prix_marche} €\n")
-    buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
+buffer = io.StringIO()
+buffer.write("===== ESTIMATION VÉHICULE =====\n")
+buffer.write(f"Marque : {marque}\n")
+buffer.write(f"Modèle : {modele}\n")
+buffer.write(f"Sous-version : {sous_version}\n")
+buffer.write(f"Finition : {finition}\n")
+buffer.write(f"Motorisation : {motorisation}\n")
+buffer.write(f"Année : {annee}\n")
+buffer.write(f"Kilométrage : {km} km\n")
+buffer.write(f"Carburant : {carburant}\n")
+buffer.write(f"Boîte : {boite}\n")
+buffer.write(f"\n===== PRIX =====\n")
+buffer.write(f"Prix marché estimé : {prix_marche} €\n")
+buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
