@@ -3088,28 +3088,20 @@ if calcul:
 st.session_state.historique = st.session_state.historique[:20]
 
 
-# 🔥 CORRECTION % + NET VENDEUR JUSTE
+    prix_estime = round(prix_marche / 10) * 10
 
-# DUPLICATE DISPLAY REMOVED
+    bas_affiche = prix_estime - 800
+    haut_affiche = prix_estime + 800
 
-st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
-    
-prix_estime = 0
+    st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
 
-prix_estime = 0
+    st.success(f"{prix_estime} €")
 
-st.success(f"{prix_estime} €")
+    st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
 
-st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
-
-prix_marche = prix_estime
-    
-bas_affiche = prix_estime - 800
-haut_affiche = prix_estime + 800
-    
-st.markdown(
-    f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
-)
+    st.markdown(
+        f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
+    )
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
