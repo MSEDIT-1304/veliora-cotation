@@ -3050,7 +3050,11 @@ with col_txt:
 
 if calcul:
 
-    prix_marche = FULL_DATASET[modele.lower()][annee][km]
+    kms_disponibles = [30000, 60000, 90000, 120000, 150000]
+
+km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
+
+prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
     
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
