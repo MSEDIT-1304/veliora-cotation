@@ -3072,49 +3072,36 @@ if calcul:
         "marque": marque,
         "modele": modele,
         "finition": finition,
-        "sous_version": sous_version,
-        "motorisation": motorisation,
-
-        "carburant": carburant,
-        "boite": boite,
-        "transmission": transmission,
-        "options": ", ".join(options) if options else "Aucune",
-        "departement": departement,
-
+        
         "annee": annee,
         "km": km,
 })
 
     st.session_state.historique = st.session_state.historique[:20]
 
+    # ================================
+    # CALCUL DATASET
+    # ================================
+
     kms_disponibles = [30000, 60000, 90000, 120000, 150000]
 
-km_reference = min(
-    kms_disponibles,
-    key=lambda x: abs(x - km)
-)
+    km_reference = min(
+        kms_disponibles,
+        key=lambda x: abs(x - km)
+    )
 
-prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+    prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
 
-kms_disponibles = [30000, 60000, 90000, 120000, 150000]
+    prix_estime = round(prix_marche / 10) * 10
 
-km_reference = min(
-    kms_disponibles,
-    key=lambda x: abs(x - km)
-)
+    bas_affiche = prix_estime - 800
+    haut_affiche = prix_estime + 800
 
-prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
-
-prix_estime = round(prix_marche / 10) * 10
-
-bas_affiche = prix_estime - 800
-haut_affiche = prix_estime + 800
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
     
-       
-
+    
         "prix_marche": prix_marche,
         "prix_estime": prix_estime,
         "bas_affiche": bas_affiche,
@@ -3142,20 +3129,28 @@ haut_affiche = prix_estime + 800
         f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n"
     )
 
-# ===== AFFICHAGE STABLE (hors bouton) =====
+    # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state and st.session_state.resultat:
     
     r = st.session_state.resultat
 
     col_left, col_right = st.columns(2)
 
-    
     with col_right:
         st.markdown("### 🧮 Calculateur")
-        prix_choisi = st.number_input("Prix choisi", value=0)
-        commission_user = st.number_input("Commission (€)", value=0)
+        prix_choisi = st.number_input(
+            "Prix choisi", 
+            value=0
+        )
+        commission_user = st.number_input(
+            "Commission (€)", 
+            value=0
+        )
         commission_pct_user = st.number_input(
-            "Commission (%)", 0.0, 100.0, 0.0
+            "Commission (%)", 
+            0.0, 
+            100.0, 
+            0.0
         )
 
         if commission_pct_user > 0:
@@ -3166,9 +3161,24 @@ if "resultat" in st.session_state and st.session_state.resultat:
         else:
             commission_calc_user = commission_user
 
-        net_calc = prix_choisi - commission_calc_user
-        net_calc = int(round(net_calc / 10) * 10)
+        net_vendeur_user = prix_choisi - commission_calc_user
 
-        st.success(f"💶 Net vendeur : {net_calc} €")
+        st.success(f"💵 Net vendeur : {net_vendeur_user:,.0f} €")
+
+    with col_left:
+
+        st.markdown("## 💰 PRIX MARCHÉ ESTIMÉ")
+
+        st.success(f"{r['prix_estime']:,.0f} €")
+
+        st.caption(
+            "(Prix marché estimé basé sur prix marché moyen garage.)"
+        )
+
+        st.info(
+            f"📊 Estimation entre : "
+            f"{r['bas_affiche']:,.0f} € "
+            f"et {r['haut_affiche']:,.0f} €"
+        )
 
 
