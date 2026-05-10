@@ -3228,8 +3228,19 @@ if calcul:
         "modele": modele,
         "finition": finition,
         
+        "motorisation": motorisation,
+        "carburant": carburant,
+        "boite": boite,
+        "transmission": transmission,
+
+        "options": options,
+        "departement": departement,
+
         "annee": annee,
         "km": km,
+
+    "prix_marche": prix_marche
+
 })
 
     st.session_state.historique = st.session_state.historique[:20]
