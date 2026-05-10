@@ -2728,7 +2728,7 @@ FULL_DATASET = {
 
 import unicodedata, re
 
-def ai_price_engine
+def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission):
 
     key = modele.lower().strip()
 
