@@ -2904,7 +2904,7 @@ col1, col2 = st.columns([3,1])
 with col1:
     if st.button("🔄 Nouvelle cotation (reset)"):
         st.session_state.reset_id += 1
-        if "resultat" in st.session_state:
+        if "resultat" in st.session_state and st.session_state.resultat:
             del st.session_state["resultat"]
         st.rerun()
 
@@ -2914,7 +2914,7 @@ with col2:
         st.session_state.admin_logged = False
         st.rerun()
         st.session_state.reset_id += 1
-        if "resultat" in st.session_state:
+        if "resultat" in st.session_state and st.session_state.resultat:
             del st.session_state["resultat"]
         st.rerun()
 
@@ -3115,11 +3115,11 @@ buffer.write(f"Kilométrage : {km} km\n")
 buffer.write(f"Carburant : {carburant}\n")
 buffer.write(f"Boîte : {boite}\n")
 buffer.write(f"\n===== PRIX =====\n")
-buffer.write(f"Prix marché estimé : {prix_estime} €\n")
+buffer.write(f"Prix marché estimé : {r['prix_estime']} €\n")
 buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
-if "resultat" in st.session_state:
+if "resultat" in st.session_state and st.session_state.resultat:
     
     r = st.session_state.resultat
 
