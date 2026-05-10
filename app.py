@@ -2726,29 +2726,6 @@ FULL_DATASET = {
 
 
 
-import unicodedata, re
-
-def ai_price_engine(marque, modele, finition, motorisation, annee, km, carburant, boite, departement, options, transmission):
-
-    key = modele.lower().strip()
-
-    for m in FULL_DATASET.keys():
-        if m in key:
-            modele = m
-            break
-    base = 10000
-
-    if modele in FULL_DATASET:
-        if annee in FULL_DATASET[modele]:
-            base = FULL_DATASET[modele][annee] [km]
-
-    price = base
-
-    
-   return int(price)
-
-
-
 def load_users():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
     df = pd.read_csv(url)
