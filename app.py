@@ -3094,8 +3094,8 @@ if calcul:
 
     prix_estime = round(prix_marche / 10) * 10
 
-    bas_affiche = prix_estime - 800
-    haut_affiche = prix_estime + 800
+    bas_affiche = prix_estime - 500
+    haut_affiche = prix_estime + 1200
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
@@ -3169,7 +3169,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
 
         st.markdown("## 💰 PRIX MARCHÉ ESTIMÉ")
 
-        st.success(f"{r['prix_estime']:,.0f} €")
+        st.success(f"{r['prix_estime']:,.0f}".replace(",", ".") + " €")
 
         st.caption(
             "(Prix marché estimé basé sur prix marché moyen garage.)"
@@ -3177,8 +3177,8 @@ if "resultat" in st.session_state and st.session_state.resultat:
 
         st.info(
             f"📊 Estimation entre : "
-            f"{r['bas_affiche']:,.0f} € "
-            f"et {r['haut_affiche']:,.0f} €"
+            f"{r['bas_affiche']:,.0f}".replace(",", ".") + " € "
+            f"et {r['haut_affiche']:,.0f}".replace(",", ".") + " €"
         )
 
 
