@@ -3052,9 +3052,9 @@ if calcul:
 
     kms_disponibles = [30000, 60000, 90000, 120000, 150000]
 
-km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
+    km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
 
-prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+    prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
     
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
@@ -3064,7 +3064,7 @@ prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
 
 
     # ✅ historique (après calcul)
-st.session_state.historique.insert(0, {
+    st.session_state.historique.insert(0, {
     
    
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
@@ -3108,7 +3108,9 @@ st.session_state.historique = st.session_state.historique[:20]
     bas_affiche = prix_estime - 800
     haut_affiche = prix_estime + 800
     
-    st.markdown(f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", "."))
+    st.markdown(
+        f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
+    )
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
