@@ -3067,50 +3067,47 @@ if calcul:
     st.session_state.historique.insert(0, {
     
    
-    "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
 
-    "marque": marque,
-    "modele": modele,
-    "finition": finition,
-    "sous_version": sous_version,
-    "motorisation": motorisation,
+        "marque": marque,
+        "modele": modele,
+        "finition": finition,
+        "sous_version": sous_version,
+        "motorisation": motorisation,
 
-    "carburant": carburant,
-    "boite": boite,
-    "transmission": transmission,
-    "options": ", ".join(options) if options else "Aucune",
-    "departement": departement,
+        "carburant": carburant,
+        "boite": boite,
+        "transmission": transmission,
+        "options": ", ".join(options) if options else "Aucune",
+        "departement": departement,
 
-    "annee": annee,
-    "km": km,
+        "annee": annee,
+        "km": km,
 })
 
 st.session_state.historique = st.session_state.historique[:20]
 
 
-    
+# 🔥 CORRECTION % + NET VENDEUR JUSTE
 
-    # 🔥 CORRECTION % + NET VENDEUR JUSTE
+# DUPLICATE DISPLAY REMOVED
 
-
-    # DUPLICATE DISPLAY REMOVED
-
-    st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
+st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
     
-    st.success(f"{prix_marche} €")
+st.success(f"{prix_marche} €")
     
-    st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
+st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
     
-    prix_estime = round(prix_marche / 10) * 10
+prix_estime = round(prix_marche / 10) * 10
     
-    prix_marche = prix_estime
+prix_marche = prix_estime
     
-    bas_affiche = prix_estime - 800
-    haut_affiche = prix_estime + 800
+bas_affiche = prix_estime - 800
+haut_affiche = prix_estime + 800
     
-    st.markdown(
-        f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
-    )
+st.markdown(
+    f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
+)
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
