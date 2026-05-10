@@ -3243,14 +3243,35 @@ if calcul:
     # CALCUL DATASET
     # ================================
 
-    kms_disponibles = [30000, 60000, 90000, 120000, 150000]
+    kms_disponibles = sorted([30000, 60000, 90000, 120000, 150000])
 
-    km_reference = min(
-        kms_disponibles,
-        key=lambda x: abs(x - km)
-    )
+    if km <= kms_disponibles[0]:
 
-    prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+        prix_marche = FULL_DATASET[modele.lower()][annee][30000]
+
+    elif km >= kms_disponibles[-1]:
+
+        prix_marche = FULL_DATASET[modele.lower()][annee][150000]
+
+    else:
+
+        for i in range(len(kms_disponibles) - 1):
+
+            km_bas = kms_disponibles[i]
+            km_haut = kms_disponibles[i + 1]
+
+            if km_bas <= km <= km_haut:
+
+                prix_bas = FULL_DATASET[modele.lower()][annee][km_bas]
+                prix_haut = FULL_DATASET[modele.lower()][annee][km_haut]
+
+                ratio = (km - km_bas) / (km_haut - km_bas)
+
+                prix_marche = round(
+                prix_bas - ((prix_bas - prix_haut) * ratio)
+                )
+
+                break
 
     prix_estime = round(prix_marche / 10) * 10
 
