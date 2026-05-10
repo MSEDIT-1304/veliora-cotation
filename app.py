@@ -3094,7 +3094,7 @@ st.session_state.historique = st.session_state.historique[:20]
 
 st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
     
-st.success(f"{prix_marche} €")
+st.success(f"{prix_estime} €")
     
 st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
     
