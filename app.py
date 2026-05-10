@@ -3095,7 +3095,7 @@ if calcul:
     prix_estime = round(prix_marche / 10) * 10
 
     bas_affiche = prix_estime 
-    haut_affiche = prix_estime + 1200
+    haut_affiche = prix_estime + 1245
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
