@@ -3064,7 +3064,7 @@ prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
 
 
     # ✅ historique (après calcul)
-    st.session_state.historique.insert(0, {
+st.session_state.historique.insert(0, {
     
    
     "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
