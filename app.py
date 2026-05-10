@@ -3087,10 +3087,28 @@ if calcul:
 
     st.session_state.historique = st.session_state.historique[:20]
 
-    prix_estime = round(prix_marche / 10) * 10
+    kms_disponibles = [30000, 60000, 90000, 120000, 150000]
 
-    bas_affiche = prix_estime - 800
-    haut_affiche = prix_estime + 800
+km_reference = min(
+    kms_disponibles,
+    key=lambda x: abs(x - km)
+)
+
+prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+
+kms_disponibles = [30000, 60000, 90000, 120000, 150000]
+
+km_reference = min(
+    kms_disponibles,
+    key=lambda x: abs(x - km)
+)
+
+prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+
+prix_estime = round(prix_marche / 10) * 10
+
+bas_affiche = prix_estime - 800
+haut_affiche = prix_estime + 800
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
     st.session_state.resultat = {
