@@ -2955,12 +2955,31 @@ if st.session_state.show_history:
         st.info("Aucune estimation pour le moment")
     else:
         for item in st.session_state.historique:
+
             st.markdown(f"""
-**{item['marque']} {item['modele']} {item['finition']}**  
-{item['motorisation']}  
-{item['annee']} • {item['km']} km  
-➡️ **{item['prix_marche']} € (marché)**  
-🕒 {item['date']}  
+    **{item.get('marque', '-')} {item.get('modele', '-')}**
+
+    Finition : {item.get('finition', '-')}
+
+    Motorisation : {item.get('motorisation', '-')}
+
+    Carburant : {item.get('carburant', '-')}
+
+    Boîte : {item.get('boite', '-')}
+
+    Transmission : {item.get('transmission', '-')}
+
+    Options : {item.get('options', '-')}
+
+    Département : {item.get('departement', '-')}
+
+    Année : {item.get('annee', '-')}
+
+    Kilométrage : {item.get('km', '-')} km
+
+    💰 Prix marché : {item.get('prix_marche', '-')} €
+
+    🕒 {item.get('date', '-')}
 
 ---
 """)
