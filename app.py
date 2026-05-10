@@ -3094,7 +3094,7 @@ if calcul:
 
     prix_estime = round(prix_marche / 10) * 10
 
-    bas_affiche = prix_estime - 500
+    bas_affiche = prix_estime 
     haut_affiche = prix_estime + 1200
 
 
