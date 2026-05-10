@@ -3085,35 +3085,23 @@ if calcul:
         "km": km,
 })
 
-st.session_state.historique = st.session_state.historique[:20]
-
+    st.session_state.historique = st.session_state.historique[:20]
 
     prix_estime = round(prix_marche / 10) * 10
 
     bas_affiche = prix_estime - 800
     haut_affiche = prix_estime + 800
 
-    st.subheader("💰 PRIX MARCHÉ ESTIMÉ")
-
-    st.success(f"{prix_estime} €")
-
-    st.caption("(Prix marché estimé basé sur prix marché moyen garage.)")
-
-    st.markdown(
-        f"📊 Estimation entre : {bas_affiche:,.0f} € et {haut_affiche:,.0f} €".replace(",", ".")
-    )
-
-
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
-st.session_state.resultat = {
+    st.session_state.resultat = {
     
        
 
         "prix_marche": prix_marche,
-
+        "prix_estime": prix_estime,
         "bas_affiche": bas_affiche,
         "haut_affiche": haut_affiche
-}
+    }
 
 buffer = io.StringIO()
 buffer.write("===== ESTIMATION VÉHICULE =====\n")
