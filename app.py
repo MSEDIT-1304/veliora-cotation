@@ -3133,11 +3133,12 @@ buffer.write(f"Kilométrage : {km} km\n")
 buffer.write(f"Carburant : {carburant}\n")
 buffer.write(f"Boîte : {boite}\n")
 buffer.write(f"\n===== PRIX =====\n")
-buffer.write(f"Prix marché estimé : {prix_marche} €\n")
+buffer.write(f"Prix marché estimé : {prix_estime} €\n")
 buffer.write(f"Fourchette estimée : {bas_affiche} € à {haut_affiche} €\n")
 
 # ===== AFFICHAGE STABLE (hors bouton) =====
 if "resultat" in st.session_state:
+    
     r = st.session_state.resultat
 
     col_left, col_right = st.columns(2)
@@ -3147,7 +3148,9 @@ if "resultat" in st.session_state:
         st.markdown("### 🧮 Calculateur")
         prix_choisi = st.number_input("Prix choisi", value=0)
         commission_user = st.number_input("Commission (€)", value=0)
-        commission_pct_user = st.number_input("Commission (%)", 0.0, 100.0, 0.0)
+        commission_pct_user = st.number_input(
+            "Commission (%)", 0.0, 100.0, 0.0
+        )
 
         if commission_pct_user > 0:
             commission_calc_user = round(
