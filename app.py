@@ -3085,7 +3085,7 @@ st.session_state.historique.insert(0, {
     "km": km,
 })
 
-    st.session_state.historique = st.session_state.historique[:20]
+st.session_state.historique = st.session_state.historique[:20]
 
 
     
@@ -3112,7 +3112,7 @@ st.session_state.historique.insert(0, {
 
 
     # 🔥 STOCKAGE RESULTAT (pour éviter reset)
-    st.session_state.resultat = {
+st.session_state.resultat = {
     
        
 
