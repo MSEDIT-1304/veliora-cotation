@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timedelta
 import statistics
 import io
+import time
 import os
 import unicodedata
 
@@ -3516,17 +3517,7 @@ if not st.session_state.logged:
             st.error("SIRET obligatoire pour créer un compte")
         elif new_user and new_pass:
             send_to_webhook(new_user, new_pass, societe, siret)
-            new_row = pd.DataFrame([{
-            "username": new_user.strip(),
-            "password": new_pass.strip(),
-            "expire": datetime.now() + timedelta(days=1)
-            }])
-
-            df_users = load_users()
-
-            df_users = pd.concat([df_users, new_row], ignore_index=True)
-
-            df_users.to_csv("users.csv", index=False)
+            time.sleep(3)
             st.session_state["temp_user"] = new_user.strip()
             st.session_state["temp_pass"] = new_pass.strip()
             st.success("Compte professionnel créé (connexion immédiate possible)")
