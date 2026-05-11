@@ -3604,12 +3604,7 @@ with col1:
 
 with col2:
     if st.button("🚪 Se déconnecter"):
-        st.session_state.logged = False
-        st.session_state.admin_logged = False
-        st.rerun()
-        st.session_state.reset_id += 1
-        if "resultat" in st.session_state and st.session_state.resultat:
-            del st.session_state["resultat"]
+        st.session_state.clear()
         st.rerun()
 
 col2a, col2b = st.columns(2)
