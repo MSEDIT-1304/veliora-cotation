@@ -3548,13 +3548,18 @@ if not st.session_state.logged:
             st.rerun()
 
         elif result == "expired":
-            st.error("⛔ Abonnement expiré")
-            st.markdown(f"[💳 S'abonner ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.warning("""
+        ⛔ Essai gratuit expiré.
+
+        Veuillez souscrire un abonnement pour continuer.
+""")
+
+        st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
 
-    st.stop()
+st.stop()
 
 col_header_left, col_header_right = st.columns([4,1])
 
