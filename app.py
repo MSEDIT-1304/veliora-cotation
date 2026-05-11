@@ -3554,7 +3554,7 @@ if not st.session_state.logged:
         Veuillez souscrire un abonnement pour continuer.
 """)
 
-        st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
         else:
             st.error("Identifiant incorrect")
