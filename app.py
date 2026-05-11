@@ -3559,7 +3559,8 @@ if not st.session_state.logged:
         else:
             st.error("Identifiant incorrect")
 
-st.stop()
+if not st.session_state.get("logged", False):
+    st.stop()
 
 col_header_left, col_header_right = st.columns([4,1])
 
