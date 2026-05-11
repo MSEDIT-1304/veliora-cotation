@@ -3526,7 +3526,7 @@ if not st.session_state.logged:
 
             df_users = pd.concat([df_users, new_row], ignore_index=True)
 
-            save_users(df_users)
+            df_users.to_csv("users.csv", index=False)
             st.session_state["temp_user"] = new_user.strip()
             st.session_state["temp_pass"] = new_pass.strip()
             st.success("Compte professionnel créé (connexion immédiate possible)")
