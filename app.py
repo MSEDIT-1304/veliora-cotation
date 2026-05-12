@@ -3491,8 +3491,9 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
-    st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
+    
+    st.info(f"Abonnement : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
+    
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
 
@@ -3508,10 +3509,9 @@ if not st.session_state.logged:
             st.error("SIRET obligatoire pour créer un compte")
         elif new_user and new_pass:
             send_to_webhook(new_user, new_pass, societe, siret)
-            time.sleep(3)
-            st.session_state["temp_user"] = new_user.strip()
-            st.session_state["temp_pass"] = new_pass.strip()
-            st.success("Compte professionnel créé (connexion immédiate possible)")
+            
+            st.success("Compte créé. Veuillez maintenant souscrire un abonnement.")
+            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})"))
         else:
             st.error("Remplir tous les champs")
 
@@ -3527,11 +3527,6 @@ if not st.session_state.logged:
         if user.strip() == ADMIN_USER and pwd.strip() == ADMIN_PASS:
             st.session_state.logged = True
             st.session_state.admin_logged = True
-            st.rerun()
-
-        # priorité utilisateur fraîchement créé
-        if "temp_user" in st.session_state and user.strip() == st.session_state["temp_user"] and pwd.strip() == st.session_state["temp_pass"]:
-            st.session_state.logged = True
             st.rerun()
 
         result = check_login(user, pwd)
