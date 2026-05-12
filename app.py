@@ -3491,9 +3491,6 @@ if st.session_state.admin_logged:
 if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
-    
-    Abonnement : {PRICE_HT}€ HT ({PRICE_TTC}€ TTC) / mois")
-
     st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
     type_client = "Professionnel auto"
