@@ -3511,7 +3511,7 @@ if not st.session_state.logged:
             send_to_webhook(new_user, new_pass, societe, siret)
             
             st.success("Compte créé. Veuillez maintenant souscrire un abonnement.")
-            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})"))
+            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
         else:
             st.error("Remplir tous les champs")
 
