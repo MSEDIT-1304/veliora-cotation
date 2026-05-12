@@ -3427,8 +3427,8 @@ def check_login(username, password):
     df = load_users()
 
     user = df[
-        (df["username"] == username.strip()) &
-        (df["password"] == password.strip())
+        (df["username"].astype(str).str.strip() == str(username).strip()) &
+        (df["password"].astype(str).str.strip() == str(password).strip())
     ]
 
     if not user.empty:
@@ -3442,7 +3442,7 @@ def check_login(username, password):
     return "error"
 
 def send_to_webhook(username, password, societe, siret):
-    expire = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    expire = (datetime.now() + timedelta(days=1)).isoformat()
 
     data = {
         "username": username,
