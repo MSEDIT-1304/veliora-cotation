@@ -3424,6 +3424,7 @@ def load_users():
     return df
 
 def check_login(username, password):
+
     df = load_users()
 
     user = df[
@@ -3432,25 +3433,19 @@ def check_login(username, password):
     ]
 
     if not user.empty:
-        expire = user.iloc[0]["expire"]
-
-        if datetime.now() > expire:
-            return "expired"
-
         return "ok"
 
     return "error"
 
 def send_to_webhook(username, password, societe, siret):
-    expire = (datetime.now() + timedelta(days=1)).isoformat()
+    
 
     data = {
         "username": username,
         "password": password,
         "societe": societe,
         "siret": siret,
-        "expire": expire,
-        "trial": True
+        
     }
 
     try:
