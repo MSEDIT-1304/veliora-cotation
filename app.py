@@ -3855,9 +3855,7 @@ modele = st.selectbox(
 col1, col2 = st.columns(2)
 with col1:
     finition = st.text_input("Finition", key=f"finition_{rid}")
-col1, col2 = st.columns(2)
-with col1:
-    finition = st.text_input("Finition", key=f"finition_{rid}")
+
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
