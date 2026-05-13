@@ -515,7 +515,7 @@ FULL_DATASET = {
         2014:{30000:20000,60000:17500,90000:15000,120000:13000,150000:11500}
     }
 },
-"suzuli":{
+"suzuki":{
     "swift":{
         2025:{30000:22000,60000:20500,90000:19000,120000:17500,150000:16000},
         2024:{30000:21000,60000:19500,90000:18000,120000:16500,150000:15000},
@@ -3842,7 +3842,19 @@ with col1:
     mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 with col2:
     annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
+marque = st.selectbox(
+    "Marque",
+    sorted(FULL_DATASET.keys())
+)
 
+modele = st.selectbox(
+    "Modèle",
+    sorted(FULL_DATASET[marque.lower()].keys())
+)
+
+col1, col2 = st.columns(2)
+with col1:
+    finition = st.text_input("Finition", key=f"finition_{rid}")
 col1, col2 = st.columns(2)
 with col1:
     finition = st.text_input("Finition", key=f"finition_{rid}")
