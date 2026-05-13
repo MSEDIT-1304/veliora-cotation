@@ -3570,26 +3570,24 @@ def load_users():
 
     return df
 
-def check_login(username, password):
+def check_login(username):
 
     df = load_users()
 
     user = df[
-        (df["username"].astype(str).str.strip() == str(username).strip()) &
-        (df["password"].astype(str).str.strip() == str(password).strip())
+        df["username"].astype(str).str.strip()
+        == str(username).strip()
     ]
 
     if not user.empty:
         return "ok"
 
     return "error"
-
-def send_to_webhook(username, password, societe, siret):
+def send_to_webhook(username, societe, siret):
     
 
     data = {
         "username": username,
-        "password": password,
         "societe": societe,
         "siret": siret,
         
@@ -3646,7 +3644,7 @@ if not st.session_state.logged:
 
     email = st.text_input("Adresse email")
     new_user = email
-    new_pass = st.text_input("Créer un mot de passe", type="password")
+    
 
     societe = st.text_input("Nom de la société")
     siret = st.text_input("Numéro SIRET")
@@ -3654,8 +3652,8 @@ if not st.session_state.logged:
     if st.button("Créer compte"):
         if not societe or not siret:
             st.error("SIRET obligatoire pour créer un compte")
-        elif new_user and new_pass:
-            send_to_webhook(new_user, new_pass, societe, siret)
+        elif new_user:
+            send_to_webhook(new_user, societe, siret)
             
             st.success("Compte créé. Veuillez maintenant souscrire un abonnement.")
             st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
@@ -3667,7 +3665,7 @@ if not st.session_state.logged:
     st.subheader("🔐 Connexion")
 
     user = st.text_input("Utilisateur")
-    pwd = st.text_input("Mot de passe", type="password")
+    
 
     if st.button("Se connecter"):
 
@@ -3676,7 +3674,7 @@ if not st.session_state.logged:
             st.session_state.admin_logged = True
             st.rerun()
 
-        result = check_login(user, pwd)
+        result = check_login(user)
 
         if result == "ok":
             st.session_state.logged = True
@@ -3900,7 +3898,7 @@ if calcul:
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
 
-    prix_marche = FULL_DATASET[modele.lower()][annee][km_reference]
+    prix_marche = FULL_DATASET[marque.lower()][modele.lower()][annee][km_reference]
     
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
@@ -3938,11 +3936,11 @@ if calcul:
 
     if km <= kms_disponibles[0]:
 
-        prix_marche = FULL_DATASET[modele.lower()][annee][30000]
+        prix_marche = FULL_DATASET[marque.lower()][modele.lower()][annee][30000]
 
     elif km >= kms_disponibles[-1]:
 
-        prix_marche = FULL_DATASET[modele.lower()][annee][150000]
+        prix_marche = FULL_DATASET[marque.lower()][modele.lower()][annee][150000]
 
     else:
 
@@ -3953,8 +3951,8 @@ if calcul:
 
             if km_bas <= km <= km_haut:
 
-                prix_bas = FULL_DATASET[modele.lower()][annee][km_bas]
-                prix_haut = FULL_DATASET[modele.lower()][annee][km_haut]
+                prix_bas = FULL_DATASET[marque.lower()][modele.lower()][annee][km_bas]
+                prix_haut = FULL_DATASET[marque.lower()][modele.lower()][annee][km_haut]
 
                 ratio = (km - km_bas) / (km_haut - km_bas)
 
