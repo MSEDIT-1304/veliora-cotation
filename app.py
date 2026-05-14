@@ -4516,9 +4516,13 @@ with col_txt:
 
 if calcul:
     
-    if not marque or not modele:
-        st.warning("⚠️ Veuillez renseigner la marque et le modèle.")
-        st.stop()
+if (
+    str(marque).strip() == ""
+    or str(modele).strip() == ""
+    or str(annee).strip() == ""
+):
+    st.warning("⚠️ Veuillez renseigner la marque, le modèle et l'année.")
+    st.stop()
     kms_disponibles = [30000, 60000, 90000, 120000, 150000]
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
