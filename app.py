@@ -4516,11 +4516,11 @@ with col_txt:
 
 if calcul:
     
-if (
-    str(marque).strip() == ""
-    or str(modele).strip() == ""
-    or str(annee).strip() == ""
-):
+    if (
+        str(marque).strip() == ""
+        or str(modele).strip() == ""
+        or str(annee).strip() == ""
+    ):
     st.warning("⚠️ Veuillez renseigner la marque, le modèle et l'année.")
     st.stop()
     kms_disponibles = [30000, 60000, 90000, 120000, 150000]
