@@ -4515,7 +4515,10 @@ with col_txt:
     st.caption("Estimation basée sur algorithme marché — non contractuel")
 
 if calcul:
-
+    
+    if not marque or not modele:
+        st.warning("⚠️ Veuillez renseigner la marque et le modèle.")
+        st.stop()
     kms_disponibles = [30000, 60000, 90000, 120000, 150000]
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
