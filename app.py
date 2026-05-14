@@ -4520,7 +4520,11 @@ if calcul:
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
 
+if marque.lower() in FULL_DATASET and modele.lower() in FULL_DATASET[marque.lower()]:
     prix_marche = FULL_DATASET[marque.lower()][modele.lower()][annee][km_reference]
+else:
+    st.error("❌ Modèle introuvable dans la base de données.")
+    st.stop()
     
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
