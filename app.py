@@ -5222,8 +5222,8 @@ if not st.session_state.logged:
             "TRIAL24H"
         )
     
-        st.session_state["authenticated"] = True
-        st.session_state["user"] = email
+        st.session_state.logged = True
+        st.session_state.user = email
     
         st.success("Essai gratuit activé pour 24h")
     
