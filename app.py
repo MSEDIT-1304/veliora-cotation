@@ -5447,8 +5447,9 @@ with col1:
     )
 
 with col2:
-    modele = st.text_input(
+    modele = st.selectbox(
         "Modèle",
+        sorted(FULL_DATASET[marque.lower()].keys()),
         key=f"modele_{rid}"
     )
 
