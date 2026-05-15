@@ -5216,7 +5216,7 @@ if not st.session_state.logged:
     email = st.text_input("Adresse email")
     new_user = email
 
-    if st.button("Essai gratuit 24h"):
+if st.button("Essai gratuit 24h"):
 
     expiration = datetime.now() + timedelta(hours=TRIAL_HOURS)
 
