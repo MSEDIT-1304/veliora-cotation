@@ -5603,13 +5603,14 @@ if calcul:
                     km_haut
                ]
 
-                ratio = (km - km_bas) / (km_haut - km_bas)
+               ratio = (km - km_bas) / (km_haut - km_bas)
 
-                prix_marche = round(
-                prix_bas - ((prix_bas - prix_haut) * ratio)
-                )
+               prix_marche = round(
+               prix_bas - ((prix_bas - prix_haut) * ratio)
+                   
+               )
 
-                break
+               break
 
     prix_estime = round(prix_marche / 10) * 10
 
