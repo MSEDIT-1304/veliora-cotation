@@ -70,6 +70,7 @@ TVA = 0.20
 PRICE_TTC = 34.80
 
 STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
+TRIAL_HOURS = 24
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
@@ -5214,6 +5215,27 @@ if not st.session_state.logged:
 
     email = st.text_input("Adresse email")
     new_user = email
+
+    if st.button("Essai gratuit 24h"):
+
+    expiration = datetime.now() + timedelta(hours=TRIAL_HOURS)
+
+    data = {
+        "email": email,
+        "expiration": expiration.strftime("%Y-%m-%d %H:%M:%S"),
+        "trial": "yes"
+    }
+
+    try:
+        requests.post(WEBHOOK_URL, json=data)
+
+        st.success("✅ Essai gratuit activé pour 24h")
+
+        st.session_state["authenticated"] = True
+        st.rerun()
+
+    except:
+        st.error("Erreur activation essai")
     
 
     societe = st.text_input("Nom de la société")
