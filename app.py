@@ -5438,10 +5438,19 @@ rid = st.session_state.reset_id
 # champ titre supprimé
 
 col1, col2 = st.columns(2)
+
 with col1:
-    marque = st.text_input("Marque", key=f"marque_{rid}")
+    marque = st.selectbox(
+        "Marque",
+        sorted(FULL_DATASET.keys()),
+        key=f"marque_{rid}"
+    )
+
 with col2:
-    modele = st.text_input("Modèle", key=f"modele_{rid}")
+    modele = st.text_input(
+        "Modèle",
+        key=f"modele_{rid}"
+    )
 
 col1, col2 = st.columns(2)
 with col1:
