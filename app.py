@@ -5214,6 +5214,22 @@ if not st.session_state.logged:
     st.success("Compte professionnel requis")
 
     email = st.text_input("Adresse email")
+    if st.button("Essai gratuit 24h"):
+
+        send_to_webhook(
+            email,
+            "ESSAI GRATUIT",
+            "TRIAL24H"
+        )
+    
+        st.session_state["authenticated"] = True
+        st.session_state["user"] = email
+    
+        st.success("Essai gratuit activé pour 24h")
+    
+        st.rerun()
+    
+    st.markdown("---")
     new_user = email
     societe = st.text_input("Nom de la société")
     siret = st.text_input("Numéro SIRET")
@@ -5228,27 +5244,8 @@ if not st.session_state.logged:
             st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
 
             st.markdown("---")
-
-            if st.button("Essai gratuit 24h"):
             
-                expiration = datetime.now() + timedelta(hours=TRIAL_HOURS)
-            
-                data = {
-                    "email": email,
-                    "expiration": expiration.strftime("%Y-%m-%d %H:%M:%S"),
-                    "trial": "yes"
-                }
-            
-                try:
-                    requests.post(WEBHOOK_URL, json=data)
-            
-                    st.success("Essai gratuit activé pour 24h")
-            
-                except:
-                    st.error("Erreur activation essai")
-        else:
-            st.error("Remplir tous les champs")
-
+       
     st.markdown("---")
 
     st.subheader("🔐 Connexion")
