@@ -5476,7 +5476,7 @@ with col1:
 with col2:
     modele = st.selectbox(
         "Modèle",
-        sorted(NORMALIZED_DATASET[marque].keys())
+        sorted(NORMALIZED_DATASET[marque].keys()),
         key=f"modele_{rid}"
     )
 
