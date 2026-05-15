@@ -5506,7 +5506,15 @@ if calcul:
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
 
-    prix_marche = FULL_DATASET[modele][annee][km_reference]
+    prix_marche = FULL_DATASET[
+        marque.lower()
+    ][
+        modele.lower()
+    ][
+        annee
+    ][
+        km_reference
+    ]
     
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
@@ -5544,11 +5552,27 @@ if calcul:
 
     if km <= kms_disponibles[0]:
 
-        prix_marche = FULL_DATASET[modele][annee][30000]
+        prix_marche = FULL_DATASET[
+            marque.lower()
+        ][
+            modele.lower()
+        ][
+            annee
+        ][
+            30000
+        ]
 
     elif km >= kms_disponibles[-1]:
 
-        prix_marche = FULL_DATASET[modele][annee][150000]
+       prix_marche = FULL_DATASET[
+            marque.lower()
+        ][
+            modele.lower()
+        ][
+            annee
+        ][
+            150000
+        ]
 
     else:
 
@@ -5559,8 +5583,25 @@ if calcul:
 
             if km_bas <= km <= km_haut:
 
-                prix_bas = FULL_DATASET[modele][annee][km_bas]
-                prix_haut = FULL_DATASET[modele][annee][km_haut]
+               prix_bas = FULL_DATASET[
+                   marque.lower()
+               ][
+                   modele.lower()
+               ][
+                   annee1
+               ][
+                   km_bas
+               ]
+
+               prix_haut = FULL_DATASET[
+                    marque.lower()
+               ][
+                    modele.lower()
+               ][
+                    annee
+               ][
+                    km_haut
+               ]
 
                 ratio = (km - km_bas) / (km_haut - km_bas)
 
