@@ -7,7 +7,22 @@ import io
 import time
 import os
 import unicodedata
+def normalize_text(text):
+    text = str(text).lower().strip()
 
+    text = unicodedata.normalize('NFD', text)
+    text = text.encode('ascii', 'ignore').decode('utf-8')
+
+    replacements = {
+        "-": " ",
+        "_": " ",
+        "  ": " "
+    }
+
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+
+    return text
 SCRAPER_API_KEY = None
 
 import json
@@ -5163,7 +5178,19 @@ FULL_DATASET = {
     
 }
 
+NORMALIZED_DATASET = {}
 
+for brand, models in FULL_DATASET.items():
+
+    normalized_brand = normalize_text(brand)
+
+    NORMALIZED_DATASET[normalized_brand] = {}
+
+    for model, years in models.items():
+
+        normalized_model = normalize_text(model)
+
+        NORMALIZED_DATASET[normalized_brand][normalized_model] = years
 
 
 def load_users():
@@ -5442,14 +5469,14 @@ col1, col2 = st.columns(2)
 with col1:
     marque = st.selectbox(
         "Marque",
-        sorted(FULL_DATASET.keys()),
+        sorted(NORMALIZED_DATASET.keys()),
         key=f"marque_{rid}"
     )
 
 with col2:
     modele = st.selectbox(
         "Modèle",
-        sorted(FULL_DATASET[marque.lower()].keys()),
+        sorted(NORMALIZED_DATASET[marque].keys())
         key=f"modele_{rid}"
     )
 
@@ -5516,10 +5543,10 @@ if calcul:
 
     km_reference = min(kms_disponibles, key=lambda x: abs(x - km))
 
-    prix_marche = FULL_DATASET[
-        marque.lower()
+    prix_marche = NORMALIZED_DATASET[
+        normalize_text(marque)
     ][
-        modele.lower()
+        normalize_text(modele)
     ][
         annee
     ][
@@ -5562,10 +5589,10 @@ if calcul:
 
     if km <= kms_disponibles[0]:
 
-        prix_marche = FULL_DATASET[
-            marque.lower()
+        prix_marche = NORMALIZED_DATASET[
+            normalize_text(marque)
         ][
-            modele.lower()
+            normalize_text(modele)
         ][
             annee
         ][
@@ -5574,10 +5601,10 @@ if calcul:
 
     elif km >= kms_disponibles[-1]:
 
-       prix_marche = FULL_DATASET[
-            marque.lower()
+       prix_marche = NORMALIZED_DATASET[
+            normalize_text(marque)
         ][
-            modele.lower()
+            normalize_text(modele)
         ][
             annee
         ][
@@ -5593,20 +5620,20 @@ if calcul:
 
             if km_bas <= km <= km_haut:
 
-               prix_bas = FULL_DATASET[
-                   marque.lower()
+               prix_bas = NORMALIZED_DATASET[
+                   normalize_text(marque)
                ][
-                   modele.lower()
+                   normalize_text(modele)
                ][
                    annee1
                ][
                    km_bas
                ]
 
-               prix_haut = FULL_DATASET[
-                    marque.lower()
+               prix_haut = NORMALIZED_DATASET[
+                    normalize_text(marque)
                ][
-                    modele.lower()
+                    normalize_text(modele)
                ][
                     annee
                ][
