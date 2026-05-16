@@ -5214,20 +5214,7 @@ if not st.session_state.logged:
     st.success("Compte professionnel requis")
 
     email = st.text_input("Adresse email")
-    if st.button("Essai gratuit 24h"):
-
-        send_to_webhook(
-            email,
-            "ESSAI GRATUIT",
-            "TRIAL24H"
-        )
     
-        st.session_state.logged = True
-        st.session_state.user = email
-    
-        st.success("Essai gratuit activé pour 24h")
-    
-        st.rerun()
     
     st.markdown("---")
     new_user = email
@@ -5240,9 +5227,11 @@ if not st.session_state.logged:
         elif new_user:
             send_to_webhook(new_user, societe, siret)
             
-            st.success("Compte créé. Veuillez maintenant souscrire un abonnement.")
-            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.success("Compte créé.")
 
+            st.markdown("[👉 Cliquez ici pour votre essai gratuit](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
+            
+            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
             st.markdown("---")
             
        
