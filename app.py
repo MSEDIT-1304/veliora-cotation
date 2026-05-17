@@ -5143,29 +5143,17 @@ def load_users():
 
 def check_login(username):
 
-        df = load_users()
-    
-        user = df[
-            df["username"].astype(str).str.strip()
-            == str(username).strip()
-        ]
-    
-        if user.empty:
-            return "error"
-    
-    expire_date = pd.to_datetime(user.iloc[0]["expire"], errors="coerce")
-    
-    if pd.isna(expire_date):
-        return "expired"
-    
-    if expire_date < pd.Timestamp.now():
-        
-        if str(user.iloc[0]["trial"]).strip().upper() == "TRUE":
-            return "trial_expired"
-        
-        return "subscription_expired"
-    
-    return "ok"
+    df = load_users()
+
+    user = df[
+        df["username"].astype(str).str.strip()
+        == str(username).strip()
+    ]
+
+    if not user.empty:
+        return "ok"
+
+    return "error"
 def send_to_webhook(username, societe, siret):
     
 
@@ -5267,29 +5255,18 @@ if not st.session_state.logged:
             st.session_state.logged = True
             st.rerun()
 
-        elif result == "trial_expired":
-
+        elif result == "expired":
             st.warning("""
-            ⛔ Essai gratuit expiré.
-        
-            Veuillez souscrire un abonnement pour continuer.
-            """)
-        
-            st.markdown(f"[👉 S’abonner maintenant]({STRIPE_LINK})")
-        
-        elif result == "subscription_expired":
-        
-            st.error("""
-            ⛔ Abonnement expiré.
-        
-            Veuillez renouveler votre abonnement.
-            """)
-        
-            st.markdown(f"[👉 Renouveler mon abonnement]({STRIPE_LINK})")
-        
+        ⛔ Essai gratuit expiré.
+
+        Veuillez souscrire un abonnement pour continuer.
+""")
+
+            st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+
         else:
             st.error("Identifiant incorrect")
-            
+
 if not st.session_state.get("logged", False):
     st.stop()
 
@@ -5702,6 +5679,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
             f"{r['bas_affiche']:,.0f}".replace(",", ".") + " € "
             f"et {r['haut_affiche']:,.0f}".replace(",", ".") + " €"
         )
+
 
 
 
