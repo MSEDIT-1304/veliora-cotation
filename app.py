@@ -5270,22 +5270,23 @@ if not st.session_state.logged:
         elif result == "trial_expired":
 
             st.warning("""
-        ⛔ Essai gratuit expiré.
+            ⛔ Essai gratuit expiré.
         
-        Veuillez souscrire un abonnement pour continuer.
-        """)
-        st.markdown(f"[👉 S’abonner maintenant]({STRIPE_LINK})")
-
+            Veuillez souscrire un abonnement pour continuer.
+            """)
+        
+            st.markdown(f"[👉 S’abonner maintenant]({STRIPE_LINK})")
+        
         elif result == "subscription_expired":
-    
+        
             st.error("""
             ⛔ Abonnement expiré.
         
             Veuillez renouveler votre abonnement.
             """)
-            
-                st.markdown(f"[👉 Renouveler mon abonnement]({STRIPE_LINK})")
-    
+        
+            st.markdown(f"[👉 Renouveler mon abonnement]({STRIPE_LINK})")
+        
         else:
             st.error("Identifiant incorrect")
             
