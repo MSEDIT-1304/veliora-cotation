@@ -5150,10 +5150,25 @@ def check_login(username):
         == str(username).strip()
     ]
 
-    if not user.empty:
-        return "ok"
+    if user.empty:
+        return "error"
 
-    return "error"
+    expire_date = pd.to_datetime(
+        user.iloc[0]["expire"],
+        errors="coerce"
+    )
+
+    if pd.isna(expire_date):
+        return "expired"
+
+    if expire_date < pd.Timestamp.now():
+
+        if str(user.iloc[0]["trial"]).strip().upper() == "TRUE":
+            return "trial_expired"
+
+        return "subscription_expired"
+
+    return "ok"
 def send_to_webhook(username, societe, siret):
     
 
