@@ -5143,29 +5143,29 @@ def load_users():
 
 def check_login(username):
 
-    df = load_users()
-
-    user = df[
-        df["username"].astype(str).str.strip()
-        == str(username).strip()
-    ]
-
-    if user.empty:
-        return "error"
-
-expire_date = pd.to_datetime(user.iloc[0]["expire"], errors="coerce")
-
-if pd.isna(expire_date):
-    return "expired"
-
-if expire_date < pd.Timestamp.now():
+        df = load_users()
     
-    if str(user.iloc[0]["trial"]).strip().upper() == "TRUE":
-        return "trial_expired"
+        user = df[
+            df["username"].astype(str).str.strip()
+            == str(username).strip()
+        ]
     
-    return "subscription_expired"
-
-return "ok"
+        if user.empty:
+            return "error"
+    
+    expire_date = pd.to_datetime(user.iloc[0]["expire"], errors="coerce")
+    
+    if pd.isna(expire_date):
+        return "expired"
+    
+    if expire_date < pd.Timestamp.now():
+        
+        if str(user.iloc[0]["trial"]).strip().upper() == "TRUE":
+            return "trial_expired"
+        
+        return "subscription_expired"
+    
+    return "ok"
 def send_to_webhook(username, societe, siret):
     
 
