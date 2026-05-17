@@ -70,7 +70,7 @@ TVA = 0.20
 PRICE_TTC = 34.80
 
 STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
-TRIAL_HOURS = 24
+
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "TonMotDePasseFort123!"
@@ -5254,7 +5254,7 @@ if not st.session_state.logged:
 
     st.subheader("🔐 Connexion")
 
-    user = st.text_input("Utilisateur")
+    user = st.text_input("mail")
     
 
     if st.button("Se connecter"):
