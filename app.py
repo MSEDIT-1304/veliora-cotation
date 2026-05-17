@@ -5270,18 +5270,28 @@ if not st.session_state.logged:
             st.session_state.logged = True
             st.rerun()
 
-        elif result == "expired":
+        elif result == "trial_expired":
+
             st.warning("""
         ⛔ Essai gratuit expiré.
-
+        
         Veuillez souscrire un abonnement pour continuer.
-""")
-
-            st.markdown(f"[💳 S'abonner maintenant ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
-
+        """)
+        
+            st.markdown(f"[👉 S’abonner maintenant]({STRIPE_LINK})")
+        
+        elif result == "subscription_expired":
+        
+            st.error("""
+        ⛔ Abonnement expiré.
+        
+        Veuillez renouveler votre abonnement.
+        """)
+        
+            st.markdown(f"[👉 Renouveler mon abonnement]({STRIPE_LINK})")
+        
         else:
             st.error("Identifiant incorrect")
-
 if not st.session_state.get("logged", False):
     st.stop()
 
