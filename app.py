@@ -5173,11 +5173,10 @@ def send_to_webhook(username, societe, siret):
     
 
     data = {
-        "username": username,
-        "societe": societe,
-        "siret": siret,
-        
-    }
+    "username": username,
+    "trial": True,
+    "price": 0
+}
 
     try:
         requests.post(WEBHOOK_URL, json=data, timeout=10)
@@ -5234,7 +5233,7 @@ if not st.session_state.logged:
     st.markdown("---")
     new_user = email
     societe = st.text_input("Nom de la société")
-    siret = st.text_input("Numéro SIRET")
+    siret = st.text_input("Numéro SIRET 14 chiffres")
 
     if st.button("Créer compte"):
         if not societe or not siret:
