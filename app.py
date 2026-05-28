@@ -65,11 +65,9 @@ st.set_page_config(page_title="Veliora Pro", layout="centered")
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
-PRICE_HT = 29
-TVA = 0.20
-PRICE_TTC = 34.80
+PRICE_TVAC = 20
 
-STRIPE_LINK = "https://buy.stripe.com/00w7sM8UG4xn4TV5HO9fW07"
+STRIPE_LINK = "https://buy.stripe.com/14AaEYfj43tjbijeek9fW0c"
 
 
 ADMIN_USER = "admin"
@@ -17018,7 +17016,11 @@ with col2:
 
 col1, col2 = st.columns(2)
 with col1:
-    finition = st.text_input("Finition", key=f"finition_{rid}")
+    finition = st.selectbox(
+        "Finition",
+        sorted(NORMALIZED_DATASET[marque][modele].keys()),
+        key=f"finition_{rid}"
+    )
 
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
@@ -17077,6 +17079,8 @@ if calcul:
     ][
         normalize_text(modele)
     ][
+        normalize_text(finition)
+    ][
         annee
     ][
         km_reference
@@ -17123,6 +17127,8 @@ if calcul:
         ][
             normalize_text(modele)
         ][
+            normalize_text(finition)
+        ][
             annee
         ][
             30000
@@ -17134,6 +17140,8 @@ if calcul:
             normalize_text(marque)
         ][
             normalize_text(modele)
+        ][
+            normalize_text(finition)
         ][
             annee
         ][
@@ -17154,6 +17162,8 @@ if calcul:
                ][
                    normalize_text(modele)
                ][
+                    normalize_text(finition)
+               ][  
                    annee
                ][
                    km_bas
@@ -17163,6 +17173,8 @@ if calcul:
                     normalize_text(marque)
                ][
                     normalize_text(modele)
+               ][
+                    normalize_text(finition)
                ][
                     annee
                ][
