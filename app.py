@@ -16840,8 +16840,6 @@ with col2:
 col1, col2 = st.columns(2)
 with col1:
     mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
-with col2:
-    annee = st.number_input("Année", 1990, datetime.now().year, 2019, key=f"annee_{rid}")
 
 
 col1, col2 = st.columns(2)
@@ -16852,6 +16850,13 @@ with col1:
         key=f"finition_{rid}"
     )
 
+with col2:
+    annee = st.selectbox(
+        "Année",
+        sorted(NORMALIZED_DATASET[marque][modele][finition].keys(),
+        key=f"annee_{rid}"
+    )
+        
 with col2:
     sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
