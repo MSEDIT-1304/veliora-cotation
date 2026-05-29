@@ -16853,7 +16853,7 @@ with col1:
 with col2:
     annee = st.selectbox(
         "Année",
-        sorted(NORMALIZED_DATASET[marque][modele][finition].keys(),
+        sorted(NORMALIZED_DATASET[marque][modele][finition].keys()),
         key=f"annee_{rid}"
     )
         
