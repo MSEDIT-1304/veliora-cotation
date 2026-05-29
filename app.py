@@ -16636,9 +16636,7 @@ if not st.session_state.logged:
             
             st.success("Compte créé.")
 
-            st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
-            
-            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TTC}€ TTC)]({STRIPE_LINK})")
+            st.markdown(f"[💳 Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown("---")
             
        
