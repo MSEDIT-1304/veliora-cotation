@@ -16738,8 +16738,8 @@ if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
-    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois.")
-    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez")
+    st.info(f"{PRICE_TVAC}€ TVAC) / mois. Sans engagement.")
+    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez.")
     st.text("Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
     
     email = st.text_input("Créez votre compte avec votre adresse mail")
