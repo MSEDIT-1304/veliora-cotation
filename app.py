@@ -16745,7 +16745,7 @@ if not st.session_state.logged:
     
     st.markdown("---")
     new_user = email
-    nom = st.text_input("Nom Prénom")
+    nom = st.text_input("Nom et Prénom")
     societe = st.text_input("Nom de la société")
     siret = st.text_input("Numéro SIREN 9 chiffres ou SIRET 14 chiffres")
 
