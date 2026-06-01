@@ -16738,18 +16738,16 @@ if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
-    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois. Pas de prélèvement mensuel. Paiement pour un mois.")
-    
-    type_client = "Professionnel auto"
-    st.success("Compte professionnel requis")
+    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois. Pas de prélèvement mensuel. Paiement pour un mois uniquement.")
 
     email = st.text_input("Créez votre compte avec votre adresse mail")
     
     
     st.markdown("---")
     new_user = email
+    nom = st.text_input("Nom Prénom")
     societe = st.text_input("Nom de la société")
-    siret = st.text_input("Numéro SIRET 14 chiffres")
+    siret = st.text_input("Numéro SIREN 9 chiffres ou SIRET 14 chiffres")
 
     if st.button("Créer compte"):
         if not societe or not siret:
