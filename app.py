@@ -17220,16 +17220,25 @@ if "resultat" in st.session_state and st.session_state.resultat:
             0.0
         )
 
-        if commission_pct_user > 0:
-            commission_calc_user = round(
-                prix_choisi * (commission_pct_user / 100)
-            )
+        btn_net = st.button(
+            "Calculer le net vendeur",
+            use_container_width=True
+        )
         
-        else:
-            commission_calc_user = commission_user
-
-        net_vendeur_user = prix_choisi - commission_calc_user
-        st.success(f"💵 Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €")
+        if btn_net:
+        
+            if commission_pct_user > 0:
+                commission_calc_user = round(
+                    prix_choisi * (commission_pct_user / 100)
+                )
+            else:
+                commission_calc_user = commission_user
+        
+            net_vendeur_user = prix_choisi - commission_calc_user
+        
+            st.success(
+                f"💵 Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €"
+            )
 
     with col_left:
 
