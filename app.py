@@ -16795,7 +16795,7 @@ if not st.session_state.logged:
         Veuillez souscrire un abonnement pour continuer.
         """)
         
-            st.markdown(f"[👉 S’abonner maintenant]({STRIPE_LINK})")
+            st.markdown(f"[👉 Payez pour un mois maintenant]({STRIPE_LINK})")
         
         elif result == "subscription_expired":
         
@@ -16805,7 +16805,7 @@ if not st.session_state.logged:
         Veuillez renouveler votre abonnement.
         """)
         
-            st.markdown(f"[👉 Renouveler mon abonnement]({STRIPE_LINK})")
+            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
         
         else:
             st.error("Identifiant incorrect")
@@ -17229,6 +17229,8 @@ if "resultat" in st.session_state and st.session_state.resultat:
             commission_calc_user = commission_user
 
         net_vendeur_user = prix_choisi - commission_calc_user
+        if st.button("Calculer net vendeur"):
+
 
         st.success(f"💵 Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €")
 
