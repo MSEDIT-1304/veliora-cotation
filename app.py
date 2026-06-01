@@ -16738,7 +16738,7 @@ if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
-    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois")
+    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois. Pas de prélèvement mensuel. Paiement pour un mois")
     
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
