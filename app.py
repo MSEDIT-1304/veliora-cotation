@@ -7,6 +7,16 @@ import io
 import time
 import os
 import unicodedata
+# ===== MODE MAINTENANCE =====
+MAINTENANCE = True
+
+if MAINTENANCE:
+    st.title("🔧 Maintenance en cours")
+    st.warning("L'application est temporairement indisponible.")
+    st.info("Merci de revenir plus tard.")
+    st.stop()
+# ============================
+
 def normalize_text(text):
     text = str(text).lower().strip()
 
