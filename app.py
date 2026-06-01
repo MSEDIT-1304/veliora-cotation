@@ -16758,7 +16758,7 @@ if not st.session_state.logged:
             #send_to_webhook(new_user, societe, siret)
             
             st.success("Compte créé.")
-
+            st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
             st.markdown(f"[💳 Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown("---")
             
@@ -16961,11 +16961,7 @@ with col2:
     )
 
 col1, col2 = st.columns(2)
-with col1:
-    mois = st.text_input("Mois 1ère immatriculation (ex: 03)", key=f"mois_{rid}")
 
-
-col1, col2 = st.columns(2)
 with col1:
     finition = st.selectbox(
         "Finition",
@@ -16979,10 +16975,21 @@ with col2:
         sorted(NORMALIZED_DATASET[marque][modele][finition].keys()),
         key=f"annee_{rid}"
     )
-        
-with col2:
-    sous_version = st.text_input("Sous-version", key=f"sous_version_{rid}")
 
+col1, col2 = st.columns(2)
+
+with col1:
+    mois = st.text_input(
+        "Mois 1ère immatriculation (ex: 03)",
+        key=f"mois_{rid}"
+    )
+
+with col2:
+    sous_version = st.text_input(
+        "Sous-version",
+        key=f"sous_version_{rid}"
+    )
+    
 col1, col2 = st.columns(2)
 with col1:
     motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
