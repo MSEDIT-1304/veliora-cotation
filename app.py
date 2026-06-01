@@ -8,7 +8,7 @@ import time
 import os
 import unicodedata
 # ===== MODE MAINTENANCE =====
-MAINTENANCE = True
+MAINTENANCE = False
 
 if MAINTENANCE:
     st.title("🔧 Maintenance en cours")
