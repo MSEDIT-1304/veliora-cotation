@@ -16743,7 +16743,7 @@ if not st.session_state.logged:
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
 
-    email = st.text_input("Adresse email")
+    email = st.text_input("Créez votre compte avec votre dresse mail")
     
     
     st.markdown("---")
@@ -16758,7 +16758,7 @@ if not st.session_state.logged:
             #send_to_webhook(new_user, societe, siret)
             
             st.success("Compte créé.")
-            st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
+            st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
             st.markdown(f"[💳 Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown("---")
             
