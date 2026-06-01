@@ -17229,9 +17229,6 @@ if "resultat" in st.session_state and st.session_state.resultat:
             commission_calc_user = commission_user
 
         net_vendeur_user = prix_choisi - commission_calc_user
-        if st.button("Calculer net vendeur"):
-
-
         st.success(f"💵 Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €")
 
     with col_left:
