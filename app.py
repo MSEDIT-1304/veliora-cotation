@@ -16738,7 +16738,7 @@ if not st.session_state.logged:
 
     st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
-    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois. Pas de prélèvement mensuel. Paiement pour un mois")
+    st.info(f"Abonnement : {PRICE_TVAC}€ TVAC) / mois. Pas de prélèvement mensuel. Paiement pour un mois.")
     
     type_client = "Professionnel auto"
     st.success("Compte professionnel requis")
@@ -16761,7 +16761,7 @@ if not st.session_state.logged:
             st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
             st.markdown(f"[💳 Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown(
-                '📧 Envoyer votre KBIS à : <a href="mailto:ms.edit.mg@gmail.com">ms.edit.mg@gmail.com</a>',
+                '📧 Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:ms.edit.mg@gmail.com">ms.edit.mg@gmail.com</a>',
                 unsafe_allow_html=True
             )
             st.markdown("---")
