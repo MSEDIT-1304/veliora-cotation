@@ -17146,17 +17146,7 @@ PREMIUM_FINITIONS = {
         "launch edition": 8000
     }
 }
-finition_bonus = (
-    PREMIUM_FINITIONS
-    .get(brand.lower(), {})
-    .get(finition.lower().strip(), 0)
-)
-final_price = (
-    base_price
-    + finition_bonus
-    + year_decote
-    + km_decote
-)
+
 def get_premium_year_decote(year):
 
     current_year = 2026
@@ -17185,6 +17175,7 @@ def get_premium_km_decote(km):
         return -18000
 
     return -25000
+    
 NORMALIZED_DATASET = {}
 
 for brand, models in FULL_DATASET.items():
@@ -17612,6 +17603,13 @@ if calcul:
         km_reference
     ]
     
+    finition_bonus = (
+        PREMIUM_FINITIONS
+        .get(normalize_text(marque), {})
+        .get(normalize_text(finition), 0)
+    )
+
+    prix_marche += finition_bonus    
     
     # 🔥 MODE STABLE (désactivation learning / scraping)
    
