@@ -17540,74 +17540,7 @@ with col2:
     
 col1, col2 = st.columns(2)
 with col1:
-    motorisations = [
-        "",
-        "1.0",
-        "1.2",
-        "1.4",
-        "1.5 dCi",
-        "1.6",
-        "1.6 HDi",
-        "1.6 TDI",
-        "1.8",
-        "2.0",
-        "2.0 HDi",
-        "2.0 TDI",
-        "2.0 Turbo",
-        "2.2",
-        "2.5",
-        "3.0 V6",
-        "Essence",
-        "Diesel",
-        "Hybride",
-        "Électrique"
-        "A160",
-        "A180",
-        "A200",
-        "A220",
-        "A250",
-        "A180d",
-        "A200d",
-        "116i",
-        "118i",
-        "120i",
-        "125i",
-        "116d",
-        "118d",
-        "120d",
-        "M135i",
-        "25 TFSI",
-        "30 TFSI",
-        "35 TFSI",
-        "40 TFSI",
-        "45 TFSI",
-        "30 TDI",
-        "35 TDI",
-        "40 TDI",
-        "200",
-        "250",
-        "300h",
-        "350",
-        "450h",
-        "500h",  
-        "D150",
-        "D180",
-        "D200",
-        "P200",
-        "P250",
-        "P300",       
-        "Carrera",
-        "Carrera S",
-        "GTS",
-        "Turbo",
-        "Turbo S"
-]
-
-motorisation = st.selectbox(
-    "Motorisation",
-    motorisations,
-    key=f"motorisation_{rid}"
-)
+    motorisation = st.text_input("Motorisation", key=f"motorisation_{rid}")
 with col2:
     carburant = st.selectbox("Carburant", ["Essence","Diesel","Hybride","Électrique","GPL"], key=f"carburant_{rid}")
 
