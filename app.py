@@ -16724,7 +16724,6 @@ PREMIUM_PRICES = {
         }
     },
     "bmw": {
-
         "serie 1": {
             "116d": 38000,
             "118d": 42000,
@@ -16829,7 +16828,6 @@ PREMIUM_PRICES = {
         }
     },
     "mercedes": {
-
         "classe a": {
             "180d": 42000,
             "200d": 47000,
@@ -16982,7 +16980,6 @@ PREMIUM_PRICES = {
         }
     },
     "land rover": {
-
         "range rover evoque": {
             "d165": 62000,
             "d200": 69000,
@@ -17036,7 +17033,6 @@ PREMIUM_PRICES = {
         }
     },
     "lexus": {
-
         "ct": {
             "200h": 38000
         },
@@ -17088,7 +17084,7 @@ PREMIUM_PRICES = {
         }
     }
 }
-}
+
 PREMIUM_FINITIONS = {
     "audi": {
         "business": -5000,
