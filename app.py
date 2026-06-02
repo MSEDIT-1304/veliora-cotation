@@ -17175,7 +17175,36 @@ def get_premium_km_decote(km):
         return -18000
 
     return -25000
-    
+
+MOTORISATION_BONUS = {
+    "<1.2": -1500,
+    "1.2-1.4": -750,
+    "1.5-1.6": 0,
+    "1.7-2.0": 1000,
+    "2.1-3.0": 2500,
+    ">3.0": 5000
+}
+def get_motorisation_bonus(motorisation):
+
+    m = str(motorisation).lower()
+
+    if "1.0" in m or "1.1" in m:
+        return MOTORISATION_BONUS["<1.2"]
+
+    elif "1.2" in m or "1.3" in m or "1.4" in m:
+        return MOTORISATION_BONUS["1.2-1.4"]
+
+    elif "1.5" in m or "1.6" in m:
+        return MOTORISATION_BONUS["1.5-1.6"]
+
+    elif "1.7" in m or "1.8" in m or "1.9" in m or "2.0" in m:
+        return MOTORISATION_BONUS["1.7-2.0"]
+
+    elif "2.1" in m or "2.2" in m or "2.3" in m or "2.5" in m or "3.0" in m:
+        return MOTORISATION_BONUS["2.1-3.0"]
+
+    return MOTORISATION_BONUS[">3.0"]
+
 NORMALIZED_DATASET = {}
 
 for brand, models in FULL_DATASET.items():
