@@ -13,7 +13,7 @@ MAINTENANCE = False
 if MAINTENANCE:
     st.title("🔧 Maintenance en cours")
     st.warning("L'application est temporairement indisponible.")
-    st.info("Merci de revenir plus tard.")f
+    st.info("Merci de revenir plus tard.")
     st.stop()
 # ============================
 
