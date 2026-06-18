@@ -15023,7 +15023,7 @@ with col_header_left:
             font-weight:700;
             color:#d4af37
      
-        </div>
+        
     </div>
     
     """, unsafe_allow_html=True)
