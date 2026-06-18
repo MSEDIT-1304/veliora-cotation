@@ -70,7 +70,7 @@ try:
 except:
     model = None
 
-st.set_page_config(page_title="Veliora Pro", layout="centered")
+st.set_page_config(page_title="Veliora Cot' Auto", layout="centered")
 st.image("banniere_veliora.png", use_container_width=True)
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
