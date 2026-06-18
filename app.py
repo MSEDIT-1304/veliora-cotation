@@ -71,7 +71,6 @@ except:
     model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
-st.image("banniere_veliora.png", use_container_width=True)
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
@@ -14932,7 +14931,7 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    
+    st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
     st.info(f"{PRICE_TVAC}€ TVAC) / mois. Sans engagement.")
     st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez.")
@@ -15013,7 +15012,29 @@ col_header_left, col_header_right = st.columns([4,1])
 with col_header_left:
     st.markdown("""
     <div style="display:flex; align-items:center; gap:12px;">
-        
+        <div style="
+            width:38px;
+            height:38px;
+            border-radius:8px;
+            background:linear-gradient(135deg,#1f2937,#111827);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            color:white;
+        ">
+            V
+        </div>
+        <div>
+            <div style="font-size:22px; font-weight:600;">VELIORA</div>
+            <div style="font-size:13px; color:#9CA3AF;">
+                Cotation automobile intelligente
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 
 col1, col2 = st.columns([3,1])
 
@@ -15099,6 +15120,7 @@ if st.session_state.show_history:
 
 ---
 """)
+
 
 
 # Lien Argus en haut
