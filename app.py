@@ -15024,9 +15024,7 @@ with col_header_left:
             font-weight:700;
             color:white;
         ">
-            V
-        </div>
-       
+        
     </div>
     """, unsafe_allow_html=True)
 
