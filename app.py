@@ -15101,7 +15101,6 @@ if st.session_state.show_history:
 """)
 
 
-
 # Lien Argus en haut
 st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
 
