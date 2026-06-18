@@ -71,6 +71,7 @@ except:
     model = None
 
 st.set_page_config(page_title="Veliora Pro", layout="centered")
+st.image("banniere_veliora.png", use_container_width=True)
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
@@ -15021,15 +15022,8 @@ with col_header_left:
             align-items:center;
             justify-content:center;
             font-weight:700;
-            color:white;
-        ">
-            V
-        </div>
-        <div>
-            <div style="font-size:22px; font-weight:600;">VELIORA</div>
-            <div style="font-size:13px; color:#9CA3AF;">
-                Cotation automobile intelligente
-            </div>
+            color:#d4af37
+       
         </div>
     </div>
     """, unsafe_allow_html=True)
