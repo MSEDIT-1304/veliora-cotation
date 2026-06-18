@@ -70,7 +70,7 @@ try:
 except:
     model = None
 
-st.set_page_config(page_title="Veliora Cot' Auto", layout="centered")
+st.set_page_config(page_title="Veliora Pro", layout="centered")
 st.image("banniere_veliora.png", use_container_width=True)
 
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
@@ -14932,7 +14932,7 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
+    st.markdown("<h3 style='margin-bottom:0;'>Veliora Cot Auto</h2>", unsafe_allow_html=True)
     
     st.info(f"{PRICE_TVAC}€ TVAC) / mois. Sans engagement.")
     st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez.")
