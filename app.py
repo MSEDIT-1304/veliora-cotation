@@ -15026,12 +15026,7 @@ with col_header_left:
         ">
             V
         </div>
-        <div>
-            <div style="font-size:22px; font-weight:600;">VELIORA</div>
-            <div style="font-size:13px; color:#9CA3AF;">
-                Cotation automobile intelligente
-            </div>
-        </div>
+       
     </div>
     """, unsafe_allow_html=True)
 
