@@ -14952,7 +14952,7 @@ if not st.session_state.logged:
     <div style="
         text-align:center;
         color:#d4af37;
-        font-size:28px;
+        font-size:24px;
         font-weight:bold;
         margin:20px 0;
     ">
@@ -15067,25 +15067,6 @@ if not st.session_state.get("logged", False):
 col_header_left, col_header_right = st.columns([4,1])
 
 with col_header_left:
-
-    st.markdown("""
-    <div style="display:flex; align-items:center; gap:12px;">
-        <div style="
-            width:38px;
-            height:38px;
-            border-radius:8px;
-            background:linear-gradient(135deg,#1f2937,#111827);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-weight:700;
-            color:#d4af37
-      
-  
-    </div>
-    """, unsafe_allow_html=True)
-
-
 
 col1, col2 = st.columns([3,1])
 
