@@ -7,6 +7,15 @@ import io
 import time
 import os
 import unicodedata
+
+st.markdown("""
+<style>
+p, label, span, div, h1, h2, h3, h4, h5, h6 {
+    color: #d4af37 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ===== MODE MAINTENANCE =====
 MAINTENANCE = False
 
