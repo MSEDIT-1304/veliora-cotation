@@ -15026,6 +15026,7 @@ if not st.session_state.logged:
                 <div style="color:#d4af37; font-size:24px; font-weight:bold;">
                     ⛔ Essai gratuit expiré
                 </div>
+                
                 <div style="color:#d4af37; font-size:18px;">
                     Veuillez souscrire un abonnement pour continuer.
                 </div>
@@ -15041,17 +15042,17 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
         
-        st.markdown(
-            """
-            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                ⛔ Abonnement expiré
-            </div>
-            <div style="color:#d4af37; font-size:18px;">
-                Veuillez renouveler votre abonnement pour continuer.
-            </div>
-            
-            unsafe_allow_html=True
-        )
+            st.markdown(
+                """
+                <div style="color:#d4af37; font-size:24px; font-weight:bold;">
+                    ⛔ Abonnement expiré
+                </div>
+                <div style="color:#d4af37; font-size:18px;">
+                    Veuillez renouveler votre abonnement pour continuer.
+                </div>
+                
+                unsafe_allow_html=True
+            )
         
             st.markdown(
                 f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Renouveler pour un mois</a>',
@@ -15066,6 +15067,7 @@ if not st.session_state.get("logged", False):
 col_header_left, col_header_right = st.columns([4,1])
 
 with col_header_left:
+
     st.markdown("""
     <div style="display:flex; align-items:center; gap:12px;">
         <div style="
@@ -15078,8 +15080,7 @@ with col_header_left:
             justify-content:center;
             font-weight:700;
             color:#d4af37
-     
-        </div>  
+      
   
     </div>
     """, unsafe_allow_html=True)
