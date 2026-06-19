@@ -112,7 +112,7 @@ STRIPE_LINK = "https://buy.stripe.com/14AaEYfj43tjbijeek9fW0c"
 
 
 ADMIN_USER = "admin"
-ADMIN_PASS = "TonMotDePasseFort123!"
+ADMIN_PASS = "Ms130417"
 
 # 🔥 DATASET PREMIUM COMPLET
 
