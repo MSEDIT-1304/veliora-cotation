@@ -14962,9 +14962,9 @@ if not st.session_state.logged:
     """,
     unsafe_allow_html=True
 )
-    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez.")
+    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez. Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
     
-    st.text("Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
+    
 
 
 
@@ -14982,7 +14982,8 @@ if not st.session_state.logged:
         elif new_user:
             #send_to_webhook(new_user, societe, siret)
             
-            st.success("Compte créé.")
+            st.markdown("Compte créé.")
+            
             st.markdown(
                 '<a href="https://buy.stripe.com/..." target="_blank" style="color:#d4af37;text-decoration:none;">👉 Cliquez ici pour votre essai gratuit sans carte bancaire. Indiquez le mail du compte créé.</a>',
                 unsafe_allow_html=True
@@ -14993,12 +14994,11 @@ if not st.session_state.logged:
             )
             st.markdown(
                 'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé : '
-                '<a href="mailto:ms.edit.mg@gmail.com" style="color:#d4af37;text-decoration:none;">ms.edit.mg@gmail.com</a>',
+                '<span style="color:#d4af37;">ms.edit.mg@gmail.com</span>',
                 unsafe_allow_html=True
             )
-            st.markdown("---")
             
-       
+            
     st.markdown("---")
 
     st.subheader("🔐 Connexion")
@@ -15021,23 +15021,42 @@ if not st.session_state.logged:
 
         elif result == "trial_expired":
 
-            st.warning("""
-        ⛔ Essai gratuit expiré.
+            st.markdown(
+                """
+                <div style="color:#d4af37; font-size:24px; font-weight:bold;">
+                    ⛔ Essai gratuit expiré
+                </div>
+                <div style="color:#d4af37; font-size:18px;">
+                    Veuillez souscrire un abonnement pour continuer.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         
-        Veuillez souscrire un abonnement pour continuer.
-        """)
-        
-            st.markdown(f"[👉 Payez pour un mois maintenant]({STRIPE_LINK})")
+            st.markdown(
+                f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Payez pour un mois maintenant</a>',
+                unsafe_allow_html=True
+            )
         
         elif result == "subscription_expired":
         
-            st.error("""
-        ⛔ Abonnement expiré.
         
-        Veuillez renouveler votre abonnement.
-        """)
+        st.markdown(
+            """
+            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
+                ⛔ Abonnement expiré
+            </div>
+            <div style="color:#d4af37; font-size:18px;">
+                Veuillez renouveler votre abonnement pour continuer.
+            </div>
+            
+            unsafe_allow_html=True
+        )
         
-            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
+            st.markdown(
+                f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Renouveler pour un mois</a>',
+                unsafe_allow_html=True
+            )
         
         else:
             st.error("Identifiant incorrect")
@@ -15070,7 +15089,7 @@ with col_header_left:
 col1, col2 = st.columns([3,1])
 
 with col1:
-    if st.button("🔄 Nouvelle cotation (reset)"):
+    if st.button("Nouvelle cotation (reset)"):
         st.session_state.reset_id += 1
         if "resultat" in st.session_state and st.session_state.resultat:
             del st.session_state["resultat"]
@@ -15473,7 +15492,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
 
         st.markdown(
             f"""
-            <div style="margin-left:0px; text-align:left; font-size:38px; font-weight:bold;">
+            <div style="margin-left:0px; text-align:left; font-size:328px; font-weight:bold;">
                 {r['prix_estime']:,.0f} €
             </div>
             """.replace(",", "."),
