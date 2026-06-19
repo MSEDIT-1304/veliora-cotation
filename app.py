@@ -15038,7 +15038,9 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
             st.error("""
-        ⛔ Abonnement expiré.
+        st.markdown(
+            "### ⛔ Abonnement expiré"
+        )
         Veuillez renouveler votre abonnement.
         """)
         
