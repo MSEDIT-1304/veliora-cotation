@@ -15453,17 +15453,18 @@ if "resultat" in st.session_state and st.session_state.resultat:
         
             net_vendeur_user = prix_choisi - commission_calc_user
         
-            st.success(
-                f"💵 Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €"
+            st.markdown(
+                f"<h3 style='text-align:center;color:#d4af37;'>Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €</h3>",
+                unsafe_allow_html=True
             )
 
     with col_left:
 
-        st.markdown("#### 💰 PRIX MARCHÉ ESTIMÉ")
+        st.markdown("###### 💰 PRIX MARCHÉ ESTIMÉ")
 
         st.markdown(
             f"""
-            <div style="text-align:center; font-size:38px; font-weight:bold;">
+            <div style="width:100%; text-align:center; font-size:38px; font-weight:bold; margin:20px auto;">
                 {r['prix_estime']:,.0f} €
             </div>
             """.replace(",", "."),
@@ -15474,7 +15475,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
         )
 
         st.markdown(
-            f"📊 Estimation entre : "
+            f"Estimation entre : "
             f"{r['bas_affiche']:,.0f}".replace(",", ".") + " € "
             f"et {r['haut_affiche']:,.0f}".replace(",", ".") + " €"
         )
