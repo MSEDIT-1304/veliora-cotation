@@ -14962,7 +14962,6 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.markdown("<h3 style='margin-bottom:0;'>M.S Édit - Création de sites web et applications mobiles</h2>", unsafe_allow_html=True)
     
     st.markdown(
         f"""
@@ -15496,6 +15495,20 @@ if "resultat" in st.session_state and st.session_state.resultat:
             f"et {r['haut_affiche']:,.0f}".replace(',', '.') + " €"
         )
 
-
+st.markdown("""
+<div style="
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+text-align:center;
+padding:10px;
+background:#000814;
+color:#d4af37;
+z-index:9999;
+">
+M.S Édit - Création de sites web et applications mobiles
+</div>
+""", unsafe_allow_html=True)
 
 
