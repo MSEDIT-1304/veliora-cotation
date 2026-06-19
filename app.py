@@ -14962,7 +14962,7 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
+    st.markdown("<h3 style='margin-bottom:0;'>M.S Édit</h2>", unsafe_allow_html=True)
     
     st.markdown(
         f"""
