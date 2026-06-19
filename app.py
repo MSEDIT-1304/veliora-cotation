@@ -15002,9 +15002,10 @@ if not st.session_state.logged:
                 'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:ms.edit.mg@gmail.com">ms.edit.mg@gmail.com</a>',
                 unsafe_allow_html=True
             )
-     
+            st.markdown("---")
     st.markdown("---")
         
+   
     st.subheader("🔐 Connexion")
 
     user = st.text_input("mail")
@@ -15037,8 +15038,7 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
             st.error("""
-        st.markdown("### Abonnement expiré")
-        
+        ⛔ Abonnement expiré.
         Veuillez renouveler votre abonnement.
         """)
         
@@ -15066,8 +15066,17 @@ with col_header_left:
      
         
     </div>
-    
+    <div>
+            <div style="font-size:22px; font-weight:600;">VELIORA</div>
+            <div style="font-size:13px; color:#9CA3AF;">
+                Cotation automobile intelligente
+            </div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
+
+
+    
 
 
 
