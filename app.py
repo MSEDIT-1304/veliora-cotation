@@ -14997,20 +14997,14 @@ if not st.session_state.logged:
             
             st.markdown("Compte créé.")
             st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
+            st.markdown(f"[Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown(
-                f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37;text-decoration:none;">Payer l\'abonnement ({PRICE_TVAC}€ TVAC)</a>',
+                'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:ms.edit.mg@gmail.com">ms.edit.mg@gmail.com</a>',
                 unsafe_allow_html=True
             )
-            st.markdown(
-                'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé : '
-                '<span style="color:#d4af37;">ms.edit.mg@gmail.com</span>',
-                unsafe_allow_html=True
-            )
-            
-            st.markdown("---")
-            
-       
-
+     
+    st.markdown("---")
+        
     st.subheader("🔐 Connexion")
 
     user = st.text_input("mail")
@@ -15043,7 +15037,7 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
             st.error("""
-        ⛔ Abonnement expiré.
+        st.markdown("### Abonnement expiré")
         
         Veuillez renouveler votre abonnement.
         """)
