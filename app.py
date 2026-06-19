@@ -15036,7 +15036,7 @@ if not st.session_state.logged:
         st.markdown(
             """
             <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                ⛔ Essai gratuit expiré
+                Essai gratuit expiré
             </div>
             <div style="color:#d4af37; font-size:18px;">
                 Veuillez souscrire un abonnement pour continuer.
@@ -15056,7 +15056,7 @@ if not st.session_state.logged:
         st.markdown(
             """
             <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                ⛔ Abonnement expiré
+                Abonnement expiré
             </div>
             <div style="color:#d4af37; font-size:18px;">
                 Veuillez renouveler votre abonnement pour continuer.
@@ -15105,7 +15105,7 @@ with col1:
         st.rerun()
 
 with col2:
-    if st.button("🚪 Se déconnecter"):
+    if st.button("Se déconnecter"):
         st.session_state.logged = False
         st.session_state.admin_logged = False
         st.rerun()
@@ -15117,7 +15117,7 @@ with col2:
 col2a, col2b = st.columns(2)
 
 with col2a:
-    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
+    st.session_state.show_history = st.toggle("Historique", value=st.session_state.show_history)
 
 with col2b:
     buffer_hist = io.StringIO()
@@ -15460,7 +15460,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
     col_left, col_right = st.columns(2)
 
     with col_right:
-        st.markdown("### 🧮 Calculateur")
+        st.markdown("### Calculateur")
         prix_choisi = st.number_input(
             "Prix choisi", 
             value=0
