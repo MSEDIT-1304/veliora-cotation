@@ -15413,7 +15413,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
     col_left, col_right = st.columns(2)
 
     with col_right:
-        st.markdown("### 🧮 Calculateur")
+        st.markdown("###  Calculateur")
         prix_choisi = st.number_input(
             "Prix choisi", 
             value=0
@@ -15451,15 +15451,16 @@ if "resultat" in st.session_state and st.session_state.resultat:
 
     with col_left:
 
-        st.markdown("## 💰 PRIX MARCHÉ ESTIMÉ")
+        st.markdown("#### 💰 PRIX MARCHÉ ESTIMÉ")
 
-        st.success(f"{r['prix_estime']:,.0f}".replace(",", ".") + " €")
-
+        st.markdown(
+            f"### {r['prix_estime']:,.0f}".replace(",", ".") + " €"
+        )
         st.caption(
             "(Prix marché estimé basé sur prix marché moyen garage.)"
         )
 
-        st.info(
+        st.markdown(
             f"📊 Estimation entre : "
             f"{r['bas_affiche']:,.0f}".replace(",", ".") + " € "
             f"et {r['haut_affiche']:,.0f}".replace(",", ".") + " €"
