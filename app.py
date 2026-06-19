@@ -14931,7 +14931,21 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.info(f"{PRICE_TVAC}€ TVAC) / mois. Sans engagement.")
+    st.markdown(
+    f"""
+    <div style="
+        text-align:center;
+        color:#d4af37;
+        font-size:28px;
+        font-weight:bold;
+        margin:20px 0;
+    ">
+        {PRICE_TVAC} € / mois Sans engagement
+    </div>
+    
+    """,
+    unsafe_allow_html=True
+)
     st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez.")
     st.text("Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
     
