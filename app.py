@@ -15042,7 +15042,7 @@ if not st.session_state.logged:
         Veuillez renouveler votre abonnement.
         """)
         
-            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})"
+            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
         else:
             st.error("Identifiant incorrect")
 if not st.session_state.get("logged", False):
