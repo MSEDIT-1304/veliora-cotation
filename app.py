@@ -15033,40 +15033,22 @@ if not st.session_state.logged:
 
             st.warning("""
         
-        st.markdown(
-            """
-            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                Essai gratuit expiré
-            </div>
-            <div style="color:#d4af37; font-size:18px;">
-                Veuillez souscrire un abonnement pour continuer.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        ⛔ Essai gratuit expiré.
         
-            st.markdown(
-                f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Payez pour un mois maintenant</a>',
-                unsafe_allow_html=True
-            )
+        Veuillez souscrire un abonnement pour continuer.
+        """)
+        
+            st.markdown(f"[👉 Payez pour un mois maintenant]({STRIPE_LINK})")
         
         elif result == "subscription_expired":
         
             st.error("""
-        st.markdown(
-            """
-            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                Abonnement expiré
-            </div>
-            <div style="color:#d4af37; font-size:18px;">
-                Veuillez renouveler votre abonnement pour continuer.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        ⛔ Abonnement expiré.
         
-            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
+        Veuillez renouveler votre abonnement.
+        """)
         
+            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})"
         else:
             st.error("Identifiant incorrect")
 if not st.session_state.get("logged", False):
