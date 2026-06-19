@@ -15027,9 +15027,7 @@ if not st.session_state.logged:
         elif result == "trial_expired":
 
             st.markdown("""       
-        ⛔ Essai gratuit expiré.
-        
-        Veuillez souscrire un abonnement pour continuer.
+        ⛔ Essai gratuit expiré. Veuillez souscrire un abonnement pour continuer.
         """)
         
             st.markdown(f"[👉 Payez pour un mois maintenant]({STRIPE_LINK})")
@@ -15037,9 +15035,7 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
             st.markdown("""       
-        ⛔ Abonnement expiré.
-        
-        Veuillez renouveler votre abonnement.
+        ⛔ Abonnement expiré. Veuillez renouveler votre abonnement.
         """)
         
             st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
