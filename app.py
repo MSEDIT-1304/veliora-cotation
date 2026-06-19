@@ -15028,9 +15028,7 @@ if not st.session_state.logged:
 
             st.warning("""
         
-        st.markdown(
-            "### ⛔ Essai gratuit expiré"
-        )
+        ⛔ Essai gratuit expiré.
         
         Veuillez souscrire un abonnement pour continuer.
         """)
@@ -15040,9 +15038,8 @@ if not st.session_state.logged:
         elif result == "subscription_expired":
         
             st.error("""
-        st.markdown(
-            "### ⛔ Abonnement expiré"
-        )
+        ⛔ Abonnement expiré.
+        
         Veuillez renouveler votre abonnement.
         """)
         
