@@ -103,11 +103,6 @@ except:
 
 st.image("banniere_veliora.png", use_container_width=True)
 
-col1, col2, col3 = st.columns([1,2,1])
-
-with col2:
-    st.image("logo_veliora.png", width=250)
-
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
@@ -14967,7 +14962,7 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.markdown("<h3 style='margin-bottom:0;'>M.S Édit</h2>", unsafe_allow_html=True)
+    st.markdown("<h3 style='margin-bottom:0;'>M.S Édit - Création de sites web et applications mobiles</h2>", unsafe_allow_html=True)
     
     st.markdown(
         f"""
