@@ -15008,7 +15008,7 @@ if not st.session_state.logged:
     st.subheader("🔐 Connexion")
 
     user = st.text_input("mail")
-    
+    pwd = st.text_input("Mot de passe", type="password")
 
     if st.button("Se connecter"):
 
