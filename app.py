@@ -13,6 +13,13 @@ st.markdown("""
 p, label, span, div, h1, h2, h3, h4, h5, h6 {
     color: #d4af37 !important;
 }
+input {
+    color: #d4af37 !important;
+}
+
+button {
+    color: #d4af37 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -15061,7 +15068,7 @@ with col1:
         st.rerun()
 
 with col2:
-    if st.button("🚪 Se déconnecter"):
+    if st.button("Se déconnecter"):
         st.session_state.logged = False
         st.session_state.admin_logged = False
         st.rerun()
@@ -15073,7 +15080,7 @@ with col2:
 col2a, col2b = st.columns(2)
 
 with col2a:
-    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
+    st.session_state.show_history = st.toggle("Historique", value=st.session_state.show_history)
 
 with col2b:
     buffer_hist = io.StringIO()
@@ -15093,7 +15100,7 @@ for item in st.session_state.historique:
     buffer_hist.write("-----------------------------\n")
 
 st.download_button(
-    "📥 Télécharger historique",
+    "Télécharger historique",
     buffer_hist.getvalue(),
     "historique.txt",
     key="download_history"
@@ -15101,7 +15108,7 @@ st.download_button(
 
 
 if st.session_state.show_history:
-    st.subheader("📊 Historique des estimations")
+    st.subheader("Historique des estimations")
 
     if len(st.session_state.historique) == 0:
         st.info("Aucune estimation pour le moment")
@@ -15136,10 +15143,11 @@ if st.session_state.show_history:
 ---
 """)
 
-
-
 # Lien Argus en haut
-st.markdown("[📄 Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)")
+st.markdown(
+    '<a href="https://www.largus.fr/fiche-technique.html" target="_blank" style="color:#d4af37; text-decoration:none; font-weight:bold;">📄 Voir fiche technique Argus</a>',
+    unsafe_allow_html=True
+)
 
 # 🔥 ASSISTANT SAISIE INTELLIGENT (VERSION CORRIGÉE)
 
@@ -15454,7 +15462,12 @@ if "resultat" in st.session_state and st.session_state.resultat:
         st.markdown("#### 💰 PRIX MARCHÉ ESTIMÉ")
 
         st.markdown(
-            f"### {r['prix_estime']:,.0f}".replace(",", ".") + " €"
+            f"""
+            <div style="text-align:center; font-size:38px; font-weight:bold;">
+                {r['prix_estime']:,.0f} €
+            </div>
+            """.replace(",", "."),
+            unsafe_allow_html=True
         )
         st.caption(
             "(Prix marché estimé basé sur prix marché moyen garage.)"
