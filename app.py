@@ -13,15 +13,30 @@ st.markdown("""
 p, label, span, div, h1, h2, h3, h4, h5, h6 {
     color: #d4af37 !important;
 }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+/* Valeurs des champs numériques */
 input {
     color: #d4af37 !important;
 }
 
+/* Boutons + et - */
 button {
     color: #d4af37 !important;
 }
+
+/* Liens */
+a {
+    color: #d4af37 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # ===== MODE MAINTENANCE =====
 MAINTENANCE = False
@@ -14947,30 +14962,28 @@ if st.session_state.admin_logged:
 
 if not st.session_state.logged:
 
-    st.markdown(
-    f"""
-    <div style="
-        text-align:center;
-        color:#d4af37;
-        font-size:24px;
-        font-weight:bold;
-        margin:20px 0;
-    ">
-        {PRICE_TVAC} € / mois Sans engagement
-    </div>
+    st.markdown("<h3 style='margin-bottom:0;'>Veliora Pro</h2>", unsafe_allow_html=True)
     
-    """,
-    unsafe_allow_html=True
-)
+    st.markdown(
+        f"""
+        <div style="
+            text-align:center;
+            color:#d4af37;
+            font-size:28px;
+            font-weight:bold;
+            margin:20px 0;
+        ">
+            {PRICE_TVAC} € / mois Sans engagement
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
     st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez. Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
     
-    
-
-
-
+   
     
     email = st.text_input("Créez votre compte avec votre adresse mail")
-      
     new_user = email
     nom = st.text_input("Nom et Prénom")
     societe = st.text_input("Nom de la société")
@@ -14983,11 +14996,7 @@ if not st.session_state.logged:
             #send_to_webhook(new_user, societe, siret)
             
             st.markdown("Compte créé.")
-            
-            st.markdown(
-                '<a href="https://buy.stripe.com/..." target="_blank" style="color:#d4af37;text-decoration:none;">👉 Cliquez ici pour votre essai gratuit sans carte bancaire. Indiquez le mail du compte créé.</a>',
-                unsafe_allow_html=True
-            )
+            st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
             st.markdown(
                 f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37;text-decoration:none;">Payer l\'abonnement ({PRICE_TVAC}€ TVAC)</a>',
                 unsafe_allow_html=True
@@ -14998,8 +15007,9 @@ if not st.session_state.logged:
                 unsafe_allow_html=True
             )
             
+            st.markdown("---")
             
-    st.markdown("---")
+       
 
     st.subheader("🔐 Connexion")
 
@@ -15021,18 +15031,19 @@ if not st.session_state.logged:
 
         elif result == "trial_expired":
 
-            st.markdown(
-                """
-                <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                    ⛔ Essai gratuit expiré
-                </div>
-                
-                <div style="color:#d4af37; font-size:18px;">
-                    Veuillez souscrire un abonnement pour continuer.
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            st.warning("""
+        
+        st.markdown(
+            """
+            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
+                ⛔ Essai gratuit expiré
+            </div>
+            <div style="color:#d4af37; font-size:18px;">
+                Veuillez souscrire un abonnement pour continuer.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
             st.markdown(
                 f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Payez pour un mois maintenant</a>',
@@ -15041,23 +15052,20 @@ if not st.session_state.logged:
         
         elif result == "subscription_expired":
         
+            st.error("""
+        st.markdown(
+            """
+            <div style="color:#d4af37; font-size:24px; font-weight:bold;">
+                ⛔ Abonnement expiré
+            </div>
+            <div style="color:#d4af37; font-size:18px;">
+                Veuillez renouveler votre abonnement pour continuer.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
-            st.markdown(
-                """
-                <div style="color:#d4af37; font-size:24px; font-weight:bold;">
-                    ⛔ Abonnement expiré
-                </div>
-                <div style="color:#d4af37; font-size:18px;">
-                    Veuillez renouveler votre abonnement pour continuer.
-                </div>
-                
-                unsafe_allow_html=True
-            )
-        
-            st.markdown(
-                f'<a href="{STRIPE_LINK}" target="_blank" style="color:#d4af37; text-decoration:none;">👉 Renouveler pour un mois</a>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f"[👉 Renouveler pour un mois]({STRIPE_LINK})")
         
         else:
             st.error("Identifiant incorrect")
@@ -15067,6 +15075,25 @@ if not st.session_state.get("logged", False):
 col_header_left, col_header_right = st.columns([4,1])
 
 with col_header_left:
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px;">
+        <div style="
+            width:38px;
+            height:38px;
+            border-radius:8px;
+            background:linear-gradient(135deg,#1f2937,#111827);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            color:#d4af37
+     
+        
+    </div>
+    
+    """, unsafe_allow_html=True)
+
+
 
 col1, col2 = st.columns([3,1])
 
@@ -15078,7 +15105,7 @@ with col1:
         st.rerun()
 
 with col2:
-    if st.button("Se déconnecter"):
+    if st.button("🚪 Se déconnecter"):
         st.session_state.logged = False
         st.session_state.admin_logged = False
         st.rerun()
@@ -15090,7 +15117,7 @@ with col2:
 col2a, col2b = st.columns(2)
 
 with col2a:
-    st.session_state.show_history = st.toggle("Historique", value=st.session_state.show_history)
+    st.session_state.show_history = st.toggle("📊 Historique", value=st.session_state.show_history)
 
 with col2b:
     buffer_hist = io.StringIO()
@@ -15153,9 +15180,11 @@ if st.session_state.show_history:
 ---
 """)
 
+
+
 # Lien Argus en haut
 st.markdown(
-    '<a href="https://www.largus.fr/fiche-technique.html" target="_blank" style="color:#d4af37; text-decoration:none; font-weight:bold;">Voir fiche technique Argus</a>',
+    "[Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)",
     unsafe_allow_html=True
 )
 
@@ -15431,7 +15460,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
     col_left, col_right = st.columns(2)
 
     with col_right:
-        st.markdown("###  Calculateur")
+        st.markdown("### 🧮 Calculateur")
         prix_choisi = st.number_input(
             "Prix choisi", 
             value=0
@@ -15470,24 +15499,20 @@ if "resultat" in st.session_state and st.session_state.resultat:
 
     with col_left:
 
-        st.markdown("###### 💰 PRIX MARCHÉ ESTIMÉ")
+        st.markdown("##### 💰 PRIX MARCHÉ ESTIMÉ")
 
         st.markdown(
-            f"""
-            <div style="margin-left:0px; text-align:left; font-size:328px; font-weight:bold;">
-                {r['prix_estime']:,.0f} €
-            </div>
-            """.replace(",", "."),
-            unsafe_allow_html=True
+            f"##### {r['prix_estime']:,.0f}".replace(",", ".") + " €"
         )
+
         st.caption(
             "(Prix marché estimé basé sur prix marché moyen garage.)"
         )
 
         st.markdown(
             f"Estimation entre : "
-            f"{r['bas_affiche']:,.0f}".replace(",", ".") + " € "
-            f"et {r['haut_affiche']:,.0f}".replace(",", ".") + " €"
+            f"{r['bas_affiche']:,.0f}".replace(',', '.') + " € "
+            f"et {r['haut_affiche']:,.0f}".replace(',', '.') + " €"
         )
 
 
