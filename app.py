@@ -11,7 +11,7 @@ import unicodedata
 st.set_page_config(
     page_title="Cot Auto",
     page_icon="logo_veliora.png",
-    layout="wide"
+    layout="centered"
 )
 
 st.markdown("""
