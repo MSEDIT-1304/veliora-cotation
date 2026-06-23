@@ -8,6 +8,12 @@ import time
 import os
 import unicodedata
 
+st.set_page_config(
+    page_title="Cot Auto",
+    page_icon="logo_veliora.png",
+    layout="wide"
+)
+
 st.markdown("""
 <style>
 p, label, span, div, h1, h2, h3, h4, h5, h6 {
