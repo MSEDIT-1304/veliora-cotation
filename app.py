@@ -15165,7 +15165,7 @@ if st.session_state.show_history:
 
 # Lien Argus en haut
 st.markdown(
-    "[Voir fiche technique Argus](https://www.largus.fr/fiche-technique.html)",
+    "[Voir fiche technique](https://www.largus.fr/fiche-technique.html)",
     unsafe_allow_html=True
 )
 
@@ -15443,7 +15443,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
     with col_right:
         st.markdown("### Calculateur")
         prix_choisi = st.number_input(
-            "Prix choisi", 
+            "Prix de vente choisi", 
             value=0
         )
         commission_user = st.number_input(
