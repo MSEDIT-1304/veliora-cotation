@@ -15426,14 +15426,25 @@ if not st.session_state.logged:
     siret = st.text_input("Numéro SIREN 9 chiffres ou SIRET 14 chiffres")
 
     if st.button("Créer compte"):
-        if not new_user or not nom or not societe or not siret:
-            st.error("Veuillez remplir tous les champs pour créer un compte.")
+
+        if not email.strip():
+            st.error("Veuillez saisir une adresse e-mail.")
+        elif not nom.strip():
+            st.error("Veuillez saisir votre nom et prénom.")
+        elif not societe.strip():
+            st.error("Veuillez saisir le nom de votre société.")
+        elif not siret.strip():
+            st.error("Veuillez saisir votre numéro SIREN ou SIRET.")
+        
         elif new_user:
             #send_to_webhook(new_user, societe, siret)
             
             st.markdown("Compte créé.")
+            
             st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
+            
             st.markdown(f"[Payer pour un mois ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
+            
             st.markdown(
                 'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:studio.web.applications@gmail.com">studio.web.applications@gmail.com</a>',
                 unsafe_allow_html=True
