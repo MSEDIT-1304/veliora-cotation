@@ -15435,7 +15435,7 @@ if not st.session_state.logged:
             st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
             st.markdown(f"[Payer l'abonnement ({PRICE_TVAC}€ TVAC)]({STRIPE_LINK})")
             st.markdown(
-                'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:ms.edit.mg@gmail.com">ms.edit.mg@gmail.com</a>',
+                'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:studio.web.applications@gmail.com">studio.web.applicationsg@gmail.com</a>',
                 unsafe_allow_html=True
             )
             st.markdown("---")
@@ -15944,7 +15944,7 @@ background:#000814;
 color:#d4af37;
 z-index:9999;
 ">
-M.S Édit - Création de sites web et applications mobiles
+Studio Web & Applications - Création de sites web et applications mobiles
 </div>
 """, unsafe_allow_html=True)
 
