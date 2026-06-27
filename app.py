@@ -15426,8 +15426,8 @@ if not st.session_state.logged:
     siret = st.text_input("Numéro SIREN 9 chiffres ou SIRET 14 chiffres")
 
     if st.button("Créer compte"):
-        if not societe or not siret:
-            st.error("SIRET obligatoire pour créer un compte")
+        if not new_user or not nom or not societe or not siret:
+            st.error("Veuillez remplir tous les champs pour créer un compte.")
         elif new_user:
             #send_to_webhook(new_user, societe, siret)
             
