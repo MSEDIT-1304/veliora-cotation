@@ -15442,8 +15442,7 @@ if not st.session_state.logged:
             st.markdown("Compte créé. Cliquez sur le lien ci-dessous pour votre essai gratuit")
             
             st.markdown("[👉 Cliquez ici pour votre essai gratuit sans carte bancaire.Indiquez le mail du compte créé.](https://buy.stripe.com/eVq28sb2O1lb4TVeek9fW0b)")
-            
-            
+                        
             st.markdown(
                 'Envoyer votre KBIS dans un délai de 3 jours afin que votre compte reste activé :  <a href="mailto:studio.web.applications@gmail.com">studio.web.applications@gmail.com</a>',
                 unsafe_allow_html=True
