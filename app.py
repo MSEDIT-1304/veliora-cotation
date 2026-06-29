@@ -17,7 +17,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 p, label, span, div, h1, h2, h3, h4, h5, h6 {
-    color: #d4af37 !important;
+    color: #c8ccd1 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -27,17 +27,17 @@ st.markdown("""
 
 /* Valeurs des champs numériques */
 input {
-    color: #d4af37 !important;
+    color: #c8ccd1 !important;
 }
 
 /* Boutons + et - */
 button {
-    color: #d4af37 !important;
+    color: #c8ccd1 !important;
 }
 
 /* Liens */
 a {
-    color: #d4af37 !important;
+    color: #c8ccd1 !important;
 }
 
 </style>
@@ -15404,7 +15404,7 @@ if not st.session_state.logged:
         f"""
         <div style="
             text-align:center;
-            color:#d4af37;
+            color:#c8ccd1;
             font-size:28px;
             font-weight:bold;
             margin:20px 0;
@@ -15503,13 +15503,13 @@ with col_header_left:
             align-items:center;
             justify-content:center;
             font-weight:700;
-            color:#d4af37
+            color:#c8ccd1
      
         
     </div>
     <div>
             <div style="font-size:22px; font-weight:600;">Cot' Auto</div>
-            <div style="font-size:13px; color:#9CA3AF;">
+            <div style="font-size:13px; color:#c8ccd1;">
                 Cotation automobile intelligente
             </div>
         </div>
@@ -15919,7 +15919,7 @@ if "resultat" in st.session_state and st.session_state.resultat:
             net_vendeur_user = prix_choisi - commission_calc_user
         
             st.markdown(
-                f"<h3 style='text-align:center;color:#d4af37;'>Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €</h3>",
+                f"<h3 style='text-align:center;color:#c8ccd1;'>Net vendeur : {net_vendeur_user:,.0f}".replace(",", ".") + " €</h3>",
                 unsafe_allow_html=True
             )
 
@@ -15950,7 +15950,7 @@ width:100%;
 text-align:center;
 padding:10px;
 background:#000814;
-color:#d4af37;
+color:#c8ccd1;
 z-index:9999;
 ">
 Studio Web & Applications - Création de sites web et applications mobiles
