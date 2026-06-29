@@ -106,6 +106,14 @@ try:
         model = joblib.load("model.pkl")
 except:
     model = None
+    
+st.markdown("""
+<style>
+.block-container{
+    padding-top: 0.5rem;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.image("banniere_veliora.png", use_container_width=True)
 
