@@ -119,11 +119,24 @@ st.markdown("""
 <style>
 
 /* Fond principal */
+st.markdown("""
+<style>
+
+/* Fond général */
 .stApp{
     background:#DDE3EB;
 }
 
-/* Conteneur principal */
+/* SUPPRIME LE FOND NOIR EN HAUT */
+[data-testid="stHeader"]{
+    background:#DDE3EB !important;
+}
+
+[data-testid="stToolbar"]{
+    background:#DDE3EB !important;
+}
+
+/* Conteneur */
 .block-container{
     background:transparent;
 }
@@ -144,6 +157,15 @@ input{
     color:#2E2E2E !important;
 }
 
+/* Boutons */
+.stButton>button{
+    background:#8B6B3F !important;
+    color:white !important;
+    border-radius:8px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 /* Boutons */
 .stButton>button{
     background:#1F2937;
@@ -15996,7 +16018,7 @@ left:0;
 width:100%;
 text-align:center;
 padding:10px;
-background:#000814;
+background:#DDE3EB;;
 color::#7E8790;
 z-index:9999;
 ">
