@@ -149,8 +149,9 @@ textarea{
 
 /* Boutons */
 .stButton>button{
-    background:#8B6B3F !important;
-    color:white !important;
+    background:#FFFFFF !important;
+    color:#444444 !important;
+    border:1px solid #CFCFCF !important;
     border-radius:8px;
 }
 
