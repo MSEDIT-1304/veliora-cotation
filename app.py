@@ -109,25 +109,13 @@ except:
     
 st.markdown("""
 <style>
-.block-container{
-    padding-top: 0.5rem;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-
-/* Fond principal */
-
-<style>
 
 /* Fond général */
 .stApp{
     background:#DDE3EB;
 }
 
-/* SUPPRIME LE FOND NOIR EN HAUT */
+/* Supprime le fond noir Streamlit */
 [data-testid="stHeader"]{
     background:#DDE3EB !important;
 }
@@ -136,13 +124,14 @@ st.markdown("""
     background:#DDE3EB !important;
 }
 
-/* Conteneur */
+/* Contenu */
 .block-container{
     background:transparent;
+    padding-top:0.5rem;
 }
 
 /* Titres */
-h1,h2,h3{
+h1,h2,h3,h4,h5,h6{
     color:#2E2E2E !important;
 }
 
@@ -152,7 +141,8 @@ p,label,span,div{
 }
 
 /* Champs */
-input{
+input,
+textarea{
     background:#FFFFFF !important;
     color:#2E2E2E !important;
 }
@@ -161,15 +151,6 @@ input{
 .stButton>button{
     background:#8B6B3F !important;
     color:white !important;
-    border-radius:8px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-/* Boutons */
-.stButton>button{
-    background:#1F2937;
-    color:white;
     border-radius:8px;
 }
 
