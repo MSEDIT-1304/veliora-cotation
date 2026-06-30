@@ -117,6 +117,45 @@ st.markdown("""
 
 st.image("banniere_veliora.png", use_container_width=True)
 
+st.markdown("""
+<style>
+
+/* Fond principal */
+.stApp{
+    background:#E8EDF3;
+}
+
+/* Conteneur principal */
+.block-container{
+    background:transparent;
+}
+
+/* Titres */
+h1,h2,h3{
+    color:#2E2E2E !important;
+}
+
+/* Texte */
+p,label,span,div{
+    color:#444444 !important;
+}
+
+/* Champs */
+input{
+    background:#FFFFFF !important;
+    color:#2E2E2E !important;
+}
+
+/* Boutons */
+.stButton>button{
+    background:#1F2937;
+    color:white;
+    border-radius:8px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 WEBHOOK_URL = "https://hook.eu1.make.com/942mf8fk2jehv637xc3s0tsjsxrad0gu"
 SHEET_ID = "1JWwwLP3IKaG-ELsC3li84eouOFVFnv_C5MxBDQSfz3M"
 
