@@ -39,7 +39,7 @@ st.markdown("""
 <style>
 
 /* Boutons Streamlit */
-.stButton > button{
+button{
     background:#8B6B3F !important;
     color:white !important;
     border:none !important;
