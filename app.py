@@ -35,6 +35,32 @@ button {
     color: #7E8790 !important;
 }
 
+st.markdown("""
+<style>
+
+/* Boutons Streamlit */
+.stButton > button{
+    background:#8B6B3F !important;
+    color:white !important;
+    border:none !important;
+    border-radius:8px !important;
+}
+
+.stButton > button:hover{
+    background:#A07A46 !important;
+}
+
+.stButton > button:focus,
+.stButton > button:active{
+    background:#8B6B3F !important;
+    color:white !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 /* Liens */
 a {
     color: #7E8790 !important;
