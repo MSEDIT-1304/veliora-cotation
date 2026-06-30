@@ -127,7 +127,7 @@ st.markdown("""
 /* Contenu */
 .block-container{
     background:transparent;
-    padding-top:0rem;
+    padding-top:1rem;
 }
 
 /* Titres */
