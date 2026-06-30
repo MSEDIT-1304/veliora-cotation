@@ -119,7 +119,7 @@ st.markdown("""
 <style>
 
 /* Fond principal */
-st.markdown("""
+
 <style>
 
 /* Fond général */
