@@ -16004,7 +16004,10 @@ background:#DDE3EB;;
 color::#7E8790;
 z-index:9999;
 ">
-Studio Web & Applications - Création de sites web et applications mobiles
+Créé par Studio Web & Applications - Création de sites web et applications mobiles
+
+
+
 </div>
 """, unsafe_allow_html=True)
 
