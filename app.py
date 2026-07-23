@@ -14,6 +14,70 @@ st.set_page_config(
     layout="centered"
 )
 
+import streamlit.components.v1 as components
+components.html("""
+<script>
+function forceLight() {
+
+    try {
+        // On accède à la fenêtre parente (Streamlit)
+        const doc = window.parent.document;
+
+        function clickLight() {
+
+            // Ouvre le menu
+            const menu =
+                doc.querySelector('[data-testid="stToolbar"] button') ||
+                doc.querySelector('button[kind="header"]');
+
+            if (menu) {
+                menu.click();
+
+                setTimeout(() => {
+
+                    const all = [...doc.querySelectorAll("*")];
+
+                    const light = all.find(e =>
+                        e.textContent &&
+                        e.textContent.trim() === "Light"
+                    );
+
+                    if (light) {
+                        light.click();
+                        console.log("Light forcé");
+                    }
+
+                    // Ferme le menu
+                    doc.body.click();
+
+                },300);
+            }
+        }
+
+        // Essaye plusieurs fois pendant 10 secondes
+        let n = 0;
+
+        const timer = setInterval(() => {
+
+            clickLight();
+
+            n++;
+
+            if(n>20){
+                clearInterval(timer);
+            }
+
+        },500);
+
+    } catch(err){
+        console.log(err);
+    }
+}
+
+window.onload = forceLight;
+</script>
+""", height=0)
+
 st.markdown("""
 <style>
 p, label, span, div, h1, h2, h3, h4, h5, h6 {
