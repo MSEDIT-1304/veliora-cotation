@@ -15466,7 +15466,7 @@ if not st.session_state.logged:
         unsafe_allow_html=True
     )
     
-    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez. Créez votre compte et bénéficiez de 24 heures d'essai gratuit")
+    st.text("Pas de prélèvement mensuel par carte. Paiement = date + un mois. Vous pouvez donc le renouveller quand vous le souhaitez. Créez votre compte et bénéficiez de 7 jours d'essai gratuit")
     
    
     
